@@ -1,29 +1,21 @@
-const  Page = async ({  }) => {
+import { getProducts } from "@/actions/get-data"
+import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+
+const Page = async ({ }) => {
   const products = await getProducts()
   if (products.error) {
-    return <div>An error occured: {products.error.message}</div>;
+    return <div>An error occured: {products.error}</div>;
   }
+  console.log(products.data)
   return (
     <ul>
-      {products.data.map(restaurant => (
-        <li key={restaurant.id}>{restaurant.attributes.Name}</li>
+      <Button>Ciao</Button>
+      {products.data.map(product => (
+        <li key={product.id}><Link href={"/" + product.attributes.Category.data.attributes.SKU + "/" + product.attributes.SKU}>{product.attributes.Name + ": " + product.id}</Link></li>
       ))}
     </ul>
   );
 };
-
-const getProducts = async () => {
-  try {
-    const res = await fetch('http://localhost:1337/api/products', { headers: { Authorization: "Bearer " + process.env.API_KEY}});
-    if (!res.ok) {
-      throw new Error(JSON.stringify(res.headers));
-    }
-    const products = await res.json(); // Attendere la risoluzione della Promise JSON
-    return products;
-  } catch (error) {
-    return { error: error }; // Gestisci gli errori
-  }
-};
-
 
 export default Page;
