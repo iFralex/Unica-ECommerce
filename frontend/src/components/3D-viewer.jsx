@@ -1,18 +1,21 @@
 "use client"
 
-import { useRef, useEffect, useState, useContext } from "react";
+import { useRef, useEffect, useState, useContext, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Environment, OrbitControls, useEnvironment } from '@react-three/drei'
 import { ProductContext } from "./context"
-import { Grab, Hand } from "lucide-react"
+import { Hand } from "lucide-react"
 import "../app/[category]/[productId]/style.css";
+import React from "react";
+import { Skeleton } from "@/components/ui/skeleton"
 
 const ModelViewer = ({ productModel, materials }) => {
   const mesh = useRef(null);
   const [glb, setGlb] = useState(null);
   const [productContext, _] = useContext(ProductContext)
   const [overlayVisible, setOverlayVisible] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const fetchGltf = async () => {
@@ -52,9 +55,8 @@ const ModelViewer = ({ productModel, materials }) => {
       obj.material.color.b = mat.color[2];
       obj.material.metalness = mat.metalness;
       obj.material.roughness = mat.roughness;
-      console.log(obj.material.color, mat.color);
     });
-
+    console.log(mesh)
     return model;
   }
 
@@ -64,13 +66,16 @@ const ModelViewer = ({ productModel, materials }) => {
 
   const Env = () => {
     const envMap = useEnvironment({ files: "/environmentMap.hdr" })
+    if (!loaded)
+      setLoaded(true)
     return <Environment map={envMap} background />
   }
 
-  
-    return (
-      <div className="flex justify-center items-center h-[100vw] max-h-[90vh] relative">
-        {true && <>{glb && overlayVisible && (
+  return (
+    <div className="flex justify-center items-center h-[100vw] max-h-[90vh] relative">
+      {!loaded && <Skeleton className="absolute inset-0" />}
+      <Suspense>
+        {overlayVisible && loaded && (
           <div
             className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10 cursor-pointer"
             onClick={handleOverlayClick}
@@ -79,19 +84,19 @@ const ModelViewer = ({ productModel, materials }) => {
             <span className="text-white text-center">Tocca e scorri per guardare meglio il gioiello</span>
           </div>
         )}
-          <Canvas className="h-2xl w-2xl">
-            {glb && <>
-              <Env />
-              <mesh ref={mesh} rotation={[0, -0.4, 0]}>
-                <primitive object={glb.scene.clone()} scale={[0.7, 0.7, 0.7]} position={[1, -2, 0]} />
-                <primitive object={glb.scene.clone()} scale={[0.7, 0.7, 0.7]} position={[-1, -1.5, 0]} rotation={[0, Math.PI * 4 / 3, 0]} />
-              </mesh>
-              <OrbitControls target={[0, 0, 0]} />
-            </>}
-          </Canvas>
-        </>}
-      </div>
-    );
+        <Canvas className="h-2xl w-2xl">
+          {glb && <>
+            <Env />
+            <mesh ref={mesh} rotation={[0, -0.4, 0]}>
+              <primitive object={glb.scene.clone()} scale={[0.7, 0.7, 0.7]} position={[1, -2, 0]} />
+              <primitive object={glb.scene.clone()} scale={[0.7, 0.7, 0.7]} position={[-1, -1.5, 0]} rotation={[0, Math.PI * 4 / 3, 0]} />
+            </mesh>
+            <OrbitControls target={[0, 0, 0]} />
+          </>}
+        </Canvas>
+      </Suspense>
+    </div>
+  );
 };
 
 export { ModelViewer };

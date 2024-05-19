@@ -59,7 +59,7 @@ const ProductVariants = ({ variants }) => {
                             {variants.map((v, i) =>
                                 <SelectItem key={i} value={i}>
                                     <div className="flex items-center justify-start flex-wrap space-x-2 mr-3">
-                                        {v.Platings.data.map(p => <span key={p} className="flex items-center justify-start flex-no-wrap">
+                                        {v.Platings.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
                                             <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + p.attributes.Color }} />
                                             <span>{p.attributes.Name}</span>
                                         </span>)}

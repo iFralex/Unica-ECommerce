@@ -17,16 +17,16 @@ const ImagesGallery = ({ productDetails }) => {
     const [productContex, _] = useContext(ProductContext)
     return (
         <div className="flex justify-center">
-            <Carousel style={{  "overflow": "hidden"}}
+            <Carousel style={{ "overflow": "hidden" }}
                 opts={{
                     align: "start",
                     loop: true
                 }}
                 plugins={[
                     Autoplay({
-                      delay: 2000,
+                        delay: 2000,
                     }),
-                  ]}
+                ]}
                 className="max-w-xl"
             >
                 <CarouselContent>
@@ -35,7 +35,7 @@ const ImagesGallery = ({ productDetails }) => {
                             <div className="p-1">
                                 <Card>
                                     <CardContent className="p-3">
-                                        <img key={index} src={"http://localhost:1337" + image.attributes.url}  />
+                                        <img key={index} src={"http://localhost:1337" + image.attributes.url} />
                                     </CardContent>
                                 </Card>
                             </div>
@@ -44,7 +44,7 @@ const ImagesGallery = ({ productDetails }) => {
                 </CarouselContent>
                 <CarouselPrevious />
                 <CarouselNext />
-            </Carousel> 
+            </Carousel>
         </div>
     )
 }
