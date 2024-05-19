@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "platings",
+  "info": {
+    "singularName": "plating",
+    "pluralName": "platings",
+    "displayName": "Plating",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Color": {
+      "type": "string"
+    }
+  }
+}

@@ -18,12 +18,22 @@ export const getProducts = async () => {
 
 export const getProduct = async (productId) => {
     try {
-        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images`)
+        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=Model3D`)
 
         if (!product.data.length)
             throw new Error("No product found");
         console.log(product.data[0].attributes.ProductDetails[0].Images.data[0].attributes.url)
         return product.data[0];
+    } catch (error) {
+        return { error: error.message };
+    }
+};
+
+export const getTest = async (productId) => {
+    try {
+        const product = await fetchStrapi("http://localhost:1337/uploads/untitled_6e1ec15149.gltf")
+
+        return product;
     } catch (error) {
         return { error: error.message };
     }

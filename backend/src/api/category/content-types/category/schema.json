@@ -4,7 +4,8 @@
   "info": {
     "singularName": "category",
     "pluralName": "categories",
-    "displayName": "Category"
+    "displayName": "Category",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -16,10 +17,18 @@
       "required": true,
       "unique": true
     },
-    "products": {
+    "SKU": {
+      "type": "uid",
+      "targetField": "Name"
+    },
+    "ShortDescription": {
+      "type": "string"
+    },
+    "Products": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::product.product"
+      "target": "api::product.product",
+      "mappedBy": "Category"
     }
   }
 }

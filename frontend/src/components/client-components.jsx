@@ -70,7 +70,7 @@ const ProductVariants = ({ variants }) => {
                 </Select> :
                     <Badge variant="outline" className="min-h-8">
                         <div className="flex items-center justify-start flex-wrap space-x-2 mr-3">
-                            {variants[contextValue.variantIndex].Platings.data.map(p => <span className="flex items-center justify-start flex-no-wrap">
+                            {variants[contextValue.variantIndex].Platings.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
                                 <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + p.attributes.Color }} />
                                 <span>{p.attributes.Name}</span>
                             </span>)}

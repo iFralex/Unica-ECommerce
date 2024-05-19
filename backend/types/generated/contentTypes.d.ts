@@ -794,13 +794,16 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
     singularName: 'category';
     pluralName: 'categories';
     displayName: 'Category';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
     Name: Attribute.String & Attribute.Required & Attribute.Unique;
-    products: Attribute.Relation<
+    SKU: Attribute.UID<'api::category.category', 'Name'>;
+    ShortDescription: Attribute.String;
+    Products: Attribute.Relation<
       'api::category.category',
       'oneToMany',
       'api::product.product'
@@ -816,6 +819,39 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::category.category',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiMaterialMaterial extends Schema.CollectionType {
+  collectionName: 'materials';
+  info: {
+    singularName: 'material';
+    pluralName: 'materials';
+    displayName: 'Material';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String & Attribute.Required;
+    Description: Attribute.String;
+    Color: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::material.material',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::material.material',
       'oneToOne',
       'admin::user'
     > &
@@ -853,12 +889,45 @@ export interface ApiOrderOrder extends Schema.CollectionType {
   };
 }
 
+export interface ApiPlatingPlating extends Schema.CollectionType {
+  collectionName: 'platings';
+  info: {
+    singularName: 'plating';
+    pluralName: 'platings';
+    displayName: 'Plating';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String;
+    Color: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::plating.plating',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::plating.plating',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiProductProduct extends Schema.CollectionType {
   collectionName: 'products';
   info: {
     singularName: 'product';
     pluralName: 'products';
     displayName: 'Product';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -867,11 +936,21 @@ export interface ApiProductProduct extends Schema.CollectionType {
     Name: Attribute.String & Attribute.Required & Attribute.Unique;
     ShortDescription: Attribute.String;
     LongDescription: Attribute.Text;
-    Price: Attribute.Decimal & Attribute.Required;
     Model3D: Attribute.Media;
-    Image: Attribute.Media;
     Video: Attribute.Media;
     SKU: Attribute.UID<'api::product.product', 'Name'>;
+    Category: Attribute.Relation<
+      'api::product.product',
+      'manyToOne',
+      'api::category.category'
+    >;
+    MainImage: Attribute.Media;
+    ProductDetails: Attribute.Component<'product.product-details', true>;
+    Tags: Attribute.Relation<
+      'api::product.product',
+      'manyToMany',
+      'api::tag.tag'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -886,6 +965,35 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'oneToOne',
       'admin::user'
     > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiTagTag extends Schema.CollectionType {
+  collectionName: 'tags';
+  info: {
+    singularName: 'tag';
+    pluralName: 'tags';
+    displayName: 'Tag';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String;
+    Color: Attribute.String;
+    Description: Attribute.String;
+    products: Attribute.Relation<
+      'api::tag.tag',
+      'manyToMany',
+      'api::product.product'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -909,8 +1017,11 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
       'api::category.category': ApiCategoryCategory;
+      'api::material.material': ApiMaterialMaterial;
       'api::order.order': ApiOrderOrder;
+      'api::plating.plating': ApiPlatingPlating;
       'api::product.product': ApiProductProduct;
+      'api::tag.tag': ApiTagTag;
     }
   }
 }
