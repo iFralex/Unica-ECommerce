@@ -17,7 +17,7 @@ const QuantitySelection = () => {
                 <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 shrink-0 rounded-full"
+                    className="h-8 w-8 shrink-0 rounded-full dark:text-white"
                     onClick={() => handleQuantity(-1)}
                     disabled={quantity <= 1}
                 >
@@ -31,7 +31,7 @@ const QuantitySelection = () => {
                 <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 shrink-0 rounded-full"
+                    className="h-8 w-8 shrink-0 rounded-full dark:text-white"
                     onClick={() => handleQuantity(1)}
                 >
                     <Plus className="h-4 w-4" />

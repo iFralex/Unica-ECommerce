@@ -18,6 +18,7 @@ const ModelViewer = ({ productModel, materials }) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    console.log("productModel.url:")
     const fetchGltf = async () => {
       try {
         const response = await fetch("http://localhost:1337" + productModel.url);

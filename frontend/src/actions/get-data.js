@@ -1,5 +1,5 @@
 const fetchStrapi = async (url, options = {}) => {
-    const response = await fetch(url, { ...options, cache: 'no-store', headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
+    const response = await fetch(url, { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
 
     if (!response.ok)
         throw new Error(response.statusText);
@@ -18,7 +18,7 @@ export const getProducts = async () => {
 
 export const getProduct = async (productId) => {
     try {
-        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=Model3D`)
+        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=Model3D&populate[7]=ProductDetails.Photos`)
 
         if (!product.data.length)
             throw new Error("No product found");

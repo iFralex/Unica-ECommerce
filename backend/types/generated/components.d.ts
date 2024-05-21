@@ -20,6 +20,7 @@ export interface ProductProductDetails extends Schema.Component {
       'api::plating.plating'
     >;
     Materials3D: Attribute.JSON;
+    Photos: Attribute.Media;
   };
 }
 

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { TopicsList } from "@/components/ui/topic"
 import { ProductVariants } from "@/components/client-components"
+import Image from "next/image"
 
 const HeroProduct = ({ product, params }) => {
     return (
@@ -38,7 +39,7 @@ const HeroProduct = ({ product, params }) => {
                 </div>
             </div>
             <div className="absolute inset-0 z-[-1] flex justify-end bg-white overflow-x-hidden">
-                <img className="w-full object-right object-cover overflow-x-hidden" src={"http://localhost:1337" + product.attributes.MainImage.data.attributes.url} alt="Immagine" />
+                <Image className="w-full object-right object-cover overflow-x-hidden" src={"http://localhost:1337" + product.attributes.MainImage.data.attributes.url} alt="Immagine" width={1200} height={1000}/>
             </div>
         </div>
     )

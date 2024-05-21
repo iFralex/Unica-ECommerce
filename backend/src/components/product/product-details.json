@@ -32,6 +32,13 @@
     },
     "Materials3D": {
       "type": "json"
+    },
+    "Photos": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": true
     }
   }
 }
