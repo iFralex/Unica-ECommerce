@@ -23,17 +23,6 @@
     "LongDescription": {
       "type": "text"
     },
-    "Model3D": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
-    },
     "Video": {
       "type": "media",
       "multiple": true,
@@ -74,6 +63,20 @@
       "relation": "manyToMany",
       "target": "api::tag.tag",
       "mappedBy": "products"
+    },
+    "Description": {
+      "displayName": "Description",
+      "type": "component",
+      "repeatable": true,
+      "component": "product.description"
+    },
+    "Viewer": {
+      "type": "dynamiczone",
+      "components": [
+        "product.multiple-item3-d-link",
+        "product.single-item3-d"
+      ],
+      "max": 1
     }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_product_multiple_item3_d_links",
+  "info": {
+    "displayName": "MultipleItem3DLink",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "SelectedViewer": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::viewer3d.viewer3d"
+    }
+  }
+}

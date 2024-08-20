@@ -1,5 +1,5 @@
 const fetchStrapi = async (url, options = {}) => {
-    const response = await fetch(url, { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
+    const response = await fetch(url, { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers }, cache: "no-store" })
 
     if (!response.ok)
         throw new Error(response.statusText);
@@ -18,11 +18,19 @@ export const getProducts = async () => {
 
 export const getProduct = async (productId) => {
     try {
-        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=Model3D&populate[7]=ProductDetails.Photos`)
+        /*const product = await fetchStrapi(process.env.API_URL + `products?
+            filters[SKU][$eq]=${productId}
+            &populate[Category][populate]=*
+            &populate[Tags][populate]=*
+            &populate[MainImage]=MainImage
+            &populate[ProductDetails][populate]=*
+            &populate[Viewer][populate]=*
+            `)*/
+        const product = await fetchStrapi(process.env.API_URL + `products?filters[SKU][$eq]=${productId}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=ProductDetails.Photos&populate[7]=Viewer&populate[8]=Viewer.Model3D&populate[9]=Viewer.SelectedViewer&populate[10]=Viewer.SelectedViewer.Items3D&populate[11]=Viewer.SelectedViewer.Items3D.Model3D&populate[12]=Viewer.SelectedViewer.Items3D.RelativeProduct&populate[13]=Viewer.SelectedViewer.Items3D.MainTransform&populate[14]=Viewer.SelectedViewer.Transforms&populate[15]=Viewer.SelectedViewer.Items3D.Thumbnail`)
 
         if (!product.data.length)
             throw new Error("No product found");
-        console.log(product.data[0].attributes.ProductDetails[0].Images.data[0].attributes.url)
+
         return product.data[0];
     } catch (error) {
         return { error: error.message };

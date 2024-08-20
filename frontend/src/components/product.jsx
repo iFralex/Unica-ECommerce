@@ -8,14 +8,14 @@ import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 const ImagesGallery = ({ imagesUrls, responsibleSizes = { _: 2 }, orientation = "horizontal", carouselCustomClass = {} }) => {
     const [productContext, _] = useContext(ProductContext);
     const getClassFromObject = (object, prestring = "") => Object.keys(object).map(key => (key !== "_" ? (key + ":") : "") + prestring + object[key]).join(" ")
+    const responsiveSizesClass = getClassFromObject(responsibleSizes, "basis-1/")
+
     return (
         <div className="flex justify-center">
             <Carousel
@@ -29,11 +29,10 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = { _: 2 }, orientation = 
                         delay: 2000,
                     }),
                 ]}
-                className="max-w-xl "
             >
                 <CarouselContent style={carouselCustomClass}>
                     {imagesUrls[productContext.variantIndex].map((image, index) => (
-                        <CarouselItem key={index} className={getClassFromObject(responsibleSizes, "basis-1/")}>
+                        <CarouselItem key={index + image.url} className={responsibleSizes}>
                             <div className="p-1">
                                 <Card>
                                     <CardContent>

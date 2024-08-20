@@ -936,7 +936,6 @@ export interface ApiProductProduct extends Schema.CollectionType {
     Name: Attribute.String & Attribute.Required & Attribute.Unique;
     ShortDescription: Attribute.String;
     LongDescription: Attribute.Text;
-    Model3D: Attribute.Media;
     Video: Attribute.Media;
     SKU: Attribute.UID<'api::product.product', 'Name'>;
     Category: Attribute.Relation<
@@ -951,6 +950,16 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'manyToMany',
       'api::tag.tag'
     >;
+    Description: Attribute.Component<'product.description', true>;
+    Viewer: Attribute.DynamicZone<
+      ['product.multiple-item3-d-link', 'product.single-item3-d']
+    > &
+      Attribute.SetMinMax<
+        {
+          max: 1;
+        },
+        number
+      >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -998,6 +1007,40 @@ export interface ApiTagTag extends Schema.CollectionType {
   };
 }
 
+export interface ApiViewer3DViewer3D extends Schema.CollectionType {
+  collectionName: 'viewer3ds';
+  info: {
+    singularName: 'viewer3d';
+    pluralName: 'viewer3ds';
+    displayName: 'Viewer3D';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Items3D: Attribute.Component<'product.item3-d', true>;
+    Name: Attribute.String & Attribute.Private;
+    Transforms: Attribute.Component<'product.transforms', true>;
+    InitialCameraRotation: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::viewer3d.viewer3d',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::viewer3d.viewer3d',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1022,6 +1065,7 @@ declare module '@strapi/types' {
       'api::plating.plating': ApiPlatingPlating;
       'api::product.product': ApiProductProduct;
       'api::tag.tag': ApiTagTag;
+      'api::viewer3d.viewer3d': ApiViewer3DViewer3D;
     }
   }
 }
