@@ -9,7 +9,7 @@ const Page = async ({ params }) => {
   const product = await getProduct(params.productId)
   //console.log("err", await getTest(params.productId))
   if (product.error)
-    return <div>An error occured: {product.error}</div>;
+    return <div>An error occured: {product.error}</div>
 
   return (
     <ProductProvider>
