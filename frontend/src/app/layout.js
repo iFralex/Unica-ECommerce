@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider, CartProvider } from "@/components/context"
 import { NavBarStyled } from "@/components/ui/nav-bar"
 import { getCategories } from "@/actions/get-data"
 
@@ -21,8 +21,10 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
-          <NavBar />
-          {children}
+          <CartProvider>
+            <NavBar />
+            {children}
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

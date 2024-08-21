@@ -1,5 +1,5 @@
 import { getProduct, getTest } from "@/actions/get-data"
-import ProductProvider from "@/components/context"
+import { ProductProvider } from "@/components/context"
 import { HeroProduct } from "@/components/ui/hero-sections"
 import { ImagesGallery } from "@/components/product"
 import { ModelViewer } from '@/components/3D-viewer'
