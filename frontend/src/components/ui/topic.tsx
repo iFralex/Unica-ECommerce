@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/hover-card"
 
 import { CircleDotDashed } from "lucide-react"
+import { APIResponseData } from "@/types/strapi-types"
 
-const TopicsList = ({ topics }) => {
+const TopicsList = ({ topics }: { topics: APIResponseData<"api::tag.tag">[] }) => {
     if (topics.length == 0)
         return <></>
     else
@@ -34,17 +35,17 @@ const TopicsList = ({ topics }) => {
                         {topics.map((b, i) => (
                             <HoverCard>
                                 <HoverCardTrigger><Badge key={i} className="my-1 ml-3 mr-2 bg-background border border-primary" variant="outline">
-                                    <CircleTag color={b.Color} absolute />
-                                    <span className="ml-2">{b.Name}</span>
+                                    <CircleTag color={b.attributes.Color ?? ""} absolute />
+                                    <span className="ml-2">{b.attributes.Name}</span>
                                 </Badge></HoverCardTrigger>
                                 <HoverCardContent className="w-80">
                                     <div className="flex justify-start space-x-4">
                                         <div className="h-8 w-8">
-                                            <CircleTag color={b.Color} size={8} />
+                                            <CircleTag color={b.attributes.Color ?? ""} size={8} />
                                         </div>
                                         <div className="space-y-1 text-left">
-                                            <h4 className="text-sm font-semibold">{b.Name}</h4>
-                                            <p className="text-sm">{b.Description}</p>
+                                            <h4 className="text-sm font-semibold">{b.attributes.Name}</h4>
+                                            <p className="text-sm">{b.attributes.Description}</p>
                                         </div>
                                     </div>
                                 </HoverCardContent>
@@ -56,7 +57,7 @@ const TopicsList = ({ topics }) => {
         )
 }
 
-const CircleTag = ({ color, absolute, size = 6 }) => (
+const CircleTag = ({ color, absolute, size = 6 }: { color: string, absolute?: boolean, size?: number }) => (
     <div className={(absolute ? "absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2" : " ") + " w-" + size + " h-" + size + " rounded-full flex items-center justify-center"} style={{ backgroundColor: "#" + color }}>
         <CircleDotDashed className={"text-foreground w-" + (size - 1) + " h-" + (size - 1)} />
     </div>

@@ -11,9 +11,9 @@ export const metadata = {
   description: "Ecommerce di Unica",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it">
+    <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -33,5 +33,8 @@ export default function RootLayout({ children }) {
 
 async function NavBar() {
   const categories = await getCategories()
+  if (categories instanceof Error)
+    return <div>Errore: {categories.message}</div>
+
   return <NavBarStyled categories={categories} />
 }

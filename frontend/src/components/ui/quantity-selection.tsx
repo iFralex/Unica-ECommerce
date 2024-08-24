@@ -4,10 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Minus, Plus } from "lucide-react"
 
-const QuantitySelection = () => {
+const QuantitySelection = ({}: {}) => {
     const [quantity, setQuantity] = useState(1);
 
-    const handleQuantity = incr => setQuantity(quantity + incr)
+    const handleQuantity = (incr: number) => setQuantity(quantity + incr)
+    
     return (
         <div>
             <div className="text-[0.70rem] text-muted-foreground">

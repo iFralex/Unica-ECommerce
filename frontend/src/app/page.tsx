@@ -1,11 +1,12 @@
 import { getProducts } from "@/actions/get-data"
 import { Button } from "@/components/ui/button"
+import { APIResponseCollection } from "@/types/strapi-types";
 import Link from 'next/link'
 
 const Page = async ({ }) => {
   const products = await getProducts()
-  if (products.error) {
-    return <div>An error occured: {products.error}</div>;
+  if (products instanceof Error) {
+    return <div>An error occured: {products.message}</div>;
   }
   console.log(products.data)
   return (

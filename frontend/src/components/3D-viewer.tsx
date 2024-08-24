@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useContext, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { Environment, CameraControls, useEnvironment } from '@react-three/drei'
 import { ProductContext } from "./context"
 import { Fullscreen, Hand, Menu, RotateCcw } from "lucide-react"
@@ -14,28 +15,37 @@ import { Card } from "./ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetOverlay, SheetPortal, SheetTitle, SheetTrigger } from "./ui/sheet";
 import Image from "next/image";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { APIResponseData, Materials3D } from "@/types/strapi-types";
+import { Vector } from "@/types/types";
+import { Material, MaterialParameters, Mesh, MeshStandardMaterial, Object3D } from "three";
 
-const ModelViewer = ({ viewer, materials, productId }) => {
-  const multiple = viewer.__component === "product.multiple-item3-d-link"
+type MultipleModelType = {
+  model: GLTF;
+  index: number;
+}[]
+
+const ModelViewer = ({ product, materials, productId }: { product: APIResponseData<"api::product.product">, materials: Materials3D[], productId: number }) => {
+  const viewer = product.attributes.Viewer?.[0];
+  if (!viewer) return <></>
+
+  const multiple = viewer?.__component === "product.multiple-item3-d-link"
   const mesh = useRef(null);
-  const [glb, setGlb] = useState(multiple ? [] : null);
+  const [glb, setGlb] = useState<MultipleModelType | GLTF>(multiple ? [] : null as unknown as GLTF);
   const [productContext, _] = useContext(ProductContext)
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [loaded, setLoaded] = useState(false);
-  const [selectedModels, setSelectedModels] = useState(multiple ? viewer.SelectedViewer.data.attributes.Items3D.map((item, index) => item.RelativeProduct.data.id === productId ? index : null).filter(item => item !== null) : []);
-  const sheetContainer = useRef(null)
-  const cameraRef = useRef(null)
-  const canvasRef = useRef(null);
+  const [selectedModels, setSelectedModels] = useState(multiple ? (viewer.SelectedViewer?.data.attributes.Items3D?.map((item, index) => item.RelativeProduct?.data.id === productId ? index : null).filter<number>(item => item !== null) ?? [0]) : []);
+  const sheetContainer = useRef<HTMLDivElement>(null)
+  const cameraRef = useRef<CameraControls>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  let productModel = null
-  if (!multiple)
-    productModel = viewer.Model3D.data.attributes
-  else
-    productModel = viewer.SelectedViewer.data.attributes.Items3D[selectedModels[selectedModels.length - 1]].Model3D.data.attributes
-  console.log("model:", productModel)
+  let productModel = !multiple
+    ? viewer.Model3D?.data.attributes
+    : viewer.SelectedViewer?.data.attributes.Items3D?.[selectedModels[(selectedModels.length ?? 1) - 1] ?? 0].Model3D?.data.attributes
+  if (!productModel) return <></>
+
   useEffect(() => {
-    console.log("productModel.url:", productModel.url)
-    if (multiple && selectedModels[selectedModels.length - 1] === glb[glb.length - 1]?.index)
+    if (multiple && (glb as MultipleModelType)?.[(glb as MultipleModelType).length - 1]?.index === selectedModels[selectedModels.length - 1])
       return
     const fetchGlb = async () => {
       try {
@@ -45,7 +55,7 @@ const ModelViewer = ({ viewer, materials, productId }) => {
 
         const gltfLoader = new GLTFLoader();
         gltfLoader.load(url, (loadedGltf) => {
-          setGlb(multiple ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf));
+          setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf));
         }, undefined, (error) => {
           console.error("Error loading GLTF:", error);
         });
@@ -59,34 +69,35 @@ const ModelViewer = ({ viewer, materials, productId }) => {
 
   useEffect(() => {
     if (glb && (!Array.isArray(glb) || glb.length > 0)) {
-      setGlb(applyMaterials(glb))
+      setGlb(applyMaterials(glb as GLTF))
     }
   }, [productContext.variantIndex]);
 
   useEffect(() => {
     const rotationX = multiple
-      ? viewer.SelectedViewer.data.attributes.InitialCameraRotation?.[0] ?? Math.PI / 60
-      : viewer.InitialCameraRotation?.[0] ?? Math.PI / 60;
+      ? (viewer.SelectedViewer?.data.attributes.InitialCameraRotation as Vector)?.[0] ?? Math.PI / 60
+      : (viewer.InitialCameraRotation as Vector)?.[0] ?? Math.PI / 60;
 
     const rotationY = multiple
-      ? viewer.SelectedViewer.data.attributes.InitialCameraRotation?.[1] ?? -Math.PI / 4
-      : viewer.InitialCameraRotation?.[1] ?? -Math.PI / 4;
+      ? (viewer.SelectedViewer?.data.attributes.InitialCameraRotation as Vector)?.[1] ?? -Math.PI / 4
+      : (viewer.InitialCameraRotation as Vector)?.[1] ?? -Math.PI / 4;
 
     cameraRef.current?.rotate(rotationX, rotationY, true);
     cameraRef.current?.saveState()
   }, [cameraRef.current])
 
-  const applyMaterials = model => {
+  const applyMaterials = (model: GLTF) => {
     materials[productContext.variantIndex || 0].forEach(mat => {
-      let obj = model.scene.children[mat.object[0]];
+      let obj = model.scene.children[mat.object[0]] as Mesh;
       for (let i = 1; i < mat.object.length; i++) {
-        obj = obj.children[mat.object[i]];
+        obj = obj.children[mat.object[i]] as Mesh;
       }
-      obj.material.color.r = mat.color[0];
-      obj.material.color.g = mat.color[1];
-      obj.material.color.b = mat.color[2];
-      obj.material.metalness = mat.metalness;
-      obj.material.roughness = mat.roughness;
+      //if (obj.material instanceof Material) return
+      (obj.material as MeshStandardMaterial).color.r = mat.color[0];
+      (obj.material as MeshStandardMaterial).color.g = mat.color[1];
+      (obj.material as MeshStandardMaterial).color.b = mat.color[2];
+      (obj.material as MeshStandardMaterial).metalness = mat.metalness;
+      (obj.material as MeshStandardMaterial).roughness = mat.roughness;
     });
     return model;
   }
@@ -128,7 +139,7 @@ const ModelViewer = ({ viewer, materials, productId }) => {
               <Button onClick={handleFullscreen} variant={"default"}><span className="sr-only">Imposta schermo intero</span><Fullscreen /></Button>
               {multiple &&
                 <SheetTrigger asChild>
-                  <Button variant={"default"} size={""}>Visualizza... <Menu className="ml-2" /></Button>
+                  <Button variant={"default"}>Visualizza... <Menu className="ml-2" /></Button>
                 </SheetTrigger>}
             </div>
             {multiple &&
@@ -140,22 +151,22 @@ const ModelViewer = ({ viewer, materials, productId }) => {
                 <div>
                   <ScrollArea>
                     <div className="flex justify-start items-center space-x-3">
-                      {viewer.SelectedViewer.data.attributes.Items3D.map((item, index) => (
+                      {viewer.SelectedViewer?.data.attributes.Items3D?.map((item, index) => (
                         <Card key={index} onClick={() => {
-                          if (viewer.SelectedViewer.data.attributes.Items3D[selectedModels[0]].id === item.id)
+                          if (viewer.SelectedViewer?.data.attributes.Items3D?.[selectedModels[0]].id === item.id)
                             return
                           if (!selectedModels.includes(index))
                             setSelectedModels(selectedModels.concat(index))
                           else {
                             setSelectedModels(selectedModels.filter(n => n !== index))
-                            setGlb(glb.filter(g => g.index !== index))
+                            setGlb((glb as MultipleModelType).filter(g => g.index !== index))
                           }
                         }} className={"cursor-pointer flex flex-col justify-center p-3 text-center " + (productId === item.id ? "dark:bg-accent dark:border-white" : selectedModels.includes(index) ? "dark:bg-accent" : "")}>
-                          <span className="sr-only">{(productId === item.id ? "" : !selectedModels.includes(index) ? "Visualizza " : "Rimuovi dalla visualizzazione ") + item.RelativeProduct.data.attributes.Name}</span>
+                          <span className="sr-only">{(productId === item.id ? "" : !selectedModels.includes(index) ? "Visualizza " : "Rimuovi dalla visualizzazione ") + item.RelativeProduct?.data.attributes.Name}</span>
                           <figure aria-hidden={true}>
-                            {item.Thumbnail.data && <Image src={"http://localhost:1337" + item.Thumbnail.data.attributes.formats.thumbnail.url} width={item.Thumbnail.data.attributes.formats.thumbnail.width} height={item.Thumbnail.data.attributes.formats.thumbnail.height} alt={item.Thumbnail.data.attributes.caption} aria-hidden={true} />}
+                            {item.Thumbnail?.data && <Image src={"http://localhost:1337" + item.Thumbnail.data.attributes.formats?.thumbnail.url} width={item.Thumbnail.data.attributes.formats?.thumbnail.width} height={item.Thumbnail.data.attributes.formats?.thumbnail.height} alt={item.Thumbnail.data.attributes.caption ?? "Mignatura"} aria-hidden={true} />}
                             <figcaption aria-hidden={true}>
-                              <span>{item.RelativeProduct.data.attributes.Name}</span>
+                              <span>{item.RelativeProduct?.data.attributes.Name}</span>
                             </figcaption>
                           </figure>
                         </Card>

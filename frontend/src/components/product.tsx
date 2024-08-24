@@ -10,11 +10,10 @@ import {
     CarouselItem,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { APIResponseData } from "@/types/strapi-types";
 
-const ImagesGallery = ({ imagesUrls, responsibleSizes = { _: 2 }, orientation = "horizontal", carouselCustomClass = {} }) => {
+const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation = "horizontal", carouselCustomClass = {} }: { imagesUrls: (APIResponseData<"plugin::upload.file">[] | undefined)[], responsibleSizes?: string, orientation?: "horizontal" | "vertical", carouselCustomClass?: Object }) => {
     const [productContext, _] = useContext(ProductContext);
-    const getClassFromObject = (object, prestring = "") => Object.keys(object).map(key => (key !== "_" ? (key + ":") : "") + prestring + object[key]).join(" ")
-    const responsiveSizesClass = getClassFromObject(responsibleSizes, "basis-1/")
 
     return (
         <div className="flex justify-center">
@@ -31,23 +30,23 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = { _: 2 }, orientation = 
                 ]}
             >
                 <CarouselContent style={carouselCustomClass}>
-                    {imagesUrls[productContext.variantIndex].map((image, index) => (
-                        <CarouselItem key={index + image.url} className={responsibleSizes}>
+                    {imagesUrls[productContext.variantIndex]?.map((image, index) => (
+                        <div key={index}  className={responsibleSizes}>{image.attributes.formats?.small?.url && <CarouselItem>
                             <div className="p-1">
                                 <Card>
                                     <CardContent>
                                         <Image
-                                            src={`http://localhost:1337${image.url}`}
+                                            src={`http://localhost:1337${image.attributes.formats?.small?.url}`}
                                             alt={`Product Image ${index + 1}`}
-                                            width={500}
-                                            height={500}
+                                            width={image.attributes.formats?.small?.width}
+                                            height={image.attributes.formats?.small?.height}
                                             className="rounded-md"
                                         />
                                     </CardContent>
                                 </Card>
                             </div>
-                        </CarouselItem>
-                    ))}
+                        </CarouselItem>}</div>
+                    )) ?? <></>}
                 </CarouselContent>
             </Carousel>
         </div>

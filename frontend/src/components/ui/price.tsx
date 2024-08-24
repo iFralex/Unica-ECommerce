@@ -1,6 +1,6 @@
 import { formattedPrice } from "@/lib/utils"
 
-const Price = ({ price }) => {
+const Price = ({ price }: {price: number}) => {
     return (
         <div>
             <div className="text-[0.70rem] text-muted-foreground">

@@ -21,13 +21,18 @@ import {
 } from "@/components/ui/hover-card"
 import { useContext } from "react"
 import { ProductContext } from "./context"
+import { APIResponseData } from "@/types/strapi-types"
 
-const ProductVariants = ({ variants }) => {
+const ProductVariants = ({ product }: { product: APIResponseData<"api::product.product"> }) => {
+    const variants = product.attributes.ProductDetails
+    if (!variants)
+        return <></>
+    
     const [contextValue, setContextValue] = useContext(ProductContext);
 
-    const handleVariantChange = i => {
+    const handleVariantChange = (i: number) => {
         contextValue.variantIndex = i
-        setContextValue({...contextValue, variantIndex: i})
+        setContextValue({ ...contextValue, variantIndex: i })
     }
 
     return (<>
@@ -37,11 +42,11 @@ const ProductVariants = ({ variants }) => {
                 <Badge variant="outline" className="min-h-8">
                     <div className="flex items-center justify-start flex-no-wrap">
                         <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + variants[contextValue.variantIndex].Material.data.attributes.Color }} />
-                        <span>{variants[contextValue.variantIndex].Material.data.attributes.Name}</span>
+                        <span>{variants[contextValue.variantIndex].Material?.data.attributes.Name}</span>
                         <HoverCard>
                             <HoverCardTrigger><CircleHelp className="ml-2 text-foreground h-4" /></HoverCardTrigger>
                             <HoverCardContent>
-                                <p>{variants[contextValue.variantIndex].Material.data.attributes.Description}</p>
+                                <p>{variants[contextValue.variantIndex].Material?.data.attributes.Description}</p>
                             </HoverCardContent>
                         </HoverCard>
                     </div>
@@ -50,16 +55,16 @@ const ProductVariants = ({ variants }) => {
 
             <div className="flex items-center mt-3">
                 <span className="text-foreground mr-2">Placcatura:</span>
-                {variants.length > 1 ? <Select onValueChange={handleVariantChange} defaultValue={contextValue.variantIndex} className="text-foreground">
+                {variants.length > 1 ? <Select onValueChange={v => handleVariantChange(parseInt(v))} defaultValue={contextValue.variantIndex.toString()}>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleziona una variante" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
                             {variants.map((v, i) =>
-                                <SelectItem key={i} value={i}>
+                                <SelectItem key={i} value={i.toString()}>
                                     <div className="flex items-center justify-start flex-wrap space-x-2 mr-3">
-                                        {v.Platings.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
+                                        {v.Platings?.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
                                             <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + p.attributes.Color }} />
                                             <span>{p.attributes.Name}</span>
                                         </span>)}
@@ -70,7 +75,7 @@ const ProductVariants = ({ variants }) => {
                 </Select> :
                     <Badge variant="outline" className="min-h-8">
                         <div className="flex items-center justify-start flex-wrap space-x-2 mr-3">
-                            {variants[contextValue.variantIndex].Platings.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
+                            {variants[contextValue.variantIndex].Platings?.data.map((p, i) => <span key={i} className="flex items-center justify-start flex-no-wrap">
                                 <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + p.attributes.Color }} />
                                 <span>{p.attributes.Name}</span>
                             </span>)}
@@ -82,7 +87,7 @@ const ProductVariants = ({ variants }) => {
         <Separator className="my-4" />
         <div className="flex items-center justify-center md:justify-start flex-wrap space-x-5 mb-4">
             <QuantitySelection />
-            <Price price={variants[contextValue.variantIndex].Price} />
+            <Price price={variants[contextValue.variantIndex].Price ?? 0} />
         </div>
 
         <div className="flex items-center flex-wrap justify-center md:justify-start">

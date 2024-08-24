@@ -13,8 +13,9 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { CategoryInfo } from '@/types/types';
 
-export function NavBarStyled({categories}) {
+export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -48,7 +49,7 @@ export function NavBarStyled({categories}) {
 }
 
 
-const ListItem = ({ className, title, children, ...props }) => {
+const ListItem = ({ className, title, href, children }: {className: string, title: string, href: string, children: React.ReactNode }) => {
     const ref = useRef(null);
 
     return (
@@ -60,7 +61,7 @@ const ListItem = ({ className, title, children, ...props }) => {
                         "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                         className
                     )}
-                    {...props}
+                    href={href}
                 >
                     <div className="text-sm font-medium leading-none">{title}</div>
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
