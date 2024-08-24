@@ -14,7 +14,6 @@ const Page = async ({ params }: { params: { productId: string, category: string 
 
   return (
     <ProductProvider>
-      <HeroProduct product={product} params={params} />
       <div className="">
         <div className="flex flex-wrap">
           <div className="w-full md:w-[calc(100%-300px)]">

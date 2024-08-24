@@ -10,3 +10,5 @@ export type CategoryInfo = {
 }
 
 export type Vector = [number, number, number]
+
+export type Transform = { Position?: Vector, Rotation?: Vector, Scale?: Vector }

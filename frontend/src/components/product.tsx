@@ -31,7 +31,7 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
             >
                 <CarouselContent style={carouselCustomClass}>
                     {imagesUrls[productContext.variantIndex]?.map((image, index) => (
-                        <div key={index}  className={responsibleSizes}>{image.attributes.formats?.small?.url && <CarouselItem>
+                        image.attributes.formats?.small?.url && <CarouselItem key={index} className={responsibleSizes}>
                             <div className="p-1">
                                 <Card>
                                     <CardContent>
@@ -45,7 +45,7 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
                                     </CardContent>
                                 </Card>
                             </div>
-                        </CarouselItem>}</div>
+                        </CarouselItem>
                     )) ?? <></>}
                 </CarouselContent>
             </Carousel>
