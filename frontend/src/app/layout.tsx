@@ -1,8 +1,9 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider, CartProvider } from "@/components/context"
+import { ThemeProvider, CartProvider, UserProvider, ContextListeners } from "@/components/context"
 import { NavBarStyled } from "@/components/ui/nav-bar"
-import { getCategories } from "@/actions/get-data"
+import { getCategories, getCookie } from "@/actions/get-data"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,10 +22,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          <CartProvider>
-            <NavBar />
-            {children}
-          </CartProvider>
+          <UserProvider>
+            <CartProvider>
+              <ContextListeners />
+              <Toaster />
+              <NavBar />
+              {children}
+            </CartProvider>
+          </UserProvider>
         </ThemeProvider>
       </body>
     </html>
@@ -36,5 +41,6 @@ async function NavBar() {
   if (categories instanceof Error)
     return <div>Errore: {categories.message}</div>
 
+  //const itemsInCart = await getCookie<CartType[]>("cart")
   return <NavBarStyled categories={categories} />
 }

@@ -144,3 +144,7 @@ export type Materials3D = [{
   metalness: number;
   roughness: number;
 }];
+
+export type CartVisualizzation = ((APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never)["CartVisualizzation"]
+
+export type ProductDetail = ((APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never) & { id: string }

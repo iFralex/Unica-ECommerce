@@ -36,6 +36,7 @@ const HeroProduct = ({ product, params }: { product: APIResponseData<"api::produ
                     <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{product.attributes.Name}</h1>
                     <p className="text-lg text-foreground mb-6">{product.attributes.ShortDescription}</p>
                     <TopicsList topics={product.attributes.Tags?.data ?? []} />
+                    <ProductVariants product={product} />
                 </div>
             </div>
             <div className="absolute inset-0 z-[-1] flex justify-end bg-white overflow-x-hidden">

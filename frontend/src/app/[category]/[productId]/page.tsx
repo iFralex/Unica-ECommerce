@@ -1,10 +1,11 @@
-import { getProduct, getTest } from "@/actions/get-data"
+import { getCartVisualizzationData, getProduct, getTest } from "@/actions/get-data"
 import { ProductProvider } from "@/components/context"
 import { HeroProduct } from "@/components/ui/hero-sections"
 import { ImagesGallery } from "@/components/product"
 import { ModelViewer } from '@/components/3D-viewer'
 import { DescriptionSection } from "@/components/DescriptionSection"
 import { Materials3D } from "@/types/strapi-types"
+import { ProductCartVisualizzation } from "@/types/components"
 
 const Page = async ({ params }: { params: { productId: string, category: string } }) => {
   const product = await getProduct(params.productId)
@@ -14,6 +15,7 @@ const Page = async ({ params }: { params: { productId: string, category: string 
 
   return (
     <ProductProvider>
+      <HeroProduct product={product} params={params} />
       <div className="">
         <div className="flex flex-wrap">
           <div className="w-full md:w-[calc(100%-300px)]">

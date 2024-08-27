@@ -1,9 +1,6 @@
 "use client"
-
-import { useRef } from 'react';
-
+import { useContext, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -13,9 +10,16 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { CategoryInfo } from '@/types/types';
+import { CartType, CategoryInfo } from '@/types/types';
+import { cookies } from 'next/headers';
+import { cn } from "@/lib/utils";
+import { getCookie } from "@/actions/get-data";
+import { CartContext } from "../context";
+import {Loader2} from "lucide-react"
 
 export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
+    let [cartContext, setCartContext] = useContext(CartContext)
+    
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -39,7 +43,7 @@ export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
                 <NavigationMenuItem>
                     <Link href="/docs" legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Documentation
+                            Cart: {cartContext.cartQuantity !== -1 ? cartContext.cartQuantity : <Loader2 />}
                         </NavigationMenuLink>
                     </Link>
                 </NavigationMenuItem>
@@ -48,8 +52,7 @@ export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
     )
 }
 
-
-const ListItem = ({ className, title, href, children }: {className: string, title: string, href: string, children: React.ReactNode }) => {
+const ListItem = ({ className, title, href, children }: { className?: string | undefined, title: string, href: string, children: React.ReactNode }) => {
     const ref = useRef(null);
 
     return (
@@ -72,5 +75,3 @@ const ListItem = ({ className, title, href, children }: {className: string, titl
         </li>
     );
 };
-
-ListItem.displayName = "ListItem"

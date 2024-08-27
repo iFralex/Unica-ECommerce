@@ -17,7 +17,8 @@ import Image from "next/image";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { APIResponseData, Materials3D } from "@/types/strapi-types";
 import { Transform, Vector } from "@/types/types";
-import { Mesh, MeshStandardMaterial } from "three";
+import { Box3, Mesh, MeshStandardMaterial, Vector3 } from "three";
+import { getCartVisualizzationData } from "@/actions/get-data";
 
 type MultipleModelType = {
   model: GLTF;
@@ -27,7 +28,7 @@ type MultipleModelType = {
 const ModelViewer = ({ product, materials, productId }: { product: APIResponseData<"api::product.product">, materials: Materials3D[], productId: number }) => {
   const viewer = product.attributes.Viewer?.[0];
   if (!viewer) return <></>
-
+  
   const multiple = viewer?.__component === "product.multiple-item3-d-link"
   const mesh = useRef(null);
   const [glb, setGlb] = useState<MultipleModelType | GLTF>(multiple ? [] : null as unknown as GLTF);
@@ -181,7 +182,6 @@ const ModelsSelector = ({ selectedViewer, sheetContainer, productId, selectedMod
         <div className="flex justify-start items-center space-x-3">
           {selectedViewer.attributes.Items3D?.map((item, index) => (
             <Card key={index} onClick={() => {
-              console.log("id", item.id)
               if (selectedViewer.attributes.Items3D?.[selectedModels[0]].id === item.id)
                 return
               if (!selectedModels.includes(index))

@@ -977,6 +977,7 @@ export interface ApiProductProduct extends Schema.CollectionType {
       Attribute.Private;
   };
 }
+let a: ApiProductProduct = null!
 
 export interface ApiTagTag extends Schema.CollectionType {
   collectionName: 'tags';
