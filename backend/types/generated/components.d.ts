@@ -47,6 +47,8 @@ export interface ProductProductDetails extends Schema.Component {
     >;
     Materials3D: Attribute.JSON;
     Photos: Attribute.Media<'images', true>;
+    CartVisualizzation: Attribute.Component<'product.cart-visualizzation'> &
+      Attribute.Required;
   };
 }
 
@@ -95,6 +97,18 @@ export interface ProductDescription extends Schema.Component {
   };
 }
 
+export interface ProductCartVisualizzation extends Schema.Component {
+  collectionName: 'components_product_cart_visualizzations';
+  info: {
+    displayName: 'CartVisualizzation';
+    description: '';
+  };
+  attributes: {
+    Size: Attribute.JSON;
+    Texture: Attribute.Media<'images'>;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
@@ -104,6 +118,7 @@ declare module '@strapi/types' {
       'product.multiple-item3-d-link': ProductMultipleItem3DLink;
       'product.item3-d': ProductItem3D;
       'product.description': ProductDescription;
+      'product.cart-visualizzation': ProductCartVisualizzation;
     }
   }
 }

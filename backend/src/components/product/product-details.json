@@ -34,11 +34,19 @@
       "type": "json"
     },
     "Photos": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
+    },
+    "CartVisualizzation": {
+      "displayName": "CartVisualizzation",
+      "type": "component",
+      "repeatable": false,
+      "component": "product.cart-visualizzation",
+      "required": true
     }
   }
 }

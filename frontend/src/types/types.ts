@@ -28,8 +28,6 @@ export type CartType = {
     sku: string,
     quantity: number
     variant: (APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never
-    textureURL: string,
-    size: Vector2,
 }
 
 export type CartContextType = { cart: CartType[], cartQuantity: number }

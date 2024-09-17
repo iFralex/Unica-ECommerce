@@ -71,7 +71,8 @@ export const getCartFromCartLight = async (cart: CartLiteType[]) => {
             for (let p of product.data)
                 if (p.id === c.productId)
                     return { id: c.productId, name: p.attributes.Name ?? "", sku: p.attributes.SKU ?? "", quantity: c.quantity ?? 0, variant: p.attributes.ProductDetails?.[c.variantIndex] } as CartType
-        })
+            return null
+        }).filter(c => c !== null)
     } catch (error) {
         return error as Error
     }

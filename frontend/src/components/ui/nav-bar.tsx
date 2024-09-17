@@ -41,7 +41,7 @@ export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link href="/docs" legacyBehavior passHref>
+                    <Link href="/cart" legacyBehavior passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             Cart: {cartContext.cartQuantity !== -1 ? cartContext.cartQuantity : <Loader2 />}
                         </NavigationMenuLink>

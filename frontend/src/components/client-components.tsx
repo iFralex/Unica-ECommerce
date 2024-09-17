@@ -125,13 +125,6 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
         })
     }
 
-    const getQuantityCart = (cart: CartType[] | CartLiteType[]) => {
-        let q = 0;
-        for (let i = 0; i < cart.length; i++)
-            q += cart[i].quantity
-        return q
-    }
-
     return (<>
         <div className="flex items-center flex-wrap">
             <div className="flex items-center mt-3 mr-5">

@@ -43,26 +43,25 @@ export const ContextListeners = ({ }: {}) => {
 
     //At start
     useEffect(() => {
-        getCookie<string>("cookieID").then(async r => {
-            if (r) {
-                const userID = await getCookie("cookieID")
-                if (!userID)
-                    return <p>Errore: cookie mancanti.</p>
+        let cartQuantity = -1
+        getCookie<string>("cookieID").then(async userID => {
+            if (userID) {
                 const cartLight = await getCartLight(userID)
                 if (cartLight instanceof Error)
-                    return <p>{cartLight.message}</p>
+                    return console.log("Error cartLight:", cartLight.message)
                 const cart = await getCartFromCartLight(cartLight)
                 console.log(cart)
                 if (cart instanceof Error || !cart)
-                    return <p>{cart.message}</p>
-                setCartContext({cart: cart, cartQuantity: cartContext.cartQuantity})
+                    return console.log("Error cart:", cart.message)
+                setCartContext({ cart: cart, cartQuantity: cartQuantity })
             }
-            setUserContext({ id: r ?? "noid" })
-            console.log("started id:", r, r ?? "noid")
+            setUserContext({ id: userID ?? "noid" })
+            console.log("started id:", userID, userID ?? "noid")
         })
 
         getCookie<string>("cartQuantity").then(r => {
             setCartContext({ cart: cartContext.cart, cartQuantity: parseInt(r ?? 0) })
+            cartQuantity = parseInt(r ?? 0)
         })
     }, [])
 
