@@ -1,4 +1,5 @@
 "use server"
+import { isCharity } from "@/lib/utils";
 import { ProductCartVisualizzation } from "@/types/components";
 import type { APIResponse, APIResponseCollection, CartVisualizzation } from "@/types/strapi-types"
 import { CartLiteType, CartType, CategoryInfo } from "@/types/types";
@@ -61,16 +62,15 @@ export const getCartVisualizzationData = async (productId: number) => {
 
 export const getCartFromCartLight = async (cart: CartLiteType[]) => {
     try {
-        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products?${cart.map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][fields][2]=Material&populate[ProductDetails][fields][3]=Platings&populate[ProductDetails][fields][4]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats`)
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products?${cart.map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][fields][2]=Material&populate[ProductDetails][fields][3]=Platings&populate[ProductDetails][fields][4]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU`)
 
         if (!product.data)
             throw new Error("No product found");
-        const variantIds = cart.map(i => i.variantIndex)
-        //const art = [].concat(...product.data.map(i => i.attributes.ProductDetails))
+        
         return cart.map(c => {
             for (let p of product.data)
                 if (p.id === c.productId)
-                    return { id: c.productId, name: p.attributes.Name ?? "", sku: p.attributes.SKU ?? "", quantity: c.quantity ?? 0, variant: p.attributes.ProductDetails?.[c.variantIndex] } as CartType
+                    return { id: c.productId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), shortDescription: p.attributes.ShortDescription ?? "", quantity: c.quantity ?? 0, variant: p.attributes.ProductDetails?.[c.variantIndex], size: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Size, textureURL: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: isCharity(p.attributes.Category?.data.attributes.SKU) } as CartType
             return null
         }).filter(c => c !== null)
     } catch (error) {

@@ -16,6 +16,8 @@ export type Vector = [number, number, number]
 export type Vector2 = [number, number]
 export type Transform = { Position?: Vector, Rotation?: Vector, Scale?: Vector }
 
+export type VariantType = (APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never,
+
 export type CartLiteType = {
     productId: number,
     quantity: number,
@@ -25,9 +27,13 @@ export type CartLiteType = {
 export type CartType = {
     id: number,
     name: string,
-    sku: string,
+    urlPath: string,
+    shortDescription: string,
     quantity: number
-    variant: (APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never
+    variant: VariantType
+    size: [number, number],
+    textureURL: string,
+    charity: boolean,
 }
 
 export type CartContextType = { cart: CartType[], cartQuantity: number }

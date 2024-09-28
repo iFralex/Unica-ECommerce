@@ -21,14 +21,15 @@ import {
 } from "@/components/ui/hover-card"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
-import { useContext, useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { CartContext, ProductContext, UserContext } from "./context"
 import { APIResponseData, CartVisualizzation } from "@/types/strapi-types"
 import { getCartVisualizzationData } from "@/actions/get-data"
-import { CartLiteType, CartType, Vector2 } from "@/types/types"
-import { addToCartItem, pushCartData, setNewCartItem } from "@/actions/firebase"
+import { CartContextType, CartLiteType, CartType, UserType, VariantType, Vector2 } from "@/types/types"
+import { addToCartItem, deleteCartItem, pushCartData, setNewCartItem } from "@/actions/firebase"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { isCharity } from "@/lib/utils"
 
 const ProductVariants = ({ product }: { product: APIResponseData<"api::product.product"> }) => {
     const variants = product.attributes.ProductDetails
@@ -61,68 +62,22 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
     }
 
     const handleAddCart = async () => {
-        console.log("id i:", userContext.id)
-        if (!userContext.id)
-            return
-        let cookieID = userContext.id
-        if (userContext.id === "noid") {
-            const dbResult = await pushCartData(variants[contextValue.variantIndex].id, { productId: product.id, quantity: quantity, variantIndex: contextValue.variantIndex })
-            if (dbResult instanceof Error || !dbResult) {
-                console.log("error:", dbResult)
-                return
-            }
-            cookieID = dbResult
-            setUserContext({ id: cookieID })
-        }
+        try {
+            await AddItemToCart(userContext.id, setUserContext, variants[contextValue.variantIndex].id, product.id, quantity, contextValue.variantIndex, cartContext, setCartContext, product.attributes.Name ?? "", (product.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.attributes.SKU ?? ""), product.attributes.ShortDescription ?? "", variants[contextValue.variantIndex], cartVisual[contextValue.variantIndex].Texture?.data?.attributes.formats?.medium.url ?? "", cartVisual[contextValue.variantIndex].Size as unknown as Vector2)
 
-        let existingItem: boolean = false
-        let i = 0
-        for (i = 0; i < cartContext.cart.length; i++)
-            if (cartContext.cart[i].variant.id === variants[contextValue.variantIndex].id) {
-                cartContext.cart[i].quantity += quantity
-                existingItem = true
-                break
-            }
-
-        cartContext.cartQuantity += quantity
-
-        if (existingItem) {
-            let result = await addToCartItem(cookieID, variants[contextValue.variantIndex].id, cartContext.cart[i].quantity)
-            if (result instanceof Error) {
-                console.log("error: no salvato", result)
-                return
-            }
-            setCartContext({ cart: cartContext.cart, cartQuantity: cartContext.cartQuantity })
-        } else {
-            let result = await setNewCartItem(cookieID, variants[contextValue.variantIndex].id, { productId: product.id, quantity: quantity, variantIndex: contextValue.variantIndex })
-            if (result instanceof Error) {
-                console.log("error: no salvato", result)
-                return
-            }
-            setCartContext({
-                cartQuantity: cartContext.cartQuantity
-                , cart: cartContext.cart.concat({
-                    id: product.id,
-                    name: product.attributes.Name ?? "",
-                    sku: product.attributes.SKU ?? "",
-                    quantity: quantity,
-                    variant: variants[contextValue.variantIndex],
-                    textureURL: cartVisual[contextValue.variantIndex].Texture?.data?.attributes.formats?.medium.url ?? "",
-                    size: cartVisual[contextValue.variantIndex].Size as unknown as Vector2
-                })
+            toast({
+                title: product.attributes.Name + " x" + quantity,
+                description: "Hai aggiunto " + product.attributes.Name + " al carrello",
+                action: (
+                    <ToastAction onClick={() => router.push("/cart", { scroll: false })} altText="Vai al carrello">Vai al carrello</ToastAction>
+                ),
+                image: (
+                    <Image src={process.env.DOMAIN_URL + variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variants[contextValue.variantIndex].Images?.data[0].attributes.alternativeText ?? ""} width={variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.width} height={variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.height} />
+                )
             })
+        } catch (err) {
+            console.error("Add to cart", err)
         }
-
-        toast({
-            title: product.attributes.Name + " x" + quantity,
-            description: "Hai aggiunto " + product.attributes.Name + " al carrello",
-            action: (
-                <ToastAction onClick={() => router.push("/cart")} altText="Vai al carrello">Vai al carrello</ToastAction>
-            ),
-            image: (
-                <Image src={process.env.DOMAIN_URL + variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variants[contextValue.variantIndex].Images?.data[0].attributes.alternativeText ?? ""} width={variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.width} height={variants[contextValue.variantIndex].Images?.data[0].attributes.formats?.thumbnail.height}/>
-            )
-        })
     }
 
     return (<>
@@ -175,22 +130,99 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
         </div>
 
         <Separator className="my-4" />
-        <div className="flex items-center justify-center md:justify-start flex-wrap space-x-5 mb-4">
+        <div className="flex items-start justify-center md:justify-start flex-wrap space-x-5">
             <QuantitySelection handleQuantity={handleQuantity} quantity={quantity} />
             <Price price={variants[contextValue.variantIndex].Price ?? 0} />
         </div>
 
         <div className="flex items-center flex-wrap justify-center md:justify-start">
-            <Button disabled={!userContext.id} size="lg" variant="buy" className="mr-6 mb-4" onClick={handleAddCart}>
+            <Button disabled={!userContext.id} size="lg" variant="buy" className="mr-6 mb-4 w-full md:w-auto" onClick={handleAddCart}>
                 <ShoppingCart size={25} strokeWidth={3} className="mr-3" />
                 Aggiungi al Carrello
             </Button>
-            <Button size="lg" className="mb-4">
+            <Button size="lg" className="mb-4 w-full md:w-auto">
                 Salva per dopo
                 <ShoppingBag size={25} strokeWidth={3} className="ml-3" />
             </Button>
         </div>
     </>)
 }
+
+export const AddItemToCart = async (userId: string, setUserContext: Dispatch<SetStateAction<UserType>>, variantId: number, productId: number, increaseQuantity: number, variantIndex: number, cartContext: CartContextType, setCartContext: Dispatch<SetStateAction<CartContextType>>, name: string, urlPath: string, shortDescription: string, variant: VariantType, textureUrl: string, size: Vector2) => {
+    console.log("a", userId)
+    if (!userId)
+        return
+    let cookieID = userId
+    if (userId === "noid") {
+        const dbResult = await pushCartData(variantId, { productId: productId, quantity: increaseQuantity, variantIndex: variantIndex })
+        if (dbResult instanceof Error || !dbResult) {
+            console.log("error:", dbResult)
+            return
+        }
+        cookieID = dbResult
+        setUserContext({ id: cookieID })
+    }
+
+    let existingItem = false
+    let i = 0
+    for (i = 0; i < cartContext.cart.length; i++)
+        if (cartContext.cart[i].variant.id === variantId) {
+            cartContext.cart[i].quantity += increaseQuantity
+            existingItem = true
+            break
+        }
+
+    cartContext.cartQuantity += increaseQuantity
+
+    if (existingItem) {
+        let result = await (cartContext.cart[i].quantity > 0 ? addToCartItem(cookieID, variantId, cartContext.cart[i].quantity)
+            : deleteCartItem(cookieID, variantId))
+        if (cartContext.cart[i].quantity <= 0)
+
+            if (result instanceof Error) {
+                console.log("error: no salvato", result)
+                return
+            }
+        cartContext.cart.splice(i, cartContext.cart[i].quantity > 0 ? 0 : 1)
+        console.log("update", cartContext.cart)
+        setCartContext({ cart: cartContext.cart, cartQuantity: cartContext.cartQuantity })
+    } else {
+        let result = await setNewCartItem(cookieID, variantId, { productId: productId, quantity: increaseQuantity, variantIndex: variantIndex })
+        if (result instanceof Error) {
+            console.log("error: no salvato", result)
+            return
+        }
+        setCartContext({
+            cartQuantity: cartContext.cartQuantity
+            , cart: cartContext.cart.concat({
+                id: productId,
+                name: name,
+                shortDescription: shortDescription,
+                urlPath: urlPath,
+                quantity: increaseQuantity,
+                variant: variant,
+                textureURL: textureUrl,
+                size: size,
+                charity: isCharity(urlPath.split("/")[0])
+            })
+        })
+    }
+}
+
+export const useMedia = (query: string) => {
+    const [matches, setMatches] = useState(false);
+  
+    useEffect(() => {
+      const media = window.matchMedia(query);
+      if (media.matches !== matches) {
+        setMatches(media.matches);
+      }
+      const listener = () => setMatches(media.matches);
+      media.addListener(listener);
+      return () => media.removeListener(listener);
+    }, [matches, query]);
+  
+    return matches;
+  };
 
 export { ProductVariants }

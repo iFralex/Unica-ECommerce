@@ -26,8 +26,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CartProvider>
               <ContextListeners />
               <Toaster />
-              <NavBar />
-              {children}
+              <div className="flex flex-col h-screen">
+                <div>
+                  <NavBar />
+                </div>
+                <div className="flex-grow h-full relative">
+                  {children}
+                </div>
+              </div>
             </CartProvider>
           </UserProvider>
         </ThemeProvider>

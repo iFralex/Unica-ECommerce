@@ -47,12 +47,18 @@ export const ContextListeners = ({ }: {}) => {
         getCookie<string>("cookieID").then(async userID => {
             if (userID) {
                 const cartLight = await getCartLight(userID)
-                if (cartLight instanceof Error)
+                if (cartLight instanceof Error) {
+                    setCartContext({ cart: [], cartQuantity: cartQuantity })
+                    setUserContext({ id: "noid" })
                     return console.log("Error cartLight:", cartLight.message)
+                }
                 const cart = await getCartFromCartLight(cartLight)
                 console.log(cart)
-                if (cart instanceof Error || !cart)
+                if (cart instanceof Error || !cart) {
+                    setCartContext({ cart: [], cartQuantity: cartQuantity })
+                    setUserContext({ id: "noid" })
                     return console.log("Error cart:", cart.message)
+                }
                 setCartContext({ cart: cart, cartQuantity: cartQuantity })
             }
             setUserContext({ id: userID ?? "noid" })
@@ -79,5 +85,6 @@ export const ContextListeners = ({ }: {}) => {
         setCookie("cartQuantity", cartContext.cartQuantity.toString(), { maxAge: 31536000 })
     }, [cartContext.cartQuantity])
 
+    useEffect(() => console.log("cart updated", cartContext), [cartContext.cart])
     return <></>
 }

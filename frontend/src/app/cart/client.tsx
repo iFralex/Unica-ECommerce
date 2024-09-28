@@ -1,69 +1,288 @@
 "use client"
 
-import { CartContext } from "@/components/context"
-import { GainMapLoader, HDRJPGLoader, QuadRenderer } from '@monogrid/gainmap-js'
+import { getCookie, setCookie } from "@/actions/get-data"
+import { AddItemToCart, useMedia } from "@/components/client-components"
+import { CartContext, UserContext } from "@/components/context"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import Price from "@/components/ui/price"
+import QuantitySelection from "@/components/ui/quantity-selection"
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { CartType } from "@/types/types"
+import { GainMapLoader } from '@monogrid/gainmap-js'
 import { CameraControls, Environment, OrbitControls, Shadow, useEnvironment } from "@react-three/drei"
-import { sRGBEncoding } from "@react-three/drei/helpers/deprecated"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { useContext, useEffect, useRef, useState } from "react"
-import { ACESFilmicToneMapping, AmbientLight, BoxGeometry, ClampToEdgeWrapping, EllipseCurve, EquirectangularReflectionMapping, Euler, Group, LightShadow, LinearFilter, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, Quaternion, RepeatWrapping, TextureLoader, Vector3 } from "three"
+import gsap from "gsap"
+import { Rock_3D } from "next/font/google"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
+import { Box3, Box3Helper, BoxGeometry, CanvasTexture, ClampToEdgeWrapping, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, PlaneGeometry, Quaternion, Raycaster, RepeatWrapping, Sprite, SpriteMaterial, Texture, TextureLoader, Vector3 } from "three"
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
-export const CartClient = ({ children }: { children: React.ReactNode }) => {
+export const CartClient = () => {
+    const [cart, setCart] = useContext(CartContext)
+    const [{ id: userId }, setUserId] = useContext(UserContext)
+    const [selectedItem, setSelectedItem] = useState<CartType | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
+    const isWiderThanMobile = useMedia('(min-width: 768px)');
+    const router = useRouter()
+
+    const handleQuantity = (incr: number) => {
+        if (!selectedItem)
+            return
+        (async () => {
+            setLoading(true)
+            await AddItemToCart(userId, setUserId, selectedItem.variant.id, selectedItem.id, incr, 0, cart, setCart, selectedItem.name, selectedItem.urlPath, selectedItem.shortDescription, selectedItem.variant, selectedItem.textureURL, selectedItem.size)
+            setLoading(false)
+            console.log("agg")
+        })()
+    }
+
     return (
-        <div className="fixed inset-0">
+        <div className="w-full h-full">
             <Canvas camera={{ fov: 25 }}>
-                <Renderer />
+                {userId && <Renderer
+                    handleSelectItem={item =>
+                        setSelectedItem(prevSelectedItem => {
+                            if (prevSelectedItem !== null && item !== null && item.id !== prevSelectedItem.id) {
+                                gsap.to(null, {
+                                    duration: 0.25,
+                                    onStart: () => setSelectedItem(null),
+                                    onComplete: () => setSelectedItem(item)
+                                });
+                            } else if (prevSelectedItem === null || item === null || item.id === prevSelectedItem.id) {
+                                return item;
+                            }
+                            return prevSelectedItem; // Default fallback
+                        })}
+                />}
             </Canvas>
+            <Sheet open={selectedItem !== null} modal={false}>
+                <SheetContent side="bottom" onClickCloseButton={() => setSelectedItem(null)} className="left-1/2 transform -translate-x-1/2 max-w-xl w-full rounded-t-lg">
+                    {selectedItem && <div className="flex justify-start space-x-5">
+                        {isWiderThanMobile && <div className="flex-shrink-0"><Image src={"http://localhost:1337" + selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
+                        <div className="w-full text-center md:text-left">
+                            <Button variant={"link"} className="m-0 p-0" onClick={() => router.push("/" + selectedItem.urlPath)}>
+                                <h1 className="font-bold text-2xl">{selectedItem.name}</h1>
+                            </Button>
+                            <p className="text-sm">{selectedItem.shortDescription.length > 110 ? selectedItem.shortDescription.substring(0, 110) + "..." : selectedItem.shortDescription}</p>
+                            <div className={false ? "grid grid-col" : "flex items-start justify-center md:justify-start flex-wrap space-x-5"}>
+                                <QuantitySelection handleQuantity={handleQuantity} quantity={selectedItem.quantity} disabled={loading} removeEnable={true} dialogTitle={"Rimuovere " + selectedItem.name + "?"} dialogDescription={"Sei sicuro di voler rimuovere " + selectedItem.name + " dal carrello? In alternativa, aggiungilo alla lista dei preferiti!"} />
+                                <Price price={selectedItem.variant.Price ?? 0} size={4} />
+                            </div>
+                        </div>
+                    </div>}
+                </SheetContent>
+            </Sheet>
+            {cart.cart.length ? <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-md p-4 z-1">
+                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.charity ? (curr.variant.Price ?? 0) * curr.quantity : 0), 0)}  size={3} title={"Donato in beneficienza"}/>
+                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)}  size={3} title={"Totale"}/>
+                <Button size={"lg"}>Paga ora</Button>
+            </div> : <div/>}
         </div>
     )
 }
 
-const Renderer = () => {
+const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | null) => void }) => {
     const { gl, scene, camera } = useThree()
-    const [{ cart }, _] = useContext(CartContext)
+    const [{ cart, cartQuantity }, _] = useContext(CartContext)
     const [model, setModel] = useState<GLTF>(null!)
     const [endAnimation, setEndAnimation] = useState(false)
     const controlsRef = useRef<CameraControls>(null)
     const downQuad = new Quaternion().setFromUnitVectors(new Vector3(0, 0, -1), new Vector3(0, -1, 0))
     const defaultSize = 5
-    const [size, setSize] = useState(5)
-    const [materials, setMaterials] = useState({material: new MeshBasicMaterial({color: 0xff0000})})
+    const [size, setSize] = useState(0)
+    const animationFrameId = useRef(0)
+    const cartVisualizzedCount = useRef(0)
+
+    function updateLabelNumber(model, newNumber) {
+        // Cerca l'etichetta esistente tra i figli del modello
+        const label = model.children.find(child => child instanceof Sprite);
+
+        if (label) {
+            // Se l'etichetta esiste, aggiorna il suo contenuto
+            const newLabel = createCircularLabelSprite(newNumber);
+            label.material = newLabel.material;
+            label.name = label.name.split("x")[0] + newNumber
+        } else {
+            // Se l'etichetta non esiste, creane una nuova
+            addLabelToModel(model, newNumber);
+        }
+    }
+
+    function createCircularLabelSprite(number: string, textColor = 'black', backgroundColor = 'rgba(255, 255, 255, 0.5', arrowColor = 'rgba(0, 0, 0, 0.5)') {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const context = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 90; // Ridotto per lasciare spazio alla freccia
+
+        // Disegna il cerchio di sfondo
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        context.fillStyle = backgroundColor;
+        context.fill();
+
+        // Imposta il testo
+        context.font = 'Bold 80px Arial'; // Ridotto leggermente per adattarsi al cerchio più piccolo
+        context.fillStyle = textColor;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(number.toString(), centerX, centerY);
+
+        // Crea la texture e lo sprite
+        const texture = new CanvasTexture(canvas);
+        const spriteMaterial = new SpriteMaterial({ map: texture });
+        const sprite = new Sprite(spriteMaterial);
+
+        // Scala lo sprite
+        sprite.scale.set(0.75, 0.75, 0.75);
+
+        return sprite;
+    }
+
+    function addLabelToModel(model: Mesh, number: string) {
+        const boundingBox = new Box3().setFromObject(model);
+        const size = boundingBox.getSize(new Vector3());
+        const maxDimension = Math.max(size.x, size.y, size.z);
+
+        const label = createCircularLabelSprite(number);
+        console.log("pos", -boundingBox.min.z, boundingBox.max.x, "quantity_" + model.name.split("_")[1] + number)
+        // Posiziona l'etichetta nell'angolo in alto a destra del modello
+        label.position.set(
+            (boundingBox.max.z - boundingBox.min.z) / 2,
+            (boundingBox.max.x - boundingBox.min.x) / 2,
+            0
+        );
+
+        // Scala l'etichetta in base alla dimensione del modello
+        label.name = "quantity_" + model.name.split("_")[1] + number
+        model.add(label);
+    }
+
+    const calculateOptimalCameraPosition = (object, camera) => {
+        const boundingBox = new Box3().setFromObject(object);
+        const center = boundingBox.getCenter(new Vector3());
+        const size = boundingBox.getSize(new Vector3());
+
+        // Calcola la dimensione massima dell'oggetto
+        const maxDimension = Math.max(size.x, size.y, size.z);
+
+        // Ottieni l'aspect ratio dello schermo
+        const aspectRatio = gl.domElement.clientWidth / gl.domElement.clientHeight;
+
+        // Calcola il campo visivo verticale in radianti
+        const vFov = camera.fov * Math.PI / 180
+
+        // Calcola la distanza necessaria per inquadrare l'oggetto completamente
+        let distance = maxDimension / (2 * Math.tan(vFov / 2));
+
+        // Aggiungi un po' di spazio extra (puoi regolare questo valore)
+        distance *= 1.5;
+
+        // Calcola la posizione della camera
+        const direction = new Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+        const position = center.clone().add(direction.multiplyScalar(distance));
+
+        return position
+    }
+
+    const handleInteraction = useCallback((event) => {
+        if (!endAnimation)
+            return
+        event.preventDefault()
+        const raycaster = new Raycaster()
+        const mouse = new Vector3()
+
+        const clientX = event.clientX || (event.touches && event.touches[0].clientX)
+        const clientY = event.clientY || (event.touches && event.touches[0].clientY)
+
+        mouse.x = (clientX / gl.domElement.clientWidth) * 2 - 1
+        mouse.y = -(clientY / gl.domElement.clientHeight) * 2 + 1
+
+        raycaster.setFromCamera(mouse, camera)
+
+        const intersects = raycaster.intersectObjects(scene.children, true)
+
+        if (intersects.length > 0) {
+            const clickedObject = intersects.find(obj => obj.object.name && obj.object.name.includes("jewel"))
+            if (clickedObject) {
+                // Calcola la posizione ottimale della camera
+                const targetPosition = calculateOptimalCameraPosition(clickedObject.object, camera)//clickedObject.object.position.clone()
+                //targetPosition.y = calculateOptimalCameraPosition(clickedObject.object, camera).y
+                handleSelectItem(cart.find(c => c.variant.id === parseInt(clickedObject.object.name.split("_")[1])) ?? null)
+                setEndAnimation(false)
+
+                gsap.to(camera.position, {
+                    duration: 0.5,
+                    x: targetPosition.x,
+                    y: targetPosition.y,
+                    z: 0, // Sposta la camera leggermente indietro
+                    onComplete: () => setEndAnimation(true)
+                })
+            }
+            else
+                handleSelectItem(null)
+        }
+        else
+            handleSelectItem(null)
+    }, [camera, scene, endAnimation, gl.domElement])
 
     useEffect(() => {
+        const canvas = gl.domElement
+
+        // Aggiungi event listener per mouse e touch
+        canvas.addEventListener('click', handleInteraction)
+        canvas.addEventListener('touchstart', handleInteraction)
+
+        return () => {
+            // Rimuovi event listener quando il componente viene smontato
+            canvas.removeEventListener('click', handleInteraction)
+            canvas.removeEventListener('touchstart', handleInteraction)
+        }
+    }, [handleInteraction, gl])
+
+
+    useEffect(() => {
+        getCookie<string>("cartVisualizzedCount").then(count => {
+            let newCount = parseInt(count ?? 0) + 1
+            setCookie("cartVisualizzedCount", newCount.toString(), { maxAge: 31536000 })
+            cartVisualizzedCount.current = newCount
+            console.log("cartVisualizzedCount", cartVisualizzedCount.current)
+        })
+
         new GainMapLoader(gl).load(["/environmentMap.webp", "/environmentMap-gainmap.webp", "/environmentMap.json"], (texture) => {
             scene.environment = texture.renderTarget.texture
             scene.environment.mapping = 303
-        }, undefined, err => console.log("errore", err))
+        }, undefined, err => ie.log("errore", err))
 
         new GLTFLoader().load("/packaging_divided.glb", (loadedGltf) => {
             for (let i = 0; i < loadedGltf.scene.children.length; i++)
                 (loadedGltf.scene.children[i] as Mesh).material = new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 })
-            loadedGltf.scene.getObjectByName("container_left")?.position.set(0, 0, (size - defaultSize) / 2)
-            loadedGltf.scene.getObjectByName("container_right")?.position.set(0, 0, -(size - defaultSize) / 2)
-            loadedGltf.scene.getObjectByName("drawer_left")?.position.set(0, 0, (size - defaultSize) / 2)
-            loadedGltf.scene.getObjectByName("drawer_right")?.position.set(0, 0, -(size - defaultSize) / 2)
-            loadedGltf.scene.getObjectByName("drawer_center")?.scale.set(1, 1, 2 + (size - defaultSize))
-            const containerLink = new Mesh(new BoxGeometry(0.5, 0.38, size - defaultSize), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 }))
+            const containerLink = new Mesh(new PlaneGeometry(0, 0), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 }))
+            containerLink.name = "container_link"
             containerLink.position.set(2.7499, -1.060, 0)
 
             const drawerLinks = [
-                new Mesh(new BoxGeometry(0.5, 0.38, size - defaultSize), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 })),
-                new Mesh(new BoxGeometry(0.5, 0.38, size - defaultSize), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 }))
+                new Mesh(new PlaneGeometry(0, 0), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 })),
+                new Mesh(new PlaneGeometry(0, 0), new MeshStandardMaterial({ color: 0x0000ff, metalness: 0.2, roughness: 0.3 }))
             ]
             drawerLinks[0].position.set(2.7499, -1.060, 0)
             drawerLinks[0].name = "drawer_link_0"
             drawerLinks[1].position.set(2.7499, -1.060, 0)
             drawerLinks[1].name = "drawer_link_1"
 
-            const woodMaterial = WoodMaterial(size / defaultSize * 2)
+            const woodMaterial = WoodMaterial()
             const woods = [
-                new Mesh(new BoxGeometry(5.64, 0.35, 5.2 + size - defaultSize), woodMaterial),
-                new Mesh(new BoxGeometry(5.64, 0.35, 5.67 + size - defaultSize), woodMaterial),
-                new Mesh(new BoxGeometry(0.31, 2.33, 5.4 + size - defaultSize), woodMaterial),
-                new Mesh(new PlaneGeometry(size, 5.64), TreeMaterial("/tree_textures/tree_up.png", 1.6, size / 5.64)),
-                new Mesh(new PlaneGeometry(size, 5.64), TreeMaterial("/tree_textures/tree_down.png", 1.6, size / 5.64)),
-                new Mesh(new PlaneGeometry(size, 2.33), TreeMaterial("/tree_textures/tree_middle.png", 3.733, size / 2.4)),
+                new Mesh(new PlaneGeometry(0, 0), woodMaterial),
+                new Mesh(new PlaneGeometry(0, 0), woodMaterial),
+                new Mesh(new PlaneGeometry(0, 0), woodMaterial),
+                new Mesh(new PlaneGeometry(0, 0), TreeMaterial("/tree_textures/tree_up.png")),
+                new Mesh(new PlaneGeometry(0, 0), TreeMaterial("/tree_textures/tree_down.png")),
+                new Mesh(new PlaneGeometry(0, 0), TreeMaterial("/tree_textures/tree_middle.png")),
             ]
             woods[0].position.set(-0.03, 1, 0)
             woods[1].position.set(-0.03, -1, 0)
@@ -77,40 +296,88 @@ const Renderer = () => {
             woods[4].rotateOnAxis(new Vector3(0, 0, 1), Math.PI)
             woods[5].position.set(-2.901, -0, 0)
             woods[5].rotateOnAxis(new Vector3(0, -1, 0), Math.PI / 2)
-            woods.map(m => m.name = "wood")
+            woods.map((m, i) => m.name = "wood_" + i)
             loadedGltf.scene.add(...woods, containerLink, ...drawerLinks)
             loadedGltf.scene.rotateOnWorldAxis(new Vector3(0, -1, 0), Math.PI / 2.7)
+            loadedGltf.scene.scale.set(0, 0, 0)
             setModel(loadedGltf)
         }, undefined, (error) => {
             console.error("Error loading GLTF:", error);
         })
-        window.addEventListener("keydown", () => setMaterials(new MeshBasicMaterial({color: 0x00ff00})))
     }, [])
 
     useEffect(() => {
-        if (cart.length > 0 && model) {
+        if (model && !size) {
             const space = 0.5;
+            let cartSize = 0
+            cart.map(c => cartSize += c.size[0])
+            cartSize += space * (cart.length - 1) + 3;
+            cartSize = Math.max(cartSize, 5);
             (async () => {
                 const meshes: Mesh[] = []
+                let totalWidth = 0
+                for (let i = 0; i < cart.length; i++)
+                    totalWidth += cart[i].size[0] + space;
+                totalWidth -= space
+                let currentPosition = -totalWidth / 2
                 for (let i = 0; i < cart.length; i++) {
-                    const mesh = new Mesh(new PlaneGeometry((cart[i].variant.CartVisualizzation.Size as [number, number])[0], (cart[i].variant.CartVisualizzation.Size as [number, number])[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync("http://localhost:1337" + cart[i].variant.CartVisualizzation.Texture?.data.attributes.formats?.small.url ?? ""), metalness: 0.8, roughness: 0.1, transparent: true }))
-                    mesh.position.set(0, 0, meshes.length > 0 ? -(meshes[meshes.length - 1].geometry.boundingBox?.max.x ?? 0) - (cart[i].variant.CartVisualizzation.Size as [number, number])[0] / 2 - space : 0)
+                    const [width, height] = cart[i].size;
+                    const mesh = new Mesh(new PlaneGeometry(cart[i].size[0], cart[i].size[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync("http://localhost:1337" + cart[i].textureURL), metalness: 0.8, roughness: 0.1, transparent: true }))
+                    mesh.position.set(0, 0, currentPosition + width / 2)
+                    currentPosition += width + space; // Aggiorna la posizione corrente
+
                     mesh.rotateOnWorldAxis(new Vector3(0, 1, 0), Math.PI / 2)
                     mesh.rotateOnWorldAxis(new Vector3(0, 0, 1), Math.PI / 2)
                     mesh.geometry.computeBoundingBox()
-                    mesh.name = "jewel_" + i
+                    mesh.name = "jewel_" + cart[i].variant.id
+                    addLabelToModel(mesh, "x" + cart[i].quantity)
+                    console.log("added", mesh.name, mesh.position, currentPosition, width, -totalWidth / 2)
                     meshes.push(mesh)
                 }
-                model.scene.add(...meshes)
+                if (meshes.length)
+                    model.scene.add(...meshes)
             })()
-            let cartSize = 0
-            cart.map(c => cartSize += (c.variant.CartVisualizzation.Size as [number, number])[0])
-            cartSize += space * cart.length - 1
-            startAnimation()
+            setSize(cartSize)
         }
-    }, [cart, model])
+    }, [cart, model, size])
 
-    const TreeMaterial = (url: string, textureAspectRatio: number, planeAspectRatio: number) => {
+    useEffect(() => {
+        if (!model || !size || !cartVisualizzedCount.current)
+            return
+        model.scene.getObjectByName("container_left")?.position.set(0, 0, (size - defaultSize) / 2)
+        model.scene.getObjectByName("container_right")?.position.set(0, 0, -(size - defaultSize) / 2)
+        model.scene.getObjectByName("drawer_left")?.position.set(0, 0, (size - defaultSize) / 2)
+        model.scene.getObjectByName("drawer_right")?.position.set(0, 0, -(size - defaultSize) / 2)
+        model.scene.getObjectByName("drawer_center")?.scale.set(1, 1, 2 + (size - defaultSize));
+        (model.scene.getObjectByName("container_link") as Mesh).geometry = new BoxGeometry(0.5, 0.38, size - defaultSize);
+
+        (model.scene.getObjectByName("drawer_link_0") as Mesh).geometry = new BoxGeometry(0.5, 0.38, size - defaultSize);
+        (model.scene.getObjectByName("drawer_link_1") as Mesh).geometry = new BoxGeometry(0.5, 0.38, size - defaultSize);
+
+        const repeatRatioY = size / defaultSize * 2
+        const woods = model.scene.children.filter(m => m.name.includes("wood")).sort((a, b) => parseInt(a.name.split("_")[1]) - parseInt(b.name.split("_")[1])) as Mesh[];
+        (woods[0].material as MeshStandardMaterial).map?.repeat.set(2, repeatRatioY);
+        (woods[0].material as MeshStandardMaterial).roughnessMap?.repeat.set(2, repeatRatioY);
+        (woods[0].material as MeshStandardMaterial).normalMap?.repeat.set(2, repeatRatioY);
+        woods[1].material = woods[2].material = woods[0].material;
+        (woods[3].material as MeshStandardMaterial).map = SetRepeatTreeMaterial((woods[3].material as MeshStandardMaterial).map ?? null!, 1.6, size / 5.64);
+        (woods[4].material as MeshStandardMaterial).map = SetRepeatTreeMaterial((woods[4].material as MeshStandardMaterial).map ?? null!, 1.6, size / 5.64);
+        (woods[5].material as MeshStandardMaterial).map = SetRepeatTreeMaterial((woods[5].material as MeshStandardMaterial).map ?? null!, 3.733, size / 2.4);
+
+        woods[0].geometry = new BoxGeometry(5.64, 0.35, 5.2 + size - defaultSize);
+        woods[1].geometry = new BoxGeometry(5.64, 0.35, 5.67 + size - defaultSize)
+        woods[2].geometry = new BoxGeometry(0.31, 2.33, 5.4 + size - defaultSize)
+        woods[3].geometry = woods[4].geometry = new PlaneGeometry(size, 5.64)
+        woods[5].geometry = new PlaneGeometry(size, 2.33)
+
+        startAnimation()
+
+        return () => {
+            cancelAnimationFrame(animationFrameId.current);
+        }
+    }, [size, cartVisualizzedCount.current])
+
+    const TreeMaterial = (url: string) => {
         const t = new TextureLoader().load(url);
         t.center.set(0.5, 0.5); // Centra la texture
         t.wrapS = ClampToEdgeWrapping; // Le parti fuori dai bordi verranno tagliate
@@ -118,6 +385,10 @@ const Renderer = () => {
         t.minFilter = LinearFilter; // Filtraggio per evitare artefatti
         t.magFilter = LinearFilter;
 
+        return new MeshStandardMaterial({ map: t, transparent: true, opacity: 0.75, roughness: 1, metalness: 0 })
+    }
+
+    const SetRepeatTreeMaterial = (t: Texture, textureAspectRatio: number, planeAspectRatio: number) => {
         if (planeAspectRatio > textureAspectRatio) {
             // Se il piano è più largo della texture, taglia la larghezza della texture
             t.repeat.set(planeAspectRatio / textureAspectRatio, 1);
@@ -125,10 +396,10 @@ const Renderer = () => {
             // Se il piano è più alto della texture, taglia l'altezza della texture
             t.repeat.set(planeAspectRatio / textureAspectRatio, 1);
         }
-        return new MeshStandardMaterial({ map: t, transparent: true, opacity: 0.75, roughness: 1, metalness: 0 })
+        return t
     }
 
-    const WoodMaterial = (repeatRatioY: number) => {
+    const WoodMaterial = () => {
         // Carica le texture
         const textureLoader = new TextureLoader();
         const baseColorTexture = textureLoader.load('wood_textures/brown_planks_09_diff_1k.jpg');
@@ -139,11 +410,6 @@ const Renderer = () => {
         baseColorTexture.wrapS = baseColorTexture.wrapT = RepeatWrapping;
         roughnessTexture.wrapS = roughnessTexture.wrapT = RepeatWrapping;
         normalMapTexture.wrapS = normalMapTexture.wrapT = RepeatWrapping;
-
-        // Imposta quante volte devono essere ripetute
-        baseColorTexture.repeat.set(2, repeatRatioY);
-        roughnessTexture.repeat.set(2, repeatRatioY);
-        normalMapTexture.repeat.set(2, repeatRatioY);
 
         // Crea il materiale usando MeshStandardMaterial
         return new MeshStandardMaterial({
@@ -156,8 +422,9 @@ const Renderer = () => {
     }
 
     const startAnimation = () => {
-        let totalTime = 4000; // Durata totale della fase 1 in millisecondi
-        let phase2Time = 2000; // Durata della fase 2 in millisecondi
+        const speedFactor = cartVisualizzedCount.current >= 3 ? 1 / Math.log(cartVisualizzedCount.current) : 1
+        let totalTime = Math.max(speedFactor * 4000, 1000); // Durata totale della fase 1 in millisecondi
+        let phase2Time = Math.max(speedFactor * 2000, 700); // Durata della fase 2 in millisecondi
         let phase2 = false;
         let finalPosition = new Vector3(0, 10, 0); // Posizione finale
         let initialTimePhase2 = 0;
@@ -165,17 +432,25 @@ const Renderer = () => {
 
         const drawer = model.scene.children.filter(m => m.name.includes("wood") || m.name.includes("container"))
         const initialPositionMeshes = drawer.map(m => m.position.clone().x)
-
+        let startedTime = -1
+        console.log("nim", model.scene.children.find(m => m.name.includes("jewel"))?.position)
         // Avvia l'animazione
-        animate(0);
+        animationFrameId.current = requestAnimationFrame(animate);
 
         function animate(time: number) {
-            requestAnimationFrame(animate);
+            if (startedTime === -1) {
+                startedTime = time
+                model.scene.scale.set(1, 1, 1)
+            }
+
+            if (startedTime > 0)
+                time -= startedTime
 
             if (time > totalTime + phase2Time) {
                 setEndAnimation(true)
                 return
             }
+            animationFrameId.current = requestAnimationFrame(animate);
 
             // Fase 1: Movimento orbitale a spirale fino a quando la distanza dall'oggetto è minore di 1
             if (!phase2) {
@@ -225,12 +500,44 @@ const Renderer = () => {
         }
     }
 
+    useEffect(() => {
+        console.log(cart)
+        if (!model)
+            return
+        let removed: Object3D | null = null
+        model.scene.children.find(m => {
+            if (!m.name.includes("jewel"))
+                return false
+            let id = parseInt(m.name.split("_")[1])
+            let index = -1
+            cart.find((c, i) => {
+                if (id === c.variant.id) {
+                    index = i;
+                    return true
+                } else return false
+            })
+            console.log(index, id, cart)
+            if (index === -1 || cart[index].quantity <= 0) {
+                removed = m
+                return true
+            }
+            else if (!m.getObjectByName("quantity_" + id + "x" + cart[index].quantity)) {
+                updateLabelNumber(m, "x" + cart[index].quantity)
+                return true
+            }
+            return false
+        })
+        if (removed) {
+            model.scene.remove(removed)
+            handleSelectItem(null)
+        }
+    }, [cartQuantity])
+
     useFrame(() => {
         if (controlsRef.current) {
             // Fissa la camera per guardare sempre verso il basso
             camera.position.z = 0;
             camera.position.x = Math.min(Math.max(camera.position.x, -size / 2 + 1), size / 2 - 1);
-            console.log(camera.position.x)
             camera.quaternion.set(downQuad.x, downQuad.y, downQuad.z, downQuad.w);
             controlsRef.current.mouseButtons.left = 0
         }
@@ -238,7 +545,7 @@ const Renderer = () => {
 
     return <>
         <mesh rotation={[0, -0.4, 0]}>
-            {model && cart.length && <primitive object={model.scene} />}
+            {model && <primitive object={model.scene} />}
         </mesh>
         {scene.environment && <Environment map={scene.environment} />}
         {endAnimation && <CameraControls ref={controlsRef} minDistance={4} maxDistance={30} />}
