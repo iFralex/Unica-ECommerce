@@ -3,16 +3,17 @@ import { ProductProvider } from "@/components/context"
 import { HeroProduct } from "@/components/ui/hero-sections"
 import { ImagesGallery } from "@/components/product"
 import { ModelViewer } from '@/components/3D-viewer'
-import { DescriptionSection } from "@/components/DescriptionSection"
+import { CardGrid, Testimonial, DetailsDescription, FAQ } from "@/components/DescriptionSection"
 import { Materials3D } from "@/types/strapi-types"
-import { ProductCartVisualizzation } from "@/types/components"
+import { ProductCards, ProductCartVisualizzation, ProductCharityLink } from "@/types/components"
+import { CardDescriptionType } from "@/types/types"
+import { CharitySection } from "@/components/charity-blind"
+import { Reviews } from "@/components/reviews"
 
 const Page = async ({ params }: { params: { productId: string, category: string } }) => {
   const product = await getProduct(params.productId)
-  //console.log("err", await getTest(params.productId))
   if (product instanceof Error)
     return <div>An error occured: {product.message}</div>
-
   return (
     <ProductProvider>
       <HeroProduct product={product} params={params} />
@@ -26,7 +27,18 @@ const Page = async ({ params }: { params: { productId: string, category: string 
             <ImagesGallery imagesUrls={product.attributes.ProductDetails?.map(v => v.Photos?.data.map(image => image)) ?? []} responsibleSizes={"basis-1/1"} orientation="vertical" carouselCustomClass={{ height: "calc(100vw + 157px)", maxHeight: "calc(90vh + 157px)" }} />
           </div>
         </div>
-        <DescriptionSection />
+        <div className="container">
+          <Testimonial data={product.attributes.Description?.find(d => d.__component === "product.testimonial")?.TestimonialLink?.data?.attributes} />
+          <CardGrid cards={product.attributes.Description?.filter(desc => desc.__component === "product.cards").find(desc => desc.Type === "Come sei")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
+          <DetailsDescription cards={product.attributes.Description?.filter(desc => desc.__component === "product.cards").find(desc => desc.Type === "Dettagli")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
+          {(() => {
+            const data = product.attributes.Description?.find(d => d.__component === "product.charity-link")
+            return data?.__component === "product.charity-link" && data.CharityCampaign && <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
+          })()}
+          <Reviews reviews={product.attributes.Description?.filter(d => d.__component === "product.review") ?? []} />
+          <FAQ faqs={product.attributes.Description?.find(d => d.__component === "product.faq")?.FAQs?.data} />
+        </div>
+        <div className="h-[100px]" />
       </div>
     </ProductProvider>
   )

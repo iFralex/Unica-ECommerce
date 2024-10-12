@@ -3,9 +3,9 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { type ThemeProviderProps } from "next-themes/dist/types"
-import { CartContextType, CartType, UserType } from '@/types/types'
-import { getCartFromCartLight, getCookie, setCookie } from '@/actions/get-data'
-import { getCartLight } from '@/actions/firebase'
+import { CartContextType, CartType, FavoriteType, UserType } from '@/types/types'
+import { getCartsFromCartsLight, getCookie, getFavoritesFromFavoritesLight, setCookie } from '@/actions/get-data'
+import { getCartsLight, getFavoritesLight } from '@/actions/firebase'
 
 // Theme
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
@@ -28,6 +28,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return <CartContext.Provider value={[contextValue, setContextValue]}>{children}</CartContext.Provider>
 }
 
+// Favorites
+export const FavoritesContext = createContext<[FavoriteType[], React.Dispatch<React.SetStateAction<FavoriteType[]>>]>([[], () => {}]);
+
+export function FavoritesProvider({ children }: { children: React.ReactNode }) {
+    const [contextValue, setContextValue] = useState<FavoriteType[]>([]);
+    return <FavoritesContext.Provider value={[contextValue, setContextValue]}>{children}</FavoritesContext.Provider>
+}
+
 // User
 export const UserContext = createContext<[UserType, React.Dispatch<React.SetStateAction<UserType>>]>([{ cart: [], cartQuantity: -1 }, null!]);
 
@@ -40,26 +48,39 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 export const ContextListeners = ({ }: {}) => {
     const [userContext, setUserContext] = useContext(UserContext)
     const [cartContext, setCartContext] = useContext(CartContext)
+    const [favoritesContext, setFavoritesContext] = useContext(FavoritesContext)
 
     //At start
     useEffect(() => {
         let cartQuantity = -1
         getCookie<string>("cookieID").then(async userID => {
             if (userID) {
-                const cartLight = await getCartLight(userID)
-                if (cartLight instanceof Error) {
-                    setCartContext({ cart: [], cartQuantity: cartQuantity })
-                    setUserContext({ id: "noid" })
-                    return console.log("Error cartLight:", cartLight.message)
-                }
-                const cart = await getCartFromCartLight(cartLight)
-                console.log(cart)
-                if (cart instanceof Error || !cart) {
-                    setCartContext({ cart: [], cartQuantity: cartQuantity })
-                    setUserContext({ id: "noid" })
-                    return console.log("Error cart:", cart.message)
-                }
-                setCartContext({ cart: cart, cartQuantity: cartQuantity })
+                await (async () => {
+                    const cartLight = await getCartsLight(userID)
+                    if (cartLight instanceof Error) {
+                        setCartContext({ cart: [], cartQuantity: cartQuantity })
+                        return console.log("Error cartLight:", cartLight.message)
+                    }
+                    const cart = await getCartsFromCartsLight(cartLight)
+                    console.log(cart)
+                    if (cart instanceof Error || !cart) {
+                        setCartContext({ cart: [], cartQuantity: cartQuantity })
+                        return console.log("Error cart:", cart.message)
+                    }
+                    setCartContext({ cart: cart, cartQuantity: cartQuantity })
+                })();
+                await (async () => {
+                    const favoritesLight = await getFavoritesLight(userID)
+                    if (favoritesLight instanceof Error) {
+                        return console.log("Error favoritesLight:", favoritesLight.message)
+                    }
+                    const favorites = await getFavoritesFromFavoritesLight(favoritesLight)
+                    console.log(favorites)
+                    if (favorites instanceof Error || !favorites) {
+                        return console.log("Error favorites:", favorites.message)
+                    }
+                    setFavoritesContext(favorites)
+                })();
             }
             setUserContext({ id: userID ?? "noid" })
             console.log("started id:", userID, userID ?? "noid")
@@ -85,6 +106,5 @@ export const ContextListeners = ({ }: {}) => {
         setCookie("cartQuantity", cartContext.cartQuantity.toString(), { maxAge: 31536000 })
     }, [cartContext.cartQuantity])
 
-    useEffect(() => console.log("cart updated", cartContext), [cartContext.cart])
     return <></>
 }

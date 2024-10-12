@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { APIResponseData } from "@/types/strapi-types";
+import BlurFade from "./magicui/blur-fade";
 
 const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation = "horizontal", carouselCustomClass = {} }: { imagesUrls: (APIResponseData<"plugin::upload.file">[] | undefined)[], responsibleSizes?: string, orientation?: "horizontal" | "vertical", carouselCustomClass?: Object }) => {
     const [productContext, _] = useContext(ProductContext);
@@ -32,19 +33,21 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
                 <CarouselContent style={carouselCustomClass}>
                     {imagesUrls[productContext.variantIndex]?.map((image, index) => (
                         image.attributes.formats?.small?.url && <CarouselItem key={index} className={responsibleSizes}>
-                            <div className="p-1">
-                                <Card>
-                                    <CardContent>
-                                        <Image
-                                            src={`http://localhost:1337${image.attributes.formats?.small?.url}`}
-                                            alt={`Product Image ${index + 1}`}
-                                            width={image.attributes.formats?.small?.width}
-                                            height={image.attributes.formats?.small?.height}
-                                            className="rounded-md"
-                                        />
-                                    </CardContent>
-                                </Card>
-                            </div>
+                            <BlurFade key={index} delay={0.25 + Math.min(3, index) * 0.1} inView>
+                                <div className="p-1">
+                                    <Card>
+                                        <CardContent>
+                                            <Image
+                                                src={`http://localhost:1337${image.attributes.formats?.small?.url}`}
+                                                alt={`Product Image ${index + 1}`}
+                                                width={image.attributes.formats?.small?.width}
+                                                height={image.attributes.formats?.small?.height}
+                                                className="rounded-md"
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </BlurFade>
                         </CarouselItem>
                     )) ?? <></>}
                 </CarouselContent>

@@ -1,5 +1,5 @@
 import { ProductProductDetails } from "./components";
-import { APIResponseData } from "./strapi-types";
+import { APIResponse, APIResponseData } from "./strapi-types";
 
 type SafeRequest<T> = {
     error?: Error;
@@ -16,7 +16,7 @@ export type Vector = [number, number, number]
 export type Vector2 = [number, number]
 export type Transform = { Position?: Vector, Rotation?: Vector, Scale?: Vector }
 
-export type VariantType = (APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never,
+export type VariantType = (APIResponseData<"api::product.product">["attributes"]["ProductDetails"]) extends (infer U)[] | undefined | null ? U : never
 
 export type CartLiteType = {
     productId: number,
@@ -30,13 +30,28 @@ export type CartType = {
     urlPath: string,
     shortDescription: string,
     quantity: number
-    variant: VariantType
+    variant: VariantType,
+    variantIndex: number
     size: [number, number],
     textureURL: string,
-    charity: boolean,
+    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>
 }
 
 export type CartContextType = { cart: CartType[], cartQuantity: number }
 export type UserType = {
     id: string
+}
+
+export type FavoriteType = {
+    id: number,
+    name: string,
+    urlPath: string,
+    shortDescription: string,
+    variant: VariantType,
+    variantIndex: number,
+    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>}
+
+export type CardDescriptionType = {
+    title: string,
+    description: string
 }

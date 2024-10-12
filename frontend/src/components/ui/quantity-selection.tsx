@@ -32,10 +32,10 @@ const QuantitySelection = ({ handleQuantity, quantity, disabled = false, removeE
                             </DialogHeader>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="secondary">Annulla</Button>
+                                    <Button variant="secondary" className="mt-2 sm:mt-0">Annulla</Button>
                                 </DialogClose>
                                 <DialogClose asChild>
-                                    <Button variant="default" onClick={handleAddToWishList}><Heart className="mr-1" /> Aggiungi</Button>
+                                    <Button variant="default" className="mt-2 sm:mt-0" onClick={handleAddToWishList}><Heart className="mr-1" strokeWidth={0} fill="red" /> Aggiungi</Button>
                                 </DialogClose>
                                 <DialogClose asChild>
                                     <Button variant="destructive" onClick={() => handleQuantity(-1)}><Trash2 className="mr-1" /> Elimina</Button>

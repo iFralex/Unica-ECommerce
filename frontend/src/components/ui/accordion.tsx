@@ -22,14 +22,14 @@ AccordionItem.displayName = "AccordionItem";
 
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & { infoToolTip?: React.ReactNode }
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & { infoToolTip?: React.ReactNode, fullWidth?: boolean }
 >(
-  ({ className, infoToolTip = null, children, ...props }, ref) => (
+  ({ className, fullWidth = false, infoToolTip = null, children, ...props }, ref) => (
     <AccordionPrimitive.Header className="flex items-center">
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          "flex items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+          (fullWidth ? "flex-1 " : "") + "flex items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
           className
         )}
         {...props}

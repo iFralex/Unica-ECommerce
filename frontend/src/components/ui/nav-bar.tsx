@@ -15,7 +15,7 @@ import { cookies } from 'next/headers';
 import { cn } from "@/lib/utils";
 import { getCookie } from "@/actions/get-data";
 import { CartContext } from "../context";
-import {Loader2} from "lucide-react"
+import {Heart, Loader2} from "lucide-react"
 
 export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
     let [cartContext, setCartContext] = useContext(CartContext)
@@ -41,9 +41,16 @@ export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link href="/cart" legacyBehavior passHref>
+                    <Link href="/carrello" legacyBehavior passHref>
                          <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             Cart: {cartContext.cartQuantity !== -1 ? cartContext.cartQuantity : <Loader2 />}
+                        </NavigationMenuLink>
+                    </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <Link href="/preferiti" legacyBehavior passHref>
+                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                            <Heart fill="red" strokeWidth={0} />
                         </NavigationMenuLink>
                     </Link>
                 </NavigationMenuItem>

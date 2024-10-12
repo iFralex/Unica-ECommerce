@@ -1,13 +1,16 @@
 "use client"
 
 import { getCookie, setCookie } from "@/actions/get-data"
-import { AddItemToCart, useMedia } from "@/components/client-components"
-import { CartContext, UserContext } from "@/components/context"
+import { CharityBadge } from "@/components/charity-blind"
+import { AddItemToCart, AddOrRemoveItemToFavorites, useMedia } from "@/components/client-components"
+import { CartContext, FavoritesContext, UserContext } from "@/components/context"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Price from "@/components/ui/price"
 import QuantitySelection from "@/components/ui/quantity-selection"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useToast } from "@/components/ui/use-toast"
 import { CartType } from "@/types/types"
 import { GainMapLoader } from '@monogrid/gainmap-js'
 import { CameraControls, Environment, OrbitControls, Shadow, useEnvironment } from "@react-three/drei"
@@ -16,26 +19,28 @@ import gsap from "gsap"
 import { Rock_3D } from "next/font/google"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { title } from "process"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
-import { Box3, Box3Helper, BoxGeometry, CanvasTexture, ClampToEdgeWrapping, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, PlaneGeometry, Quaternion, Raycaster, RepeatWrapping, Sprite, SpriteMaterial, Texture, TextureLoader, Vector3 } from "three"
+import { Box3, BoxGeometry, CanvasTexture, ClampToEdgeWrapping, LinearFilter, Mesh, MeshStandardMaterial, Object3D, PlaneGeometry, Quaternion, Raycaster, RepeatWrapping, Sprite, SpriteMaterial, Texture, TextureLoader, Vector3 } from "three"
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 export const CartClient = () => {
     const [cart, setCart] = useContext(CartContext)
     const [{ id: userId }, setUserId] = useContext(UserContext)
+    const [favorites, setFavorites] = useContext(FavoritesContext)
     const [selectedItem, setSelectedItem] = useState<CartType | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const isWiderThanMobile = useMedia('(min-width: 768px)');
     const router = useRouter()
-
+    const { toast } = useToast()
+    console.log("il carrello", cart)
     const handleQuantity = (incr: number) => {
         if (!selectedItem)
             return
         (async () => {
             setLoading(true)
-            await AddItemToCart(userId, setUserId, selectedItem.variant.id, selectedItem.id, incr, 0, cart, setCart, selectedItem.name, selectedItem.urlPath, selectedItem.shortDescription, selectedItem.variant, selectedItem.textureURL, selectedItem.size)
+            await AddItemToCart(userId, setUserId, selectedItem.variant.id, selectedItem.id, incr, selectedItem.variantIndex, cart, setCart, selectedItem.name)
             setLoading(false)
-            console.log("agg")
         })()
     }
 
@@ -63,12 +68,32 @@ export const CartClient = () => {
                     {selectedItem && <div className="flex justify-start space-x-5">
                         {isWiderThanMobile && <div className="flex-shrink-0"><Image src={"http://localhost:1337" + selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
                         <div className="w-full text-center md:text-left">
-                            <Button variant={"link"} className="m-0 p-0" onClick={() => router.push("/" + selectedItem.urlPath)}>
-                                <h1 className="font-bold text-2xl">{selectedItem.name}</h1>
-                            </Button>
-                            <p className="text-sm">{selectedItem.shortDescription.length > 110 ? selectedItem.shortDescription.substring(0, 110) + "..." : selectedItem.shortDescription}</p>
+                            <SheetTitle asChild>
+                                <Button variant={"link"} className="m-0 p-0" onClick={() => router.push("/" + selectedItem.urlPath)}>
+                                    <h1 className="font-bold text-2xl">{selectedItem.name}</h1>
+                                </Button>
+                            </SheetTitle>
+                            <SheetDescription asChild>
+                                <p className="text-sm line-clamp-2">{selectedItem.shortDescription}</p>
+                            </SheetDescription>
+                            <div className="flex space-x-3 flex-wrap my-3">
+                                <Badge variant="outline" className="bg-white min-h-8">
+                                    <div className="flex items-center justify-start flex-no-wrap">
+                                        <div className="w-4 h-4 rounded-full inline-block mr-1" style={{ backgroundColor: "#" + selectedItem.variant.Material?.data.attributes.Color }} />
+                                        <span>{selectedItem.variant.Material?.data.attributes.Name}</span>
+                                    </div>
+                                </Badge>
+                                <Badge variant="outline" className="min-h-8">
+                                    <div className="flex items-center justify-center flex-wrap space-x-2">
+                                        {selectedItem.variant.Platings?.data.map((p, i) => <span key={i} className="flex items-center justify-center">
+                                            <div className="w-4 h-4 rounded-full inline-block" style={{ backgroundColor: "#" + p.attributes.Color }} />
+                                        </span>)}
+                                    </div>
+                                </Badge>
+                            </div>
+                            {selectedItem.charity && selectedItem.charity.CharityCampaign && <CharityBadge CampaignName={selectedItem.charity.CharityCampaign.data.attributes.Name} DonatedMoney={selectedItem.charity.DonatedMoney} productName={selectedItem.name} url={"/" + selectedItem.charity.CharityCampaign.data.attributes.SKU} />}
                             <div className={false ? "grid grid-col" : "flex items-start justify-center md:justify-start flex-wrap space-x-5"}>
-                                <QuantitySelection handleQuantity={handleQuantity} quantity={selectedItem.quantity} disabled={loading} removeEnable={true} dialogTitle={"Rimuovere " + selectedItem.name + "?"} dialogDescription={"Sei sicuro di voler rimuovere " + selectedItem.name + " dal carrello? In alternativa, aggiungilo alla lista dei preferiti!"} />
+                                <QuantitySelection handleQuantity={handleQuantity} quantity={selectedItem.quantity} disabled={loading} removeEnable={true} dialogTitle={"Rimuovere " + selectedItem.name + "?"} dialogDescription={"Sei sicuro di voler rimuovere " + selectedItem.name + " dal carrello? In alternativa, aggiungilo alla lista dei preferiti!"} handleAddToWishList={!favorites.find(f => f.variant.id === selectedItem.variant.id) ? () => { AddOrRemoveItemToFavorites(userId, setUserId, selectedItem.variant.id, selectedItem.id, favorites, setFavorites, selectedItem.name, selectedItem.urlPath, selectedItem.shortDescription, selectedItem.variant, selectedItem.variantIndex, selectedItem.charity, toast, router) } : () => { toast({ description: "Questa variante di " + selectedItem.name + " è già nella lista dei preferiti" }) }} />
                                 <Price price={selectedItem.variant.Price ?? 0} size={4} />
                             </div>
                         </div>
@@ -76,10 +101,10 @@ export const CartClient = () => {
                 </SheetContent>
             </Sheet>
             {cart.cart.length ? <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-md p-4 z-1">
-                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.charity ? (curr.variant.Price ?? 0) * curr.quantity : 0), 0)}  size={3} title={"Donato in beneficienza"}/>
-                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)}  size={3} title={"Totale"}/>
+                {cart.cart.find(c => c.charity) && <Price price={cart.cart.reduce((acc, curr) => acc + (curr.charity ? (curr.charity?.DonatedMoney ?? 0) * curr.quantity : 0), 0)} size={3} title={"Donato in beneficienza"} />}
+                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)} size={3} title={"Totale"} />
                 <Button size={"lg"}>Paga ora</Button>
-            </div> : <div/>}
+            </div> : <div />}
         </div>
     )
 }

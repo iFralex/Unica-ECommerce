@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_product_reviews",
+  "info": {
+    "displayName": "Review",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "UserName": {
+      "type": "string",
+      "required": true
+    },
+    "Text": {
+      "type": "text",
+      "required": true
+    },
+    "InstagramURL": {
+      "type": "string"
+    },
+    "TikTokURL": {
+      "type": "string"
+    },
+    "AvatarURL": {
+      "type": "string"
+    }
+  }
+}

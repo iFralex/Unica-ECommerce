@@ -64,12 +64,6 @@
       "target": "api::tag.tag",
       "mappedBy": "products"
     },
-    "Description": {
-      "displayName": "Description",
-      "type": "component",
-      "repeatable": true,
-      "component": "product.description"
-    },
     "Viewer": {
       "type": "dynamiczone",
       "components": [
@@ -77,6 +71,16 @@
         "product.single-item3-d"
       ],
       "max": 1
+    },
+    "Description": {
+      "type": "dynamiczone",
+      "components": [
+        "product.cards",
+        "product.charity-link",
+        "product.faq",
+        "product.review",
+        "product.testimonial"
+      ]
     }
   }
 }

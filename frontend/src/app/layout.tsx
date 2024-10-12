@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider, CartProvider, UserProvider, ContextListeners } from "@/components/context"
+import { ThemeProvider, CartProvider, UserProvider, ContextListeners, FavoritesProvider } from "@/components/context"
 import { NavBarStyled } from "@/components/ui/nav-bar"
 import { getCategories, getCookie } from "@/actions/get-data"
 import { Toaster } from "@/components/ui/toaster"
@@ -12,7 +12,7 @@ export const metadata = {
   description: "Ecommerce di Unica",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ favorite, children }: { favorite: React.ReactNode, children: React.ReactNode }) {
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>
@@ -24,16 +24,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <UserProvider>
             <CartProvider>
-              <ContextListeners />
-              <Toaster />
-              <div className="flex flex-col h-screen">
-                <div>
-                  <NavBar />
+              <FavoritesProvider>
+                <ContextListeners />
+                <Toaster />
+                <div className="flex flex-col h-screen">
+                  <div>
+                    <NavBar />
+                  </div>
+                  <div className="flex-grow h-full relative">
+                    {children}
+                  </div>
                 </div>
-                <div className="flex-grow h-full relative">
-                  {children}
-                </div>
-              </div>
+                {favorite}
+              </FavoritesProvider>
             </CartProvider>
           </UserProvider>
         </ThemeProvider>

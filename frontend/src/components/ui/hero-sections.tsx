@@ -10,12 +10,14 @@ import { TopicsList } from "@/components/ui/topic"
 import { ProductVariants } from "@/components/client-components"
 import Image from "next/image"
 import { APIResponseData } from "@/types/strapi-types"
+import { TypingAnimation } from "../magicui/typing-animation"
+import { GradualSpacing } from "../magicui/gradient-spacing"
 
 const HeroProduct = ({ product, params }: { product: APIResponseData<"api::product.product">, params: { productId: string, category: string } }) => {
     return (
-        <div className="relative flex justify-center bg-gradient-to-r from-black to-black/30 md:to-transparent pt-16 pb-12 px-8">
+        <div className="relative flex justify-center bg-gradient-to-r from-[#fffffff0] to-black/30 md:to-transparent pt-16 pb-12 px-8">
             <div className="w-[1400px] flex flex-col md:flex-row justify-between items-center">
-                <div className="dark md:w-1/2 text-center md:text-left overflow-x-hidden">
+                <div className="md:w-1/2 text-center md:text-left overflow-x-hidden">
                     <div className="flex justify-center md:justify-start flex-wrap">
                         <Breadcrumb className="">
                             <BreadcrumbList>
@@ -33,8 +35,8 @@ const HeroProduct = ({ product, params }: { product: APIResponseData<"api::produ
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{product.attributes.Name}</h1>
-                    <p className="text-lg text-foreground mb-6">{product.attributes.ShortDescription}</p>
+                    <TypingAnimation as="h1" className="text-4xl md:text-5xl font-bold text-foreground mb-4" text={product.attributes.Name} duration={50} />
+                    <TypingAnimation as="p" className="text-lg text-foreground mb-6" text={product.attributes.ShortDescription ?? ""} duration={5} />
                     <TopicsList topics={product.attributes.Tags?.data ?? []} />
                     <ProductVariants product={product} />
                 </div>

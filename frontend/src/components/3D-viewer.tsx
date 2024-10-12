@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useState, useContext, Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { Environment, CameraControls, useEnvironment } from '@react-three/drei'
@@ -19,6 +19,7 @@ import { APIResponseData, Materials3D } from "@/types/strapi-types";
 import { Transform, Vector } from "@/types/types";
 import { Box3, Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { getCartVisualizzationData } from "@/actions/get-data";
+import { GainMapLoader } from '@monogrid/gainmap-js'
 
 type MultipleModelType = {
   model: GLTF;
@@ -28,7 +29,7 @@ type MultipleModelType = {
 const ModelViewer = ({ product, materials, productId }: { product: APIResponseData<"api::product.product">, materials: Materials3D[], productId: number }) => {
   const viewer = product.attributes.Viewer?.[0];
   if (!viewer) return <></>
-  
+
   const multiple = viewer?.__component === "product.multiple-item3-d-link"
   const mesh = useRef(null);
   const [glb, setGlb] = useState<MultipleModelType | GLTF>(multiple ? [] : null as unknown as GLTF);
@@ -107,15 +108,8 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
     setOverlayVisible(false);
   };
 
-  const Env = () => {
-    const envMap = useEnvironment({ files: "/environmentMap.hdr" })
-    if (!loaded)
-      setLoaded(true)
-    return <Environment map={envMap} background />
-  }
-
   return (
-    <div className="flex justify-center items-center h-[100vw] max-h-[90vh] relative overflow-hidden">
+    <div className="flex justify-center items-center h-[100vw] max-h-[90vh] relative overflow-hidden md:rounded-r-md">
       <div ref={sheetContainer} className="dark" />
       {!loaded && <Skeleton className="absolute inset-0" />}
       <Suspense>
@@ -127,8 +121,8 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
           </Sheet>
         )}
         <Canvas ref={canvasRef} className="h-2xl w-2xl">
-          {glb && <>
-            <Env />
+          <Env setLoaded={setLoaded} />
+          {glb && loaded && <>
             <mesh ref={mesh} rotation={[0, -0.4, 0]}>
               {!multiple
                 ? SingleModel(viewer.Transforms as Transform[], glb as GLTF)
@@ -210,11 +204,11 @@ const ModelsSelector = ({ selectedViewer, sheetContainer, productId, selectedMod
 const ExplainedOverlay = ({ handleOverlayClick }: { handleOverlayClick: () => void }) => {
   return (
     <div
-      className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20 cursor-pointer"
+      className="absolute inset-0 bg-white bg-opacity-50 flex justify-center items-center z-20 cursor-pointer"
       onClick={handleOverlayClick}
     >
-      <Hand color="white" className="animate-swipe" />
-      <span className="text-white text-center">Tocca e scorri per guardare meglio il gioiello</span>
+      <Hand color="black" className="animate-swipe" />
+      <span className="text-black text-center">Tocca e scorri per guardare meglio il gioiello</span>
     </div>
   )
 }
@@ -245,6 +239,20 @@ const MultipleModels = (glb: MultipleModelType, selectedViewer: APIResponseData<
       effectiveIndex++
     return <primitive key={index} object={item.model.scene.clone()} position={transform.Position || [0, 0, 0]} rotation={transform.Rotation || [0, 0, 0]} scale={transform.Scale || [1, 1, 1]} />
   })
+}
+
+const Env = ({ setLoaded }: { setLoaded: React.Dispatch<React.SetStateAction<boolean>> }) => {
+  const { scene, gl } = useThree()
+
+  useEffect(() => {
+    (async () => new GainMapLoader(gl).load(["/environmentMap.webp", "/environmentMap-gainmap.webp", "/environmentMap.json"], (texture) => {
+      scene.environment = texture.renderTarget.texture
+      scene.environment.mapping = 303
+      setLoaded(true)
+    }, undefined, err => console.log("errore", err)))()
+  }, [])
+
+  return (<>{scene.environment && <Environment map={scene.environment} background />}</>)
 }
 
 export { ModelViewer };

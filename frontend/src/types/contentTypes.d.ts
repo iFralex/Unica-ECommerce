@@ -826,6 +826,64 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
   };
 }
 
+export interface ApiCharityCampaignCharityCampaign
+  extends Schema.CollectionType {
+  collectionName: 'charity_campaigns';
+  info: {
+    singularName: 'charity-campaign';
+    pluralName: 'charity-campaigns';
+    displayName: 'Charity Campaign';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.Enumeration<['Gioielli di Luce']> &
+      Attribute.DefaultTo<'Gioielli di Luce'>;
+    MoneyCollected: Attribute.Decimal;
+    MoneyTarget: Attribute.Decimal;
+    SKU: Attribute.UID & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::charity-campaign.charity-campaign',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::charity-campaign.charity-campaign',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiFaqFaq extends Schema.CollectionType {
+  collectionName: 'faqs';
+  info: {
+    singularName: 'faq';
+    pluralName: 'faqs';
+    displayName: 'FAQ';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Question: Attribute.String & Attribute.Required;
+    Answer: Attribute.Text & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::faq.faq', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::faq.faq', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiMaterialMaterial extends Schema.CollectionType {
   collectionName: 'materials';
   info: {
@@ -950,7 +1008,6 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'manyToMany',
       'api::tag.tag'
     >;
-    Description: Attribute.Component<'product.description', true>;
     Viewer: Attribute.DynamicZone<
       ['product.multiple-item3-d-link', 'product.single-item3-d']
     > &
@@ -960,6 +1017,15 @@ export interface ApiProductProduct extends Schema.CollectionType {
         },
         number
       >;
+    Description: Attribute.DynamicZone<
+      [
+        'product.cards',
+        'product.charity-link',
+        'product.faq',
+        'product.review',
+        'product.testimonial'
+      ]
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -977,7 +1043,6 @@ export interface ApiProductProduct extends Schema.CollectionType {
       Attribute.Private;
   };
 }
-let a: ApiProductProduct = null!
 
 export interface ApiTagTag extends Schema.CollectionType {
   collectionName: 'tags';
@@ -1004,6 +1069,40 @@ export interface ApiTagTag extends Schema.CollectionType {
     createdBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::tag.tag', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiTestimonialTestimonial extends Schema.CollectionType {
+  collectionName: 'testimonials';
+  info: {
+    singularName: 'testimonial';
+    pluralName: 'testimonials';
+    displayName: 'Testimonial';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String;
+    Description: Attribute.Text;
+    Image: Attribute.Media<'images'>;
+    LinkText: Attribute.String;
+    LinkURL: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::testimonial.testimonial',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::testimonial.testimonial',
+      'oneToOne',
+      'admin::user'
+    > &
       Attribute.Private;
   };
 }
@@ -1061,11 +1160,14 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::category.category': ApiCategoryCategory;
+      'api::charity-campaign.charity-campaign': ApiCharityCampaignCharityCampaign;
+      'api::faq.faq': ApiFaqFaq;
       'api::material.material': ApiMaterialMaterial;
       'api::order.order': ApiOrderOrder;
       'api::plating.plating': ApiPlatingPlating;
       'api::product.product': ApiProductProduct;
       'api::tag.tag': ApiTagTag;
+      'api::testimonial.testimonial': ApiTestimonialTestimonial;
       'api::viewer3d.viewer3d': ApiViewer3DViewer3D;
     }
   }

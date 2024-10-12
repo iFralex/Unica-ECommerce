@@ -20,11 +20,11 @@ const TopicsList = ({ topics }: { topics: APIResponseData<"api::tag.tag">[] }) =
         return <></>
     else
         return (
-            <Accordion type="single" orientation="horizontal" defaultValue="item-1" collapsible>
-                <AccordionItem value="item-1">
+            <Accordion type="single" orientation="horizontal" defaultValue="tag-item" collapsible>
+                <AccordionItem value="tag-item">
                     <AccordionTrigger className="text-foreground" infoToolTip={
                         <HoverCard>
-                            <HoverCardTrigger><CircleHelp className="ml-2 text-foreground" /></HoverCardTrigger>
+                            <HoverCardTrigger><CircleHelp className="ml-2 text-foreground h-4" strokeWidth={1.2}/></HoverCardTrigger>
                             <HoverCardContent className="text-left">
                                 <p>Questi Badge indicano gli aspetti personali che il gioiello può rappresentare al meglio.</p>
                                 <p>Premi su un Badge per avere più informazioni su quello specifico.</p>
@@ -34,7 +34,7 @@ const TopicsList = ({ topics }: { topics: APIResponseData<"api::tag.tag">[] }) =
                     <AccordionContent>
                         {topics.map((b, i) => (
                             <HoverCard>
-                                <HoverCardTrigger><Badge key={i} className="my-1 ml-3 mr-2 bg-background border border-primary" variant="outline">
+                                <HoverCardTrigger><Badge key={i} className="my-1 ml-3 mr-2 bg-background border dark:border-primary" variant="outline">
                                     <CircleTag color={b.attributes.Color ?? ""} absolute />
                                     <span className="ml-2">{b.attributes.Name}</span>
                                 </Badge></HoverCardTrigger>
@@ -59,7 +59,7 @@ const TopicsList = ({ topics }: { topics: APIResponseData<"api::tag.tag">[] }) =
 
 const CircleTag = ({ color, absolute, size = 6 }: { color: string, absolute?: boolean, size?: number }) => (
     <div className={(absolute ? "absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2" : " ") + " w-" + size + " h-" + size + " rounded-full flex items-center justify-center"} style={{ backgroundColor: "#" + color }}>
-        <CircleDotDashed className={"text-foreground w-" + (size - 1) + " h-" + (size - 1)} />
+        <CircleDotDashed className={"text-white w-" + (size - 1) + " h-" + (size - 1)} />
     </div>
 )
 
