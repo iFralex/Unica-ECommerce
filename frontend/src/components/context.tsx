@@ -21,15 +21,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 }
 
 // Cart
-export const CartContext = createContext<[CartContextType, React.Dispatch<React.SetStateAction<CartContextType>>]>([{ cart: [], cartQuantity: -1 }, null!]);
+export const CartContext = createContext<[CartContextType, React.Dispatch<React.SetStateAction<CartContextType>>]>([null, null!]);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-    const [contextValue, setContextValue] = useState<CartContextType>({ cart: [], cartQuantity: -1 });
+    const [contextValue, setContextValue] = useState<CartContextType>(null);
     return <CartContext.Provider value={[contextValue, setContextValue]}>{children}</CartContext.Provider>
 }
 
 // Favorites
-export const FavoritesContext = createContext<[FavoriteType[], React.Dispatch<React.SetStateAction<FavoriteType[]>>]>([[], () => {}]);
+export const FavoritesContext = createContext<[FavoriteType[], React.Dispatch<React.SetStateAction<FavoriteType[]>>]>([[], () => { }]);
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     const [contextValue, setContextValue] = useState<FavoriteType[]>([]);
@@ -45,66 +45,62 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 }
 
 
-export const ContextListeners = ({ }: {}) => {
+export const ContextListeners = ({ loggedUserId }: { loggedUserId?: string }) => {
     const [userContext, setUserContext] = useContext(UserContext)
     const [cartContext, setCartContext] = useContext(CartContext)
     const [favoritesContext, setFavoritesContext] = useContext(FavoritesContext)
 
     //At start
     useEffect(() => {
-        let cartQuantity = -1
         getCookie<string>("cookieID").then(async userID => {
+            console.log("cookie", userID, "user", loggedUserId)
+            if (loggedUserId)
+                userID = loggedUserId
             if (userID) {
                 await (async () => {
                     const cartLight = await getCartsLight(userID)
                     if (cartLight instanceof Error) {
-                        setCartContext({ cart: [], cartQuantity: cartQuantity })
+                        setCartContext([])
                         return console.log("Error cartLight:", cartLight.message)
                     }
                     const cart = await getCartsFromCartsLight(cartLight)
                     console.log(cart)
                     if (cart instanceof Error || !cart) {
-                        setCartContext({ cart: [], cartQuantity: cartQuantity })
+                        setCartContext([])
                         return console.log("Error cart:", cart.message)
                     }
-                    setCartContext({ cart: cart, cartQuantity: cartQuantity })
+                    setCartContext(cart)
                 })();
                 await (async () => {
                     const favoritesLight = await getFavoritesLight(userID)
                     if (favoritesLight instanceof Error) {
+                        setFavoritesContext([])
                         return console.log("Error favoritesLight:", favoritesLight.message)
                     }
                     const favorites = await getFavoritesFromFavoritesLight(favoritesLight)
                     console.log(favorites)
                     if (favorites instanceof Error || !favorites) {
+                        setFavoritesContext([])
                         return console.log("Error favorites:", favorites.message)
                     }
                     setFavoritesContext(favorites)
                 })();
             }
+            else {
+                setCartContext([])
+                setFavoritesContext([])
+            }
             setUserContext({ id: userID ?? "noid" })
             console.log("started id:", userID, userID ?? "noid")
         })
-
-        getCookie<string>("cartQuantity").then(r => {
-            setCartContext({ cart: cartContext.cart, cartQuantity: parseInt(r ?? 0) })
-            cartQuantity = parseInt(r ?? 0)
-        })
-    }, [])
+    }, [loggedUserId])
 
     //Listeners
     useEffect(() => {
-        console.log(" id:", userContext.id)
-        if (userContext.id === "noid" || !userContext.id)
+        if (userContext.id === "noid" || !userContext.id || loggedUserId)
             return
         setCookie("cookieID", userContext.id, { maxAge: 31536000 })
     }, [userContext.id])
-
-    useEffect(() => {
-        if (cartContext.cartQuantity === -1)
-            return
-        setCookie("cartQuantity", cartContext.cartQuantity.toString(), { maxAge: 31536000 })
-    }, [cartContext.cartQuantity])
 
     return <></>
 }

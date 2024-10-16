@@ -37,9 +37,9 @@ export type CartType = {
     charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>
 }
 
-export type CartContextType = { cart: CartType[], cartQuantity: number }
+export type CartContextType = CartType[] | null
 export type UserType = {
-    id: string
+    id: string,
 }
 
 export type FavoriteType = {

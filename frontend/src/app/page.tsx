@@ -8,7 +8,7 @@ const Page = async ({ }) => {
   if (products instanceof Error) {
     return <div>An error occured: {products.message}</div>;
   }
-  console.log(products.data)
+
   return (
     <ul>
       <Button>Ciao</Button>

@@ -136,7 +136,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
         </div>
         {(() => {
             const data = product.attributes.Description?.find(d => d.__component === "product.charity-link")
-            return data?.CharityCampaign && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity"/>
+            return data?.CharityCampaign && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity" />
         })()}
 
         <div className="flex items-center flex-wrap space-x-2 justify-center md:justify-start">
@@ -152,7 +152,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
 }
 
 export const AddItemToCart = async (userId: string, setUserContext: Dispatch<SetStateAction<UserType>>, variantId: number, productId: number, increaseQuantity: number, variantIndex: number, cartContext: CartContextType, setCartContext: Dispatch<SetStateAction<CartContextType>>, name: string, toast?: ({ ...props }: {}) => void, router?: AppRouterInstance) => {
-    if (!userId)
+    if (!userId || !cartContext)
         return
     let cookieID = userId
     if (userId === "noid") {
@@ -168,26 +168,24 @@ export const AddItemToCart = async (userId: string, setUserContext: Dispatch<Set
     let existingItem = false
     let i = 0
     let variant: VariantType | null = null
-    for (i = 0; i < cartContext.cart.length; i++)
-        if (cartContext.cart[i].variant.id === variantId) {
-            cartContext.cart[i].quantity += increaseQuantity
+    for (i = 0; i < cartContext.length; i++)
+        if (cartContext[i].variant.id === variantId) {
+            cartContext[i].quantity += increaseQuantity
             existingItem = true
             break
         }
 
-    cartContext.cartQuantity += increaseQuantity
-
     if (existingItem) {
-        let result = await (cartContext.cart[i].quantity > 0 ? addToCartItem(cookieID, variantId, cartContext.cart[i].quantity)
+        let result = await (cartContext[i].quantity > 0 ? addToCartItem(cookieID, variantId, cartContext[i].quantity)
             : deleteCartItem(cookieID, variantId))
-        if (cartContext.cart[i].quantity <= 0)
+        if (cartContext[i].quantity <= 0)
             if (result instanceof Error) {
                 console.log("error: no salvato", result)
                 return
             }
-        variant = cartContext.cart[i].variant
-        cartContext.cart.splice(i, cartContext.cart[i].quantity > 0 ? 0 : 1)
-        setCartContext({ cart: cartContext.cart, cartQuantity: cartContext.cartQuantity })
+        variant = cartContext[i].variant
+        cartContext.splice(i, cartContext[i].quantity > 0 ? 0 : 1)
+        setCartContext(cartContext.map(i => i))
     } else {
         const cartLight = { productId: productId, quantity: increaseQuantity, variantIndex: variantIndex }
         let result = await setNewCartItem(cookieID, variantId, cartLight)
@@ -202,19 +200,16 @@ export const AddItemToCart = async (userId: string, setUserContext: Dispatch<Set
             console.log("error: no salvato", cart)
             return
         }
-        setCartContext({
-            cartQuantity: cartContext.cartQuantity,
-            cart: cartContext.cart.concat(cart)
-        })
+        setCartContext(cartContext.concat(cart))
         variant = cart.variant
     }
-    
+
     if (toast && variant)
         toast({
             title: name + " x" + increaseQuantity,
             description: "Hai aggiunto " + name + " al carrello",
             action: (
-                <ToastAction onClick={() => router?.push("/carrello", { scroll: false })} altText="Vai al carrello"><ShoppingCart strokeWidth={1.5} color="white" size={20} className="mr-1"/>Vai al Carrello</ToastAction>
+                <ToastAction onClick={() => router?.push("/carrello", { scroll: false })} altText="Vai al carrello"><ShoppingCart strokeWidth={1.5} color="white" size={20} className="mr-1" />Vai al Carrello</ToastAction>
             ),
             image: (
                 <Image src={process.env.DOMAIN_URL + variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />
@@ -276,7 +271,7 @@ export const AddOrRemoveItemToFavorites = async (userId: string, setUserContext:
             title: (added ? "+ " : "- ") + name,
             description: "Hai " + (added ? "aggiunto " : "rimosso ") + name + (added ? " ai" : " dai") + " preferiti",
             action: (
-                <ToastAction onClick={() => router?.push("/preferiti", { scroll: false })} altText="Vai ai Preferiti"><Heart strokeWidth={0} fill={added ? "red" : "white"} size={20} className="mr-1"/>Vai ai Preferiti</ToastAction>
+                <ToastAction onClick={() => router?.push("/preferiti", { scroll: false })} altText="Vai ai Preferiti"><Heart strokeWidth={0} fill={added ? "red" : "white"} size={20} className="mr-1" />Vai ai Preferiti</ToastAction>
             ),
             image: (
                 <Image src={process.env.DOMAIN_URL + variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />

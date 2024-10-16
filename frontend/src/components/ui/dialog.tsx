@@ -5,8 +5,15 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
-const Dialog = DialogPrimitive.Root
+const Dialog = ({ goBackIsClosed = false, children, ...props }: { goBackIsClosed?: boolean, children: React.ReactNode, props: any }) => {
+  if (!goBackIsClosed)
+    return <DialogPrimitive.Root {...props}>{children}</DialogPrimitive.Root>
+  const router = useRouter()
+  return <DialogPrimitive.Root onOpenChange={() => router.back()} {...props}>{children}</DialogPrimitive.Root>
+}
+
 
 const DialogTrigger = DialogPrimitive.Trigger
 

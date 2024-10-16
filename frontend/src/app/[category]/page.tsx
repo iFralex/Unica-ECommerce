@@ -3,7 +3,6 @@ import Link from "next/link"
 
 const Page = async ({ params }: { params: { category: string } }) => {
     const category = await getCategory(params.category)
-    console.log(category)
     if (category instanceof Error) {
         return <div>An error occured: {category.message}</div>;
     }

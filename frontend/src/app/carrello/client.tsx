@@ -33,7 +33,7 @@ export const CartClient = () => {
     const isWiderThanMobile = useMedia('(min-width: 768px)');
     const router = useRouter()
     const { toast } = useToast()
-    console.log("il carrello", cart)
+
     const handleQuantity = (incr: number) => {
         if (!selectedItem)
             return
@@ -100,9 +100,9 @@ export const CartClient = () => {
                     </div>}
                 </SheetContent>
             </Sheet>
-            {cart.cart.length ? <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-md p-4 z-1">
-                {cart.cart.find(c => c.charity) && <Price price={cart.cart.reduce((acc, curr) => acc + (curr.charity ? (curr.charity?.DonatedMoney ?? 0) * curr.quantity : 0), 0)} size={3} title={"Donato in beneficienza"} />}
-                <Price price={cart.cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)} size={3} title={"Totale"} />
+            {cart?.length ? <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-md p-4 z-1">
+                {cart.find(c => c.charity) && <Price price={cart.reduce((acc, curr) => acc + (curr.charity ? (curr.charity?.DonatedMoney ?? 0) * curr.quantity : 0), 0)} size={3} title={"Donato in beneficienza"} />}
+                <Price price={cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)} size={3} title={"Totale"} />
                 <Button size={"lg"}>Paga ora</Button>
             </div> : <div />}
         </div>
@@ -111,7 +111,7 @@ export const CartClient = () => {
 
 const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | null) => void }) => {
     const { gl, scene, camera } = useThree()
-    const [{ cart, cartQuantity }, _] = useContext(CartContext)
+    const [cart, _] = useContext(CartContext)
     const [model, setModel] = useState<GLTF>(null!)
     const [endAnimation, setEndAnimation] = useState(false)
     const controlsRef = useRef<CameraControls>(null)
@@ -276,7 +276,6 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
             let newCount = parseInt(count ?? 0) + 1
             setCookie("cartVisualizzedCount", newCount.toString(), { maxAge: 31536000 })
             cartVisualizzedCount.current = newCount
-            console.log("cartVisualizzedCount", cartVisualizzedCount.current)
         })
 
         new GainMapLoader(gl).load(["/environmentMap.webp", "/environmentMap-gainmap.webp", "/environmentMap.json"], (texture) => {
@@ -332,7 +331,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
     }, [])
 
     useEffect(() => {
-        if (model && !size) {
+        if (model && !size && cart) {
             const space = 0.5;
             let cartSize = 0
             cart.map(c => cartSize += c.size[0])
@@ -526,8 +525,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
     }
 
     useEffect(() => {
-        console.log(cart)
-        if (!model)
+        if (!model || !cart)
             return
         let removed: Object3D | null = null
         model.scene.children.find(m => {
@@ -556,7 +554,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
             model.scene.remove(removed)
             handleSelectItem(null)
         }
-    }, [cartQuantity])
+    }, [cart?.reduce((acc, curr) => curr.quantity + acc, 0)])
 
     useFrame(() => {
         if (controlsRef.current) {

@@ -4,6 +4,10 @@ import { ThemeProvider, CartProvider, UserProvider, ContextListeners, FavoritesP
 import { NavBarStyled } from "@/components/ui/nav-bar"
 import { getCategories, getCookie } from "@/actions/get-data"
 import { Toaster } from "@/components/ui/toaster"
+import { getTokens } from "next-firebase-auth-edge";
+import { cookies } from "next/headers";
+import { clientConfig, serverConfig } from "@/lib/config";
+import { DecodedIdToken } from "next-firebase-auth-edge/lib/auth/token-verifier";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,7 +16,14 @@ export const metadata = {
   description: "Ecommerce di Unica",
 };
 
-export default function RootLayout({ favorite, children }: { favorite: React.ReactNode, children: React.ReactNode }) {
+export default async function RootLayout({ favorite, auth, children }: { favorite: React.ReactNode, auth: React.ReactNode, children: React.ReactNode }) {
+  const tokens = await getTokens(cookies(), {
+    apiKey: clientConfig.apiKey,
+    cookieName: serverConfig.cookieName,
+    cookieSignatureKeys: serverConfig.cookieSignatureKeys,
+    serviceAccount: serverConfig.serviceAccount,
+  });
+  console.log("t", tokens?.decodedToken)
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>
@@ -25,17 +36,18 @@ export default function RootLayout({ favorite, children }: { favorite: React.Rea
           <UserProvider>
             <CartProvider>
               <FavoritesProvider>
-                <ContextListeners />
+                <ContextListeners loggedUserId={tokens?.decodedToken.uid} />
                 <Toaster />
                 <div className="flex flex-col h-screen">
                   <div>
-                    <NavBar />
+                    <NavBar user={tokens?.decodedToken} />
                   </div>
                   <div className="flex-grow h-full relative">
                     {children}
                   </div>
                 </div>
                 {favorite}
+                {auth}
               </FavoritesProvider>
             </CartProvider>
           </UserProvider>
@@ -45,11 +57,11 @@ export default function RootLayout({ favorite, children }: { favorite: React.Rea
   );
 }
 
-async function NavBar() {
+async function NavBar({ user }: { user?: DecodedIdToken }) {
   const categories = await getCategories()
   if (categories instanceof Error)
     return <div>Errore: {categories.message}</div>
 
   //const itemsInCart = await getCookie<CartType[]>("cart")
-  return <NavBarStyled categories={categories} />
+  return <NavBarStyled categories={categories} account={user} />
 }

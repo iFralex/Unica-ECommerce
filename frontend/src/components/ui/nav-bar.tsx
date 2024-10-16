@@ -13,15 +13,20 @@ import {
 import { CartType, CategoryInfo } from '@/types/types';
 import { cookies } from 'next/headers';
 import { cn } from "@/lib/utils";
-import { getCookie } from "@/actions/get-data";
 import { CartContext } from "../context";
-import {Heart, Loader2} from "lucide-react"
+import { Heart, Loader2 } from "lucide-react"
+import { DecodedIdToken } from "next-firebase-auth-edge/lib/auth/token-verifier";
+import { Button } from "./button";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { LogOut } from "../auth";
 
-export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
-    let [cartContext, setCartContext] = useContext(CartContext)
-    
+export function NavBarStyled({ categories, account }: { categories: CategoryInfo[], account?: DecodedIdToken }) {
+    const [cartContext, _] = useContext(CartContext)
+    const router = useRouter()
+
     return (
-        <NavigationMenu>
+        <NavigationMenu className="overflow-x-hidden">
             <NavigationMenuList>
                 <NavigationMenuItem>
                     <NavigationMenuTrigger>Gioielli</NavigationMenuTrigger>
@@ -42,17 +47,35 @@ export function NavBarStyled({ categories }: { categories: CategoryInfo[] }) {
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <Link href="/carrello" legacyBehavior passHref>
-                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Cart: {cartContext.cartQuantity !== -1 ? cartContext.cartQuantity : <Loader2 />}
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                            Cart: {cartContext !== null ? cartContext.reduce((acc, curr) => curr.quantity + acc, 0) : <Loader2 className="animate-spin" />}
                         </NavigationMenuLink>
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <Link href="/preferiti" legacyBehavior passHref>
-                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             <Heart fill="red" strokeWidth={0} />
                         </NavigationMenuLink>
                     </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    {account
+                        ? <Link href="/dashboard" legacyBehavior passHref>
+                            <div className="flex space-x-2">
+                                <Image src={account.picture ?? ""} width={32} height={32} alt="Immagine profilo" className="rounded-full"/>
+                                <span>{account.name ?? account.email}</span>
+                                <Button variant="destructive" onClick={async () => await LogOut(router)}>Esci</Button>
+                            </div>
+                        </Link>
+                        : <div className="flex space-x-2">
+                            <Link href="/login" legacyBehavior passHref>
+                                <Button>Accedi</Button>
+                            </Link>
+                            <Link href="/registrazione" legacyBehavior passHref>
+                                <Button variant="outline">Registrati</Button>
+                            </Link>
+                        </div>}
                 </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>

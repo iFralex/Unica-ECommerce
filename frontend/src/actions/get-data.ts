@@ -132,3 +132,4 @@ export const getCategory = async (categoryId: string) => {
 
 export const setCookie = async (name: string, value: string, cookie?: Partial<ResponseCookie>) => { cookies().set(name, value, cookie) }
 export const getCookie = async<T>(name: string) => cookies().get(name)?.value as T
+export const deleteCookie = async (name: string) => cookies().delete(name)
