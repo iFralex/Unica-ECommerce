@@ -55,3 +55,31 @@ export type CardDescriptionType = {
     title: string,
     description: string
 }
+
+export type OrderType = {
+    orderId?: string,
+    note?: string,
+    paymentId: string,
+    shippingId: string,
+    createdDate: number,
+    price: number,
+    items: CartLiteType[]
+}
+
+export type AccountInformationType = {
+    addresses: {id: string, key: string, details?: string}[],
+    paymentId: string
+}
+
+export interface AddressDetails {
+    key: string,
+    id: string;
+    street: string;
+    houseNumber: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    fullAddress: string;
+    details?: string;
+  }

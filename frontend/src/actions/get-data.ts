@@ -38,6 +38,23 @@ export const getProduct = async (productSKU: string) => {
     }
 };
 
+export const getProductsLightFromCartsLight = async (cart: CartLiteType[]) => {
+    try {
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item).join("&")}&fields[0]=Name&fields[1]=SKU&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU`)
+        if (!product.data)
+            throw new Error("No product found");
+        return cart.map(c => {
+            for (let p of product.data)
+                if (p.id === c.productId)
+                    return { id: c.productId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), image: p.attributes.ProductDetails?.[c.variantIndex].Images?.data[0].attributes.formats?.thumbnail, variantIndex: c.variantIndex, material: p.attributes.ProductDetails?.[c.variantIndex].Material?.data.attributes, platings: p.attributes.ProductDetails?.[c.variantIndex].Platings?.data }
+            return null
+        }).filter(c => c !== null)
+    } catch (error) {
+        console.log(`products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
+        return error as Error
+    }
+}
+
 export const getCartVisualizzationData = async (productId: number) => {
     try {
         const product: APIResponse<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products/${productId}?fields[0]=id&populate[ProductDetails][fields][0]=CartVisualizzation&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats`)
@@ -80,6 +97,22 @@ export const getCartFromCartLight = async (cart: CartLiteType) => {
     }
 };
 
+export const getPricesFromCartsLight = async (cart: CartLiteType[]) => {
+    try {
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item).join("&")}&populate[ProductDetails][fields][0]=Price`)
+        if (!product.data)
+            throw new Error("No product found");
+        return cart.map(c => {
+            for (let p of product.data)
+                if (p.id === c.productId)
+                    return { quantity: c.quantity, price: p.attributes.ProductDetails?.[c.variantIndex].Price }
+            throw new Error("Variante non trovata");
+        }).filter(c => c !== undefined)
+    } catch (error) {
+        return (error as Error).message
+    }
+}
+
 export const getFavoritesFromFavoritesLight = async (favorites: { vId: number, pId: number }[]) => {
     try {
         const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.API_URL + `products?${favorites.map((item, i) => "filters[id][$in][" + i + "]=" + item.pId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
@@ -95,16 +128,6 @@ export const getFavoritesFromFavoritesLight = async (favorites: { vId: number, p
         }).filter(c => c !== null)
     } catch (error) {
         return error as Error
-    }
-};
-
-export const getTest = async (productId: string) => {
-    try {
-        const product = await fetchStrapi("http://localhost:1337/uploads/untitled_6e1ec15149.gltf")
-
-        return product;
-    } catch (error) {
-        return { error: error.message };
     }
 };
 

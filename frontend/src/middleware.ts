@@ -21,6 +21,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
       }
 
+      if (request.nextUrl.pathname === '/dashboard')
+        return NextResponse.rewrite(new URL('/dashboard/ordini', request.url))
+
       return NextResponse.next({
         request: {
           headers
@@ -30,7 +33,7 @@ export async function middleware(request: NextRequest) {
     handleInvalidToken: async (reason) => {
       console.info('Missing or malformed credentials', { reason });
 
-      if (PRIVATE_PATHS.includes(request.nextUrl.pathname)) {
+      if (PRIVATE_PATHS.find(f => request.nextUrl.pathname.includes(f))) {
         return redirectToLogin(request, {
           path: '/login',
           publicPaths: PUBLIC_PATHS
@@ -56,5 +59,6 @@ export const config = {
     "/((?!_next|api|.*\\.).*)",
     "/api/login",
     "/api/logout",
+    "/dashboard"
   ],
 };

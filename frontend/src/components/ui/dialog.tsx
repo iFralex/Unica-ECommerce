@@ -7,12 +7,16 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 
-const Dialog = ({ goBackIsClosed = false, children, ...props }: { goBackIsClosed?: boolean, children: React.ReactNode, props: any }) => {
+const Dialog = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root> & { goBackIsClosed?: boolean }
+>(({ goBackIsClosed, children, ...props }, ref) => {
   if (!goBackIsClosed)
     return <DialogPrimitive.Root {...props}>{children}</DialogPrimitive.Root>
   const router = useRouter()
   return <DialogPrimitive.Root onOpenChange={() => router.back()} {...props}>{children}</DialogPrimitive.Root>
-}
+})
+Dialog.displayName = DialogPrimitive.Root.displayName
 
 
 const DialogTrigger = DialogPrimitive.Trigger

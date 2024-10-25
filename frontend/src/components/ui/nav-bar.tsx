@@ -26,7 +26,7 @@ export function NavBarStyled({ categories, account }: { categories: CategoryInfo
     const router = useRouter()
 
     return (
-        <NavigationMenu className="overflow-x-hidden">
+        <NavigationMenu className="">
             <NavigationMenuList>
                 <NavigationMenuItem>
                     <NavigationMenuTrigger>Gioielli</NavigationMenuTrigger>
@@ -64,7 +64,7 @@ export function NavBarStyled({ categories, account }: { categories: CategoryInfo
                         ? <Link href="/dashboard" legacyBehavior passHref>
                             <div className="flex space-x-2">
                                 <Image src={account.picture ?? ""} width={32} height={32} alt="Immagine profilo" className="rounded-full"/>
-                                <span>{account.name ?? account.email}</span>
+                                <Link href="/dashboard">{account.name ?? account.email}</Link>
                                 <Button variant="destructive" onClick={async () => await LogOut(router)}>Esci</Button>
                             </div>
                         </Link>

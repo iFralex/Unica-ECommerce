@@ -1,9 +1,11 @@
 "use client"
 
 import { getCookie, setCookie } from "@/actions/get-data"
+import { payOrder } from "@/actions/payment"
 import { CharityBadge } from "@/components/charity-blind"
 import { AddItemToCart, AddOrRemoveItemToFavorites, useMedia } from "@/components/client-components"
 import { CartContext, FavoritesContext, UserContext } from "@/components/context"
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -13,11 +15,14 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 import { useToast } from "@/components/ui/use-toast"
 import { CartType } from "@/types/types"
 import { GainMapLoader } from '@monogrid/gainmap-js'
+import { AlertDialogAction } from "@radix-ui/react-alert-dialog"
 import { CameraControls, Environment, OrbitControls, Shadow, useEnvironment } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import gsap from "gsap"
+import { CircleCheck, CircleX, Loader2 } from "lucide-react"
 import { Rock_3D } from "next/font/google"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { title } from "process"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
@@ -44,6 +49,10 @@ export const CartClient = () => {
         })()
     }
 
+    const handlePay = () => {
+        router.push("/check-out")
+    }
+
     return (
         <div className="w-full h-full">
             <Canvas camera={{ fov: 25 }}>
@@ -66,7 +75,7 @@ export const CartClient = () => {
             <Sheet open={selectedItem !== null} modal={false}>
                 <SheetContent side="bottom" onClickCloseButton={() => setSelectedItem(null)} className="left-1/2 transform -translate-x-1/2 max-w-xl w-full rounded-t-lg">
                     {selectedItem && <div className="flex justify-start space-x-5">
-                        {isWiderThanMobile && <div className="flex-shrink-0"><Image src={"http://localhost:1337" + selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
+                        {isWiderThanMobile && <div className="flex-shrink-0"><Image src={process.env.DOMAIN_URL + selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
                         <div className="w-full text-center md:text-left">
                             <SheetTitle asChild>
                                 <Button variant={"link"} className="m-0 p-0" onClick={() => router.push("/" + selectedItem.urlPath)}>
@@ -100,10 +109,50 @@ export const CartClient = () => {
                     </div>}
                 </SheetContent>
             </Sheet>
+            {/*false !== null && <AlertDialog open={true}>
+                <AlertDialogContent className="flex flex-col justify-center gap-4 text-center">
+                    {payState !== "loading" ? <>
+                        <div className="flex justify-center">
+                            {payState === "success" ? <CircleCheck color={"green"} className="size-32" /> : <CircleX color={"red"} className="size-32" />}
+                        </div>
+                        <div>
+                            <AlertDialogTitle className="upper">
+                                <h1>{payState === "success"
+                                    ? "Ordine completato!"
+                                    : "Ops, qualcosa è andato storto..."}
+                                </h1>
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {payState === "success"
+                                    ? "Grazie per il tuo ordine! Ti abbiamo mandato una mail di riepilogo."
+                                    : "Il processo di pagamento non è andato a buon fine. Riprova o contatta l'assistenza di Unica per maggior supporto. Ci spiace per il disagio."}
+                            </AlertDialogDescription>
+                        </div>
+                        <AlertDialogFooter className="mx-auto">
+                            <AlertDialogAction className="mt-2">
+                                <Button onClick={() => { router.push("/"); router.refresh(); }}>
+                                    Torna alla home
+                                </Button>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </>
+                        : <>
+                            <div className="flex justify-center">
+                                <Loader2 size={48} className="animate-spin" />
+                            </div>
+                            <AlertDialogTitle className="upper">
+                                <h1>Pagamento in corso</h1>
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Non chiudere la pagina
+                            </AlertDialogDescription>
+                        </>}
+                </AlertDialogContent>
+            </AlertDialog>*/}
             {cart?.length ? <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-md p-4 z-1">
                 {cart.find(c => c.charity) && <Price price={cart.reduce((acc, curr) => acc + (curr.charity ? (curr.charity?.DonatedMoney ?? 0) * curr.quantity : 0), 0)} size={3} title={"Donato in beneficienza"} />}
                 <Price price={cart.reduce((acc, curr) => acc + (curr.variant.Price ?? 0) * curr.quantity, 0)} size={3} title={"Totale"} />
-                <Button size={"lg"}>Paga ora</Button>
+                <Button size={"lg"} onClick={handlePay}>Paga ora</Button>
             </div> : <div />}
         </div>
     )
@@ -346,7 +395,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
                 let currentPosition = -totalWidth / 2
                 for (let i = 0; i < cart.length; i++) {
                     const [width, height] = cart[i].size;
-                    const mesh = new Mesh(new PlaneGeometry(cart[i].size[0], cart[i].size[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync("http://localhost:1337" + cart[i].textureURL), metalness: 0.8, roughness: 0.1, transparent: true }))
+                    const mesh = new Mesh(new PlaneGeometry(cart[i].size[0], cart[i].size[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync(process.env.DOMAIN_URL + cart[i].textureURL), metalness: 0.8, roughness: 0.1, transparent: true }))
                     mesh.position.set(0, 0, currentPosition + width / 2)
                     currentPosition += width + space; // Aggiorna la posizione corrente
 

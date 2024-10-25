@@ -4,10 +4,8 @@ import { ThemeProvider, CartProvider, UserProvider, ContextListeners, FavoritesP
 import { NavBarStyled } from "@/components/ui/nav-bar"
 import { getCategories, getCookie } from "@/actions/get-data"
 import { Toaster } from "@/components/ui/toaster"
-import { getTokens } from "next-firebase-auth-edge";
-import { cookies } from "next/headers";
-import { clientConfig, serverConfig } from "@/lib/config";
 import { DecodedIdToken } from "next-firebase-auth-edge/lib/auth/token-verifier";
+import { getAuthToken } from "@/actions/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,13 +15,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ favorite, auth, children }: { favorite: React.ReactNode, auth: React.ReactNode, children: React.ReactNode }) {
-  const tokens = await getTokens(cookies(), {
-    apiKey: clientConfig.apiKey,
-    cookieName: serverConfig.cookieName,
-    cookieSignatureKeys: serverConfig.cookieSignatureKeys,
-    serviceAccount: serverConfig.serviceAccount,
-  });
-  console.log("t", tokens?.decodedToken)
+  const tokens = await getAuthToken()
+
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>

@@ -42,7 +42,7 @@ const HeroProduct = ({ product, params }: { product: APIResponseData<"api::produ
                 </div>
             </div>
             <div className="absolute inset-0 z-[-1] flex justify-end bg-white overflow-x-hidden">
-                <Image className="w-full object-right object-cover overflow-x-hidden" src={"http://localhost:1337" + product.attributes.MainImage?.data.attributes.formats?.large.url} alt="Immagine" width={product.attributes.MainImage?.data.attributes.formats?.large.width} height={product.attributes.MainImage?.data.attributes.formats?.large.height} />
+                <Image className="w-full object-right object-cover overflow-x-hidden" src={process.env.DOMAIN_URL + product.attributes.MainImage?.data.attributes.formats?.large.url} alt="Immagine" width={product.attributes.MainImage?.data.attributes.formats?.large.width} height={product.attributes.MainImage?.data.attributes.formats?.large.height} />
             </div>
         </div>
     )

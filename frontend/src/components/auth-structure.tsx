@@ -18,7 +18,9 @@ export const AuthDialog = async ({ type, children }: { type: AuthType, children:
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className="max-h-[70vh]">
+                    <div className="px-1">
                     {children}
+                    </div>
                     <ScrollBar />
                 </ScrollArea>
             </DialogContent>
