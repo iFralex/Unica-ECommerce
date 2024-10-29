@@ -94,7 +94,7 @@ export interface ProductProductDetails extends Schema.Component {
 }
 
 export interface ProductMultipleItem3DLink extends Schema.Component {
-  collectionName: 'components_product_multiple_item3_d_links';
+  collectionName: 'components_p_multiple_item3_d_links';
   info: {
     displayName: 'MultipleItem3DLink';
     description: '';
