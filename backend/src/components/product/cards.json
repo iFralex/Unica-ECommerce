@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_pr_cards",
+  "info": {
+    "displayName": "Cards",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Card": {
+      "displayName": "SingleCard",
+      "type": "component",
+      "repeatable": true,
+      "component": "product.single-card"
+    },
+    "Type": {
+      "type": "enumeration",
+      "enum": [
+        "Dettagli",
+        "Come sei"
+      ]
+    }
+  }
+}
