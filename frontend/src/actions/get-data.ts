@@ -7,7 +7,7 @@ import { ResponseCookie, ResponseCookies } from "next/dist/compiled/@edge-runtim
 import { cookies } from "next/headers";
 
 const fetchStrapi = async <T>(url: string, options: Object = {}) => {
-    const response = await fetch(url + "&sslmode=require", { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
+    const response = await fetch(url, { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
 
     if (!response.ok)
         throw new Error(response.statusText);
