@@ -1,0 +1,52 @@
+{
+  "collectionName": "components_pr_product_details",
+  "info": {
+    "displayName": "ProductDetails",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Material": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::material.material"
+    },
+    "Price": {
+      "type": "decimal"
+    },
+    "Images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Platings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::plating.plating"
+    },
+    "Materials3D": {
+      "type": "json"
+    },
+    "Photos": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "CartVisualizzation": {
+      "displayName": "CartVisualizzation",
+      "type": "component",
+      "repeatable": false,
+      "component": "pr.cart-visualizzation",
+      "required": true
+    }
+  }
+}

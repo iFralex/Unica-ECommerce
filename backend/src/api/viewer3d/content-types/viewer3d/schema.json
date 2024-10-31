@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "viewer3ds",
+  "info": {
+    "singularName": "viewer3d",
+    "pluralName": "viewer3ds",
+    "displayName": "Viewer3D",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Items3D": {
+      "type": "component",
+      "repeatable": true,
+      "component": "pr.item3-d"
+    },
+    "Name": {
+      "type": "string",
+      "private": true
+    },
+    "Transforms": {
+      "type": "component",
+      "repeatable": true,
+      "component": "pr.transforms"
+    },
+    "InitialCameraRotation": {
+      "type": "json"
+    }
+  }
+}

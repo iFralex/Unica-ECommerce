@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_pr_single_cards",
+  "info": {
+    "displayName": "SingleCard"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "text"
+    }
+  }
+}

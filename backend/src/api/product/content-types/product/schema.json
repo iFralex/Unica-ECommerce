@@ -1,0 +1,86 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "ShortDescription": {
+      "type": "string"
+    },
+    "LongDescription": {
+      "type": "text"
+    },
+    "Video": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "videos"
+      ]
+    },
+    "SKU": {
+      "type": "uid",
+      "targetField": "Name"
+    },
+    "Category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "Products"
+    },
+    "MainImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "ProductDetails": {
+      "displayName": "ProductDetails",
+      "type": "component",
+      "repeatable": true,
+      "component": "pr.product-details"
+    },
+    "Tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "mappedBy": "products"
+    },
+    "Viewer": {
+      "type": "dynamiczone",
+      "components": [
+        "pr.multiple-item3-d-link",
+        "pr.single-item3-d"
+      ],
+      "max": 1
+    },
+    "Description": {
+      "type": "dynamiczone",
+      "components": [
+        "pr.cards",
+        "pr.charity-link",
+        "pr.faq",
+        "pr.review",
+        "pr.testimonial"
+      ]
+    }
+  }
+}
