@@ -6,6 +6,7 @@ import { getCategories, getCookie } from "@/actions/get-data"
 import { Toaster } from "@/components/ui/toaster"
 import { DecodedIdToken } from "next-firebase-auth-edge/lib/auth/token-verifier";
 import { getAuthToken } from "@/actions/auth";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +19,7 @@ export default async function RootLayout({ favorite, auth, children }: { favorit
   console.log("start")
   const tokens = await getAuthToken()
   console.log("end")
-  return <html lang="it" suppressHydrationWarning>
-    <body className={inter.className}>
-      <h1>Loaded: {JSON.stringify(tokens)}</h1>
-    </body></html>
+
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>
@@ -50,6 +48,7 @@ export default async function RootLayout({ favorite, auth, children }: { favorit
             </CartProvider>
           </UserProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
