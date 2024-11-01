@@ -15,8 +15,13 @@ export const metadata = {
 };
 
 export default async function RootLayout({ favorite, auth, children }: { favorite: React.ReactNode, auth: React.ReactNode, children: React.ReactNode }) {
+  console.log("start")
   const tokens = await getAuthToken()
-
+  console.log("end")
+  return <html lang="it" suppressHydrationWarning>
+    <body className={inter.className}>
+      <h1>Loaded: {JSON.stringify(tokens)}</h1>
+    </body></html>
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>

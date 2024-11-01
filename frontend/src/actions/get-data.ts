@@ -1,13 +1,11 @@
 "use server"
-import { isCharity } from "@/lib/utils";
-import { ProductCartVisualizzation } from "@/types/components";
 import type { APIResponse, APIResponseCollection, CartVisualizzation } from "@/types/strapi-types"
 import { CartLiteType, CartType, CategoryInfo, FavoriteType } from "@/types/types";
-import { ResponseCookie, ResponseCookies } from "next/dist/compiled/@edge-runtime/cookies";
+import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies } from "next/headers";
 
 const fetchStrapi = async <T>(url: string, options: Object = {}) => {
-    const response = await fetch(url, { ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
+    const response = await fetch(url, { cache: "no-store", ...options, headers: { Authorization: `Bearer ${process.env.API_KEY}`, ...options.headers } })
 
     if (!response.ok)
         throw new Error(response.statusText);
