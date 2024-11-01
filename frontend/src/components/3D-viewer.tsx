@@ -51,7 +51,7 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
       return
     const fetchGlb = async () => {
       try {
-        const response = await fetch(process.env.DOMAIN_URL + productModel.url);
+        const response = await fetch(productModel.url);
         const data = await response.blob();
         const url = URL.createObjectURL(data);
 
@@ -187,7 +187,7 @@ const ModelsSelector = ({ selectedViewer, sheetContainer, productId, selectedMod
             }} className={"cursor-pointer flex flex-col justify-center p-3 text-center " + (productId === item.id ? "dark:bg-accent dark:border-white" : selectedModels.includes(index) ? "dark:bg-accent" : "")}>
               <span className="sr-only">{(productId === item.id ? "" : !selectedModels.includes(index) ? "Visualizza " : "Rimuovi dalla visualizzazione ") + item.RelativeProduct?.data.attributes.Name}</span>
               <figure aria-hidden={true}>
-                {item.Thumbnail?.data && <Image src={process.env.DOMAIN_URL + item.Thumbnail.data.attributes.formats?.thumbnail.url} width={item.Thumbnail.data.attributes.formats?.thumbnail.width} height={item.Thumbnail.data.attributes.formats?.thumbnail.height} alt={item.Thumbnail.data.attributes.caption ?? "Mignatura"} aria-hidden={true} />}
+                {item.Thumbnail?.data && <Image src={item.Thumbnail.data.attributes.formats?.thumbnail.url} width={item.Thumbnail.data.attributes.formats?.thumbnail.width} height={item.Thumbnail.data.attributes.formats?.thumbnail.height} alt={item.Thumbnail.data.attributes.caption ?? "Mignatura"} aria-hidden={true} />}
                 <figcaption aria-hidden={true}>
                   <span>{item.RelativeProduct?.data.attributes.Name}</span>
                 </figcaption>

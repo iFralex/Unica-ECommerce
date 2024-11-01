@@ -7,7 +7,12 @@ const nextConfig = {
         hostname: 'unica-ecommerce.onrender.com',
         port: '',
         pathname: '/uploads/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        pathname: '/unica-3d18c.appspot.com/**',
+      },
     ],
   },
   typescript: {

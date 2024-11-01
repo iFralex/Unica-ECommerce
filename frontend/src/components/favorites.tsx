@@ -42,7 +42,7 @@ export const FavoritesList = () => {
         {favorites.map((f, i) => (
             <Card key={i} className="flex items-center space-x-3 my-4 pb-3">
                 <div className="flex-1 flex justify-center">
-                    <Image src={process.env.DOMAIN_URL + f.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={f.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={f.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine di prodotto" />
+                    <Image src={f.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={f.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={f.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine di prodotto" />
                 </div>
                 <div className="min-w-[75%] flex-1">
                     <Button variant={"link"} className="m-0 p-0" onClick={() => { router.push("/" + f.urlPath) }}>

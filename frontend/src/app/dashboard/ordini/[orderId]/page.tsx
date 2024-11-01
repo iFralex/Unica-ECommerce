@@ -63,7 +63,7 @@ const Page = async ({ params }: { params: { orderId: string } }) => {
                             return <></>
                         return <Link href={"/" + pr.urlPath}>
                             <Card key={p.productId + "," + p.variantIndex} className="flex gap-2 p-2">
-                                <Image src={process.env.DOMAIN_URL + pr.image.url} width={pr.image.width} height={pr.image.height} alt={"Immagine di " + pr.name} />
+                                <Image src={pr.image.url} width={pr.image.width} height={pr.image.height} alt={"Immagine di " + pr.name} />
                                 <div>
                                     <span className="text-lg font-bold">{pr.name}</span>
                                     <div className="flex space-x-3 flex-wrap my-3">

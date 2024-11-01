@@ -75,7 +75,7 @@ export const CartClient = () => {
             <Sheet open={selectedItem !== null} modal={false}>
                 <SheetContent side="bottom" onClickCloseButton={() => setSelectedItem(null)} className="left-1/2 transform -translate-x-1/2 max-w-xl w-full rounded-t-lg">
                     {selectedItem && <div className="flex justify-start space-x-5">
-                        {isWiderThanMobile && <div className="flex-shrink-0"><Image src={process.env.DOMAIN_URL + selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
+                        {isWiderThanMobile && <div className="flex-shrink-0"><Image src={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.url} width={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.width} height={selectedItem.variant.Images?.data[0].attributes.formats?.thumbnail.height} alt="Immagine della variante scelta" /></div>}
                         <div className="w-full text-center md:text-left">
                             <SheetTitle asChild>
                                 <Button variant={"link"} className="m-0 p-0" onClick={() => router.push("/" + selectedItem.urlPath)}>
@@ -395,7 +395,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
                 let currentPosition = -totalWidth / 2
                 for (let i = 0; i < cart.length; i++) {
                     const [width, height] = cart[i].size;
-                    const mesh = new Mesh(new PlaneGeometry(cart[i].size[0], cart[i].size[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync(process.env.DOMAIN_URL + cart[i].textureURL), metalness: 0.8, roughness: 0.1, transparent: true }))
+                    const mesh = new Mesh(new PlaneGeometry(cart[i].size[0], cart[i].size[1]), new MeshStandardMaterial({ map: await new TextureLoader().loadAsync(cart[i].textureURL), metalness: 0.8, roughness: 0.1, transparent: true }))
                     mesh.position.set(0, 0, currentPosition + width / 2)
                     currentPosition += width + space; // Aggiorna la posizione corrente
 

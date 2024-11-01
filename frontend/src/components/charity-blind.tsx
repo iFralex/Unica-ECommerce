@@ -16,7 +16,7 @@ export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampa
             <Separator className="my-5" />
             <Card className="dark my-5 bg-black size-full overflow-hidden">
                 <div className="relative">
-                    <Image src={CharityCampaign.Name === "Gioielli di Luce" ? process.env.DOMAIN_URL + "/uploads/IMG_1258_Medium_2e6a5e1f09.jpeg" : ""}
+                    <Image src={CharityCampaign.Name === "Gioielli di Luce" ? "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/IMG_1258_/small_IMG_1258_Medium_2e6a5e1f09_dfef3af515.jpeg" : ""}
                         alt="Sfondo sezione beneficenza"
                         width={100}
                         height={100}

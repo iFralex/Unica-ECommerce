@@ -38,7 +38,7 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
                                     <Card>
                                         <CardContent>
                                             <Image
-                                                src={process.env.DOMAIN_URL + image.attributes.formats?.small?.url}
+                                                src={image.attributes.formats?.small?.url}
                                                 alt={`Product Image ${index + 1}`}
                                                 width={image.attributes.formats?.small?.width}
                                                 height={image.attributes.formats?.small?.height}

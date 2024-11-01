@@ -212,7 +212,7 @@ export const AddItemToCart = async (userId: string, setUserContext: Dispatch<Set
                 <ToastAction onClick={() => router?.push("/carrello", { scroll: false })} altText="Vai al carrello"><ShoppingCart strokeWidth={1.5} color="white" size={20} className="mr-1" />Vai al Carrello</ToastAction>
             ),
             image: (
-                <Image src={process.env.DOMAIN_URL + variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />
+                <Image src={variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />
             )
         })
 }
@@ -274,7 +274,7 @@ export const AddOrRemoveItemToFavorites = async (userId: string, setUserContext:
                 <ToastAction onClick={() => router?.push("/preferiti", { scroll: false })} altText="Vai ai Preferiti"><Heart strokeWidth={0} fill={added ? "red" : "white"} size={20} className="mr-1" />Vai ai Preferiti</ToastAction>
             ),
             image: (
-                <Image src={process.env.DOMAIN_URL + variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />
+                <Image src={variant.Images?.data[0].attributes.formats?.thumbnail.url ?? ""} alt={variant.Images?.data[0].attributes.alternativeText ?? ""} width={variant.Images?.data[0].attributes.formats?.thumbnail.width} height={variant.Images?.data[0].attributes.formats?.thumbnail.height} />
             )
         })
     return added

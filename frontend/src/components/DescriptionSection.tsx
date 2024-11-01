@@ -29,7 +29,7 @@ export const Testimonial = ({ data }: { data?: APIResponse<"api::testimonial.tes
         }
       </div>
       <div>
-        <Image src={process.env.DOMAIN_URL + data.Image?.data.attributes.formats?.medium.url} width={data.Image?.data.attributes.formats?.medium.width} height={data.Image?.data.attributes.formats?.medium.height} alt="immagine del testimonial" className="transform md:translate-x-[-15%] translate-y-[15%] scale-[130%]" />
+        <Image src={data.Image?.data.attributes.formats?.medium.url} width={data.Image?.data.attributes.formats?.medium.width} height={data.Image?.data.attributes.formats?.medium.height} alt="immagine del testimonial" className="transform md:translate-x-[-15%] translate-y-[15%] scale-[130%]" />
       </div>
     </Card>
   </div>
