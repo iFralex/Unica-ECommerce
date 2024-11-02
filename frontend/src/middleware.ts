@@ -6,11 +6,13 @@ const PUBLIC_PATHS = ['/registrazione', '/login'];
 const PRIVATE_PATHS = ["/dashboard"]
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.includes("/__/auth/")) {
+  /*if (request.nextUrl.pathname.includes("/__/auth/")) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
+    url.searchParams.delete("redirectUrl");
+    url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
     return NextResponse.redirect(url)
-  }
+  }*/
 
   return authMiddleware(request, {
     loginPath: "/api/login",
