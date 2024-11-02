@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getDatabase, ref, set, push, get, remove } from "firebase/database";
 import { AccountInformationType, CartLiteType, CartType, OrderType } from "@/types/types";
 import { clientConfig } from "@/lib/config";
-import { createUserWithEmailAndPassword, EmailAuthProvider, FacebookAuthProvider, getAuth, GoogleAuthProvider, isSignInWithEmailLink, OAuthProvider, sendPasswordResetEmail, sendSignInLinkToEmail, signInWithEmailAndPassword, signInWithEmailLink, signInWithPopup, signInWithRedirect, signOut, TwitterAuthProvider, updateProfile, User, UserCredential } from "firebase/auth";
+import { createUserWithEmailAndPassword, EmailAuthProvider, FacebookAuthProvider, getAuth, getRedirectResult, GoogleAuthProvider, isSignInWithEmailLink, OAuthProvider, sendPasswordResetEmail, sendSignInLinkToEmail, signInWithEmailAndPassword, signInWithEmailLink, signInWithPopup, signInWithRedirect, signOut, TwitterAuthProvider, updateProfile, User, UserCredential } from "firebase/auth";
 import { filterStandardClaims } from "next-firebase-auth-edge/lib/auth/claims";
 import { Tokens } from "next-firebase-auth-edge";
 
@@ -21,8 +21,8 @@ export const createUserEmailAndPassowrd = async (email: string, password: string
 }
 export const loginEmailAndPassword = async (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
 export const loginWithFacebook = async () => await signInWithRedirect(auth, new FacebookAuthProvider())
-export const loginWithMicrosoft = async () => await signInWithPopup(auth, new OAuthProvider("microsoft.com"))
-export const loginWithTwitter = async () => await signInWithPopup(auth, new TwitterAuthProvider())
+export const loginWithMicrosoft = async () => await signInWithRedirect(auth, new OAuthProvider("microsoft.com"))
+export const loginWithTwitter = async () => await signInWithRedirect(auth, new TwitterAuthProvider())
 export const logout = async () => await signOut(auth)
 export const loginWithGoogle = async () => await signInWithRedirect(auth, new GoogleAuthProvider())
 export const sendSignupLinkViaEmail = async (email: string, targetPage: string, userName?: string, userId?: string) => {
@@ -74,6 +74,28 @@ export const updateUserName = async (newName: string, user?: UserCredential) => 
         }
     })
 }
+getRedirectResult(auth)
+    .then(async (result) => {
+        if (!result)
+            return
+        const idToken = await result.user.getIdToken();
+
+        await fetch("/api/login", {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+            },
+        });
+        
+    }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = TwitterAuthProvider.credentialFromError(error);
+        // ...
+    });
 
 export const setDataRD = async (path: string, data: Object | string) => set(ref(db, path), data)
 export const pushDataRD = async (path: string, data: Object | string) => push(ref(db, path), data)

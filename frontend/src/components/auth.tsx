@@ -132,16 +132,16 @@ export const LoginFunction = async (
             if (!credential)
                 throw new Error("Impossibile accedere con il link via email")
         } else if (method === 'google') {
-            credential = await loginWithGoogle()
+            return await loginWithGoogle()
         } else if (method === 'meta') {
-            credential = await loginWithFacebook()
+            return await loginWithFacebook()
         } else if (method === 'microsoft') {
-            credential = await loginWithMicrosoft()
+            return await loginWithMicrosoft()
         } else if (method === 'twitter') {
-            credential = await loginWithTwitter()
+            return await loginWithTwitter()
         }
 
-        if (!credential) throw new Error("Credenziali non valide")
+        if (!credential || credential === true) throw new Error("Credenziali non valide")
 
         const idToken = await credential.user.getIdToken();
 
