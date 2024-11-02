@@ -136,7 +136,7 @@ export const LoginFunction = async (
             console.log("a")
             const credential = await checkRedirect()
             console.log("logged", credential)
-            if (!credential)
+            if (credential === null)
                 switch (method) {
                     case 'google':
                         return await loginWithGoogle()
@@ -147,12 +147,12 @@ export const LoginFunction = async (
                     case 'twitter':
                         return await loginWithTwitter()
                     case 'checking':
-                        throw new Error("L'accesso non è andato a buon fine.")
+                        return
                 }
         }
         console.log("logged2")
-        if (!credential) throw new Error("Credenziali non valide")
-
+        if (credential === null) throw new Error("Credenziali non valide")
+        console.log("logged20")
         const idToken = await credential.user.getIdToken();
         console.log("logged3", idToken)
         await fetch("/api/login", {
