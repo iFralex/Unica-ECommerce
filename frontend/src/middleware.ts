@@ -6,8 +6,8 @@ const PUBLIC_PATHS = ['/registrazione', '/login'];
 const PRIVATE_PATHS = ["/dashboard"]
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === "/__/auth/") {
-    return NextResponse.redirect("https://unica-3d18c.firebaseapp.com/__/auth/")
+  if (request.nextUrl.pathname.includes("/__/auth/")) {
+    return NextResponse.redirect("https://unica-3d18c.firebaseapp.com/__/auth/" + request.nextUrl.pathname.split("/__/auth/")[1])
   }
 
   return authMiddleware(request, {
