@@ -10,8 +10,7 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
     url.searchParams.delete("redirectUrl");
-    url.searchParams.set("redirectUrl", "https://unica-jewelry.com/logged-handler");
-    console.log(JSON.stringify(url))
+    url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
     return NextResponse.redirect(url)
   }
 

@@ -26,7 +26,7 @@ export const loginWithTwitter = async () => await signInWithRedirect(auth, new T
 export const logout = async () => await signOut(auth)
 export const loginWithGoogle = async () => await signInWithRedirect(auth, new GoogleAuthProvider())
 export const sendSignupLinkViaEmail = async (email: string, targetPage: string, userName?: string, userId?: string) => {
-    await sendSignInLinkToEmail(auth, email, { url: 'http://unica-jewelry/logged-handler' + (userName ? "?username=" + userName : "") + (userId ? "&userId=" + userId : "") + (targetPage ? "&target=" + targetPage : ""), handleCodeInApp: true })
+    await sendSignInLinkToEmail(auth, email, { url: process.env.DOMAIN_URL + '/logged-handler' + (userName ? "?username=" + userName : "") + (userId ? "&userId=" + userId : "") + (targetPage ? "&target=" + targetPage : ""), handleCodeInApp: true })
     // The link was successfully sent. Inform the user.
     // Save the email locally so you don't need to ask the user for it again
     // if they open the link on the same device.

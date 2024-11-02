@@ -15,9 +15,13 @@ const Page = () => {
     useEffect(() => {
         (async () => {
             try {
-                await LoginFunction("checking", {}, err => { throw err }, router, () => {}, undefined)
-                await LoginFunction("email link", {}, err => { throw err }, router, () => {}, undefined)
                 const params = new URLSearchParams(window.location.search);
+                if (!(params.get("mailLink=true") || params.get('redirected')))
+                    return
+                if (params.get('redirected'))
+                    await LoginFunction("checking", {}, err => { throw err }, router, () => { }, undefined)
+                else
+                    await LoginFunction("email link", {}, err => { throw err }, router, () => { }, undefined)
                 const userNameParam = params.get('username');
                 const userId = params.get('userId');
                 const targetPage = params.get('target');
