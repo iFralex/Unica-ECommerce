@@ -75,10 +75,11 @@ export const updateUserName = async (newName: string, user?: UserCredential) => 
     })
 }
 export const checkRedirect = async () => {
-    console.log("log", auth)
-    const a = await getRedirectResult(auth)
-    console.log("log2", a)
-    return a
+    try {
+        return await getRedirectResult(auth)
+    } catch (err) {
+        return err as Error
+    }
 }
 
 export const setDataRD = async (path: string, data: Object | string) => set(ref(db, path), data)

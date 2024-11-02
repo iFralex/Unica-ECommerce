@@ -133,7 +133,15 @@ export const LoginFunction = async (
             if (!credential)
                 throw new Error("Impossibile accedere con il link via email")
         } else {
-            credential = await checkRedirect()
+            console.log("a")
+            const r = await checkRedirect()
+            console.log("b")
+            if (r instanceof Error)
+            {
+                console.log(r.media)
+                throw r
+            }
+            credential = r
             console.log("logged", credential)
             if (!credential)
                 switch (method) {
