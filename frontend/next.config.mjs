@@ -5,7 +5,6 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'unica-ecommerce.onrender.com',
-        port: '',
         pathname: '/uploads/**',
       },
       {
@@ -20,7 +19,7 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/__/auth/:path*',
-          destination: `https://myapp.firebaseapp.com/__/auth/:path*`
+          destination: `https://unica-3d18c.firebaseapp.com/__/auth/:path*`
         }
       ]
     }
