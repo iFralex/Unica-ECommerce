@@ -8,7 +8,7 @@ const PRIVATE_PATHS = ["/dashboard"]
 export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.includes("/__/auth/")) {
     const url = request.nextUrl.clone()
-    url.basePath = "https://unica-3d18c.firebaseapp.com"
+    url.hostname = "unica-3d18c.firebaseapp.com"
     console.log(JSON.stringify(url))
     return NextResponse.redirect("https://unica-3d18c.firebaseapp.com/__/auth/" + request.nextUrl.pathname.split("/__/auth/")[1])
   }
