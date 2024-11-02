@@ -9,6 +9,8 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.includes("/__/auth/")) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
+    url.searchParams.delete("redirectUrl");
+    url.searchParams.set("redirectUrl", "https://unica-jewelry.com/logged-handler");
     console.log(JSON.stringify(url))
     return NextResponse.redirect(url)
   }
