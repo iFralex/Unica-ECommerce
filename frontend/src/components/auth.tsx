@@ -134,6 +134,7 @@ export const LoginFunction = async (
                 throw new Error("Impossibile accedere con il link via email")
         } else {
             credential = await checkRedirect()
+            console.log("logged", credential)
             if (!credential)
                 switch (method) {
                     case 'google':
@@ -159,7 +160,7 @@ export const LoginFunction = async (
             },
         });
         if (endFunction) await endFunction(credential.user.uid)
-
+        console.log("logged2", idToken)
         if (redirectTo) router.push(redirectTo)
         router.refresh()
         return true
