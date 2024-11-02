@@ -146,14 +146,14 @@ export const LoginFunction = async (
                     case 'twitter':
                         return await loginWithTwitter()
                     case 'checking':
-                        return
+                        throw new Error("L'accesso non è andato a buon fine.")
                 }
         }
-
+        console.log("logged2")
         if (!credential) throw new Error("Credenziali non valide")
 
         const idToken = await credential.user.getIdToken();
-
+        console.log("logged3", idToken)
         await fetch("/api/login", {
             headers: {
                 Authorization: `Bearer ${idToken}`,
