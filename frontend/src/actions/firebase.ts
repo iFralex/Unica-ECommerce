@@ -26,7 +26,7 @@ export const loginWithTwitter = async () => await signInWithRedirect(auth, new T
 export const logout = async () => await signOut(auth)
 export const loginWithGoogle = async () => await signInWithRedirect(auth, new GoogleAuthProvider())
 export const sendSignupLinkViaEmail = async (email: string, targetPage: string, userName?: string, userId?: string) => {
-    await sendSignInLinkToEmail(auth, email, { url: 'http://localhost:3000/signin-mail-link' + (userName ? "?username=" + userName : "") + (userId ? "&userId=" + userId : "") + (targetPage ? "&target=" + targetPage : ""), handleCodeInApp: true })
+    await sendSignInLinkToEmail(auth, email, { url: 'http://unica-jewelry/logged-handler' + (userName ? "?username=" + userName : "") + (userId ? "&userId=" + userId : "") + (targetPage ? "&target=" + targetPage : ""), handleCodeInApp: true })
     // The link was successfully sent. Inform the user.
     // Save the email locally so you don't need to ask the user for it again
     // if they open the link on the same device.
@@ -74,28 +74,7 @@ export const updateUserName = async (newName: string, user?: UserCredential) => 
         }
     })
 }
-getRedirectResult(auth)
-    .then(async (result) => {
-        if (!result)
-            return
-        const idToken = await result.user.getIdToken();
-
-        await fetch("/api/login", {
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-            },
-        });
-        
-    }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = TwitterAuthProvider.credentialFromError(error);
-        // ...
-    });
+export const checkRedirect = async () => await getRedirectResult(auth)
 
 export const setDataRD = async (path: string, data: Object | string) => set(ref(db, path), data)
 export const pushDataRD = async (path: string, data: Object | string) => push(ref(db, path), data)

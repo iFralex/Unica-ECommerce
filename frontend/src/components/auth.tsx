@@ -10,17 +10,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { createUserEmailAndPassowrd, deleteDataFromId, loginEmailAndPassword, logout, transferDataFromCookieToUserId, loginWithGoogle, loginWithFacebook, loginWithMicrosoft, loginWithTwitter, resetPassword, checkSignInEmailLink, sendSignupLinkViaEmail } from "@/actions/firebase" // Assicurati che questo path sia corretto
+import { createUserEmailAndPassowrd, deleteDataFromId, loginEmailAndPassword, logout, transferDataFromCookieToUserId, loginWithGoogle, loginWithFacebook, loginWithMicrosoft, loginWithTwitter, resetPassword, checkSignInEmailLink, sendSignupLinkViaEmail, checkRedirect } from "@/actions/firebase" // Assicurati che questo path sia corretto
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { UserContext } from "./context"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { deleteCookie } from "@/actions/get-data"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog"
-import { CircleCheck, Loader2 } from "lucide-react";
+import { CircleCheck, CreditCard, Loader2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { UserCredential } from "firebase/auth";
 
-type LoginProvidersType = 'email' | "email link" | 'google' | "meta" | "microsoft" | "twitter"
+type LoginProvidersType = 'email' | "email link" | 'google' | "meta" | "microsoft" | "twitter" | "checking"
 
 const loginSocials: ({ provider: LoginProvidersType, name?: string, iconName?: string, padding?: number })[] = [
     {
@@ -123,7 +124,7 @@ export const LoginFunction = async (
     redirectTo: string | undefined = "/dashboard"
 ) => {
     try {
-        let credential;
+        let credential: UserCredential | null | false = null;
 
         if (method === 'email') {
             credential = await loginEmailAndPassword(credentials.email!, credentials.password!)
@@ -131,17 +132,24 @@ export const LoginFunction = async (
             credential = await checkSignInEmailLink()
             if (!credential)
                 throw new Error("Impossibile accedere con il link via email")
-        } else if (method === 'google') {
-            return await loginWithGoogle()
-        } else if (method === 'meta') {
-            return await loginWithFacebook()
-        } else if (method === 'microsoft') {
-            return await loginWithMicrosoft()
-        } else if (method === 'twitter') {
-            return await loginWithTwitter()
+        } else {
+            credential = await checkRedirect()
+            if (!credential)
+                switch (method) {
+                    case 'google':
+                        return await loginWithGoogle()
+                    case 'meta':
+                        return await loginWithFacebook()
+                    case 'microsoft':
+                        return await loginWithMicrosoft()
+                    case 'twitter':
+                        return await loginWithTwitter()
+                    case 'checking':
+                        return
+                }
         }
 
-        if (!credential || credential === true) throw new Error("Credenziali non valide")
+        if (!credential) throw new Error("Credenziali non valide")
 
         const idToken = await credential.user.getIdToken();
 

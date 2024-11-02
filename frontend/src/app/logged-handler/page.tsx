@@ -15,12 +15,12 @@ const Page = () => {
     useEffect(() => {
         (async () => {
             try {
+                await LoginFunction("checking", {}, err => { throw err }, router, () => {}, undefined)
+                await LoginFunction("email link", {}, err => { throw err }, router, () => {}, undefined)
                 const params = new URLSearchParams(window.location.search);
                 const userNameParam = params.get('username');
                 const userId = params.get('userId');
                 const targetPage = params.get('target');
-                console.log(params, userNameParam, userId, window.location.search)
-                await LoginFunction("email link", {}, err => { throw err }, router, () => {}, undefined)
                 if (userId)
                     await transferDataFromCookieToUserId(userId);
                 await deleteCookie("cookieID");
