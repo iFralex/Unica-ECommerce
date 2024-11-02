@@ -74,7 +74,7 @@ export const getCartsFromCartsLight = async (cart: CartLiteType[]) => {
         return cart.map(c => {
             for (let p of product.data)
                 if (p.id === c.productId)
-                    return { id: c.productId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), shortDescription: p.attributes.ShortDescription ?? "", quantity: c.quantity ?? 0, variant: p.attributes.ProductDetails?.[c.variantIndex], variantIndex: c.variantIndex, size: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Size, textureURL: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: p.attributes.Description?.find(d => d.__component === "product.charity-link") } as CartType
+                    return { id: c.productId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), shortDescription: p.attributes.ShortDescription ?? "", quantity: c.quantity ?? 0, variant: p.attributes.ProductDetails?.[c.variantIndex], variantIndex: c.variantIndex, size: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Size, textureURL: p.attributes.ProductDetails?.[c.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: p.attributes.Description?.find(d => d.__component === "pr.charity-link") } as CartType
             return null
         }).filter(c => c !== null)
     } catch (error) {
@@ -89,7 +89,7 @@ export const getCartFromCartLight = async (cart: CartLiteType) => {
         if (!product.data)
             throw new Error("No product found");
         console.log(product.data.attributes.ProductDetails?.[cart.variantIndex])
-        return ({ id: cart.productId, name: product.data.attributes.Name ?? "", urlPath: (product.data.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.data.attributes.SKU ?? ""), shortDescription: product.data.attributes.ShortDescription ?? "", quantity: cart.quantity ?? 0, variant: product.data.attributes.ProductDetails?.[cart.variantIndex], variantIndex: cart.variantIndex, size: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Size, textureURL: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: product.data.attributes.Description?.find(d => d.__component === "product.charity-link") } as CartType)
+        return ({ id: cart.productId, name: product.data.attributes.Name ?? "", urlPath: (product.data.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.data.attributes.SKU ?? ""), shortDescription: product.data.attributes.ShortDescription ?? "", quantity: cart.quantity ?? 0, variant: product.data.attributes.ProductDetails?.[cart.variantIndex], variantIndex: cart.variantIndex, size: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Size, textureURL: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: product.data.attributes.Description?.find(d => d.__component === "pr.charity-link") } as CartType)
     } catch (error) {
         return (error as Error).message
     }
@@ -121,7 +121,7 @@ export const getFavoritesFromFavoritesLight = async (favorites: { vId: number, p
         return favorites.map(f => {
             for (let p of product.data)
                 if (p.id === f.pId)
-                    return { id: f.pId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), shortDescription: p.attributes.ShortDescription ?? "", variant: p.attributes.ProductDetails?.find(v => v.id === f.vId), variantIndex: p.attributes.ProductDetails?.reduce((acc, curr, index) => { if (acc !== -1) return acc; return curr.id === f.vId ? index : -1 }, -1), charity: p.attributes.Description?.find(d => d.__component === "product.charity-link") } as FavoriteType
+                    return { id: f.pId, name: p.attributes.Name ?? "", urlPath: (p.attributes.Category?.data.attributes.SKU ?? "") + "/" + (p.attributes.SKU ?? ""), shortDescription: p.attributes.ShortDescription ?? "", variant: p.attributes.ProductDetails?.find(v => v.id === f.vId), variantIndex: p.attributes.ProductDetails?.reduce((acc, curr, index) => { if (acc !== -1) return acc; return curr.id === f.vId ? index : -1 }, -1), charity: p.attributes.Description?.find(d => d.__component === "pr.charity-link") } as FavoriteType
             return null
         }).filter(c => c !== null)
     } catch (error) {

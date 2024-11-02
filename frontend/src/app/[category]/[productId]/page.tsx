@@ -28,15 +28,15 @@ const Page = async ({ params }: { params: { productId: string, category: string 
           </div>
         </div>
         <div className="container">
-          <Testimonial data={product.attributes.Description?.find(d => d.__component === "product.testimonial")?.TestimonialLink?.data?.attributes} />
-          <CardGrid cards={product.attributes.Description?.filter(desc => desc.__component === "product.cards").find(desc => desc.Type === "Come sei")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
-          <DetailsDescription cards={product.attributes.Description?.filter(desc => desc.__component === "product.cards").find(desc => desc.Type === "Dettagli")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
+          <Testimonial data={product.attributes.Description?.find(d => d.__component === "pr.testimonial")?.TestimonialLink?.data?.attributes} />
+          <CardGrid cards={product.attributes.Description?.filter(desc => desc.__component === "pr.cards").find(desc => desc.Type === "Come sei")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
+          <DetailsDescription cards={product.attributes.Description?.filter(desc => desc.__component === "pr.cards").find(desc => desc.Type === "Dettagli")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
           {(() => {
-            const data = product.attributes.Description?.find(d => d.__component === "product.charity-link")
-            return data?.__component === "product.charity-link" && data.CharityCampaign && <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
+            const data = product.attributes.Description?.find(d => d.__component === "pr.charity-link")
+            return data?.__component === "pr.charity-link" && data.CharityCampaign && <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
           })()}
-          <Reviews reviews={product.attributes.Description?.filter(d => d.__component === "product.review") ?? []} />
-          <FAQ faqs={product.attributes.Description?.find(d => d.__component === "product.faq")?.FAQs?.data} />
+          <Reviews reviews={product.attributes.Description?.filter(d => d.__component === "pr.review") ?? []} />
+          <FAQ faqs={product.attributes.Description?.find(d => d.__component === "pr.faq")?.FAQs?.data} />
         </div>
         <div className="h-[100px]" />
       </div>

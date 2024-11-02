@@ -1,7 +1,7 @@
 import type { Schema, Attribute } from '@strapi/strapi';
 
-export interface ProductTransforms extends Schema.Component {
-  collectionName: 'components_product_transforms';
+export interface PrTransforms extends Schema.Component {
+  collectionName: 'components_pr_transforms';
   info: {
     displayName: 'Transform';
     description: '';
@@ -13,23 +13,23 @@ export interface ProductTransforms extends Schema.Component {
   };
 }
 
-export interface ProductTestimonial extends Schema.Component {
-  collectionName: 'components_product_testimonials';
+export interface PrTestimonial extends Schema.Component {
+  collectionName: 'components_pr_testimonials';
   info: {
     displayName: 'Testimonial';
     description: '';
   };
   attributes: {
     TestimonialLink: Attribute.Relation<
-      'product.testimonial',
+      'pr.testimonial',
       'oneToOne',
       'api::testimonial.testimonial'
     >;
   };
 }
 
-export interface ProductSingleItem3D extends Schema.Component {
-  collectionName: 'components_product_single_item3_ds';
+export interface PrSingleItem3D extends Schema.Component {
+  collectionName: 'components_pr_single_item3_ds';
   info: {
     displayName: 'SingleItem3D';
     description: '';
@@ -41,8 +41,8 @@ export interface ProductSingleItem3D extends Schema.Component {
   };
 }
 
-export interface ProductSingleCard extends Schema.Component {
-  collectionName: 'components_product_single_cards';
+export interface PrSingleCard extends Schema.Component {
+  collectionName: 'components_pr_single_cards';
   info: {
     displayName: 'SingleCard';
   };
@@ -52,8 +52,8 @@ export interface ProductSingleCard extends Schema.Component {
   };
 }
 
-export interface ProductReview extends Schema.Component {
-  collectionName: 'components_product_reviews';
+export interface PrReview extends Schema.Component {
+  collectionName: 'components_pr_reviews';
   info: {
     displayName: 'Review';
     description: '';
@@ -67,49 +67,49 @@ export interface ProductReview extends Schema.Component {
   };
 }
 
-export interface ProductProductDetails extends Schema.Component {
-  collectionName: 'components_product_product_details';
+export interface PrProductDetails extends Schema.Component {
+  collectionName: 'components_pr_product_details';
   info: {
     displayName: 'ProductDetails';
     description: '';
   };
   attributes: {
     Material: Attribute.Relation<
-      'product.product-details',
+      'pr.product-details',
       'oneToOne',
       'api::material.material'
     >;
     Price: Attribute.Decimal;
     Images: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
     Platings: Attribute.Relation<
-      'product.product-details',
+      'pr.product-details',
       'oneToMany',
       'api::plating.plating'
     >;
     Materials3D: Attribute.JSON;
     Photos: Attribute.Media<'images', true>;
-    CartVisualizzation: Attribute.Component<'product.cart-visualizzation'> &
+    CartVisualizzation: Attribute.Component<'pr.cart-visualizzation'> &
       Attribute.Required;
   };
 }
 
-export interface ProductMultipleItem3DLink extends Schema.Component {
-  collectionName: 'components_p_multiple_item3_d_links';
+export interface PrMultipleItem3DLink extends Schema.Component {
+  collectionName: 'components_pr_multiple_item3_d_links';
   info: {
     displayName: 'MultipleItem3DLink';
     description: '';
   };
   attributes: {
     SelectedViewer: Attribute.Relation<
-      'product.multiple-item3-d-link',
+      'pr.multiple-item3-d-link',
       'oneToOne',
       'api::viewer3d.viewer3d'
     >;
   };
 }
 
-export interface ProductItem3D extends Schema.Component {
-  collectionName: 'components_product_item3_ds';
+export interface PrItem3D extends Schema.Component {
+  collectionName: 'components_pr_item3_ds';
   info: {
     displayName: 'MultipleItem3D';
     description: '';
@@ -119,26 +119,26 @@ export interface ProductItem3D extends Schema.Component {
     Thumbnail: Attribute.Media<'images'>;
     Model3D: Attribute.Media<'files'>;
     RelativeProduct: Attribute.Relation<
-      'product.item3-d',
+      'pr.item3-d',
       'oneToOne',
       'api::product.product'
     >;
-    MainTransform: Attribute.Component<'product.transforms'>;
+    MainTransform: Attribute.Component<'pr.transforms'>;
   };
 }
 
-export interface ProductFaq extends Schema.Component {
-  collectionName: 'components_product_faqs';
+export interface PrFaq extends Schema.Component {
+  collectionName: 'components_pr_faqs';
   info: {
     displayName: 'FAQ';
   };
   attributes: {
-    FAQs: Attribute.Relation<'product.faq', 'oneToMany', 'api::faq.faq'>;
+    FAQs: Attribute.Relation<'pr.faq', 'oneToMany', 'api::faq.faq'>;
   };
 }
 
-export interface ProductDescription extends Schema.Component {
-  collectionName: 'components_product_descriptions';
+export interface PrDescription extends Schema.Component {
+  collectionName: 'components_pr_descriptions';
   info: {
     displayName: 'Description';
   };
@@ -148,15 +148,15 @@ export interface ProductDescription extends Schema.Component {
   };
 }
 
-export interface ProductCharityLink extends Schema.Component {
-  collectionName: 'components_product_charity_links';
+export interface PrCharityLink extends Schema.Component {
+  collectionName: 'components_pr_charity_links';
   info: {
     displayName: 'CharityLink';
     description: '';
   };
   attributes: {
     CharityCampaign: Attribute.Relation<
-      'product.charity-link',
+      'pr.charity-link',
       'oneToOne',
       'api::charity-campaign.charity-campaign'
     >;
@@ -166,8 +166,8 @@ export interface ProductCharityLink extends Schema.Component {
   };
 }
 
-export interface ProductCartVisualizzation extends Schema.Component {
-  collectionName: 'components_product_cart_visualizzations';
+export interface PrCartVisualizzation extends Schema.Component {
+  collectionName: 'components_pr_cart_visualizzations';
   info: {
     displayName: 'CartVisualizzation';
     description: '';
@@ -178,14 +178,14 @@ export interface ProductCartVisualizzation extends Schema.Component {
   };
 }
 
-export interface ProductCards extends Schema.Component {
-  collectionName: 'components_product_cards';
+export interface PrCards extends Schema.Component {
+  collectionName: 'components_pr_cards';
   info: {
     displayName: 'Cards';
     description: '';
   };
   attributes: {
-    Card: Attribute.Component<'product.single-card', true>;
+    Card: Attribute.Component<'pr.single-card', true>;
     Type: Attribute.Enumeration<['Dettagli', 'Come sei']>;
   };
 }
@@ -193,19 +193,19 @@ export interface ProductCards extends Schema.Component {
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
-      'product.transforms': ProductTransforms;
-      'product.testimonial': ProductTestimonial;
-      'product.single-item3-d': ProductSingleItem3D;
-      'product.single-card': ProductSingleCard;
-      'product.review': ProductReview;
-      'product.product-details': ProductProductDetails;
-      'product.multiple-item3-d-link': ProductMultipleItem3DLink;
-      'product.item3-d': ProductItem3D;
-      'product.faq': ProductFaq;
-      'product.description': ProductDescription;
-      'product.charity-link': ProductCharityLink;
-      'product.cart-visualizzation': ProductCartVisualizzation;
-      'product.cards': ProductCards;
+      'pr.transforms': PrTransforms;
+      'pr.testimonial': PrTestimonial;
+      'pr.single-item3-d': PrSingleItem3D;
+      'pr.single-card': PrSingleCard;
+      'pr.review': PrReview;
+      'pr.product-details': PrProductDetails;
+      'pr.multiple-item3-d-link': PrMultipleItem3DLink;
+      'pr.item3-d': PrItem3D;
+      'pr.faq': PrFaq;
+      'pr.description': PrDescription;
+      'pr.charity-link': PrCharityLink;
+      'pr.cart-visualizzation': PrCartVisualizzation;
+      'pr.cards': PrCards;
     }
   }
 }

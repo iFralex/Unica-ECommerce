@@ -20,11 +20,11 @@ export const createUserEmailAndPassowrd = async (email: string, password: string
     return credential
 }
 export const loginEmailAndPassword = async (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
-export const loginWithFacebook = async () => await signInWithPopup(auth, new FacebookAuthProvider())
+export const loginWithFacebook = async () => await signInWithRedirect(auth, new FacebookAuthProvider())
 export const loginWithMicrosoft = async () => await signInWithPopup(auth, new OAuthProvider("microsoft.com"))
 export const loginWithTwitter = async () => await signInWithPopup(auth, new TwitterAuthProvider())
 export const logout = async () => await signOut(auth)
-export const loginWithGoogle = async () => await signInWithPopup(auth, new GoogleAuthProvider())
+export const loginWithGoogle = async () => await signInWithRedirect(auth, new GoogleAuthProvider())
 export const sendSignupLinkViaEmail = async (email: string, targetPage: string, userName?: string, userId?: string) => {
     await sendSignInLinkToEmail(auth, email, { url: 'http://localhost:3000/signin-mail-link' + (userName ? "?username=" + userName : "") + (userId ? "&userId=" + userId : "") + (targetPage ? "&target=" + targetPage : ""), handleCodeInApp: true })
     // The link was successfully sent. Inform the user.

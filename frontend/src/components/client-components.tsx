@@ -74,7 +74,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
 
     const handleAddOrRemoveFavorite = async () => {
         try {
-            await AddOrRemoveItemToFavorites(userContext.id, setUserContext, variants[contextValue.variantIndex].id, product.id, favoritesContext, setFavoritesContext, product.attributes.Name ?? "", (product.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.attributes.SKU ?? ""), product.attributes.ShortDescription ?? "", variants[contextValue.variantIndex], contextValue.variantIndex, product.attributes.Description?.find(d => d.__component === "product.charity-link"), toast, router)
+            await AddOrRemoveItemToFavorites(userContext.id, setUserContext, variants[contextValue.variantIndex].id, product.id, favoritesContext, setFavoritesContext, product.attributes.Name ?? "", (product.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.attributes.SKU ?? ""), product.attributes.ShortDescription ?? "", variants[contextValue.variantIndex], contextValue.variantIndex, product.attributes.Description?.find(d => d.__component === "pr.charity-link"), toast, router)
         } catch (err) {
             console.error("Add to favorites", err)
         }
@@ -135,7 +135,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
             <Price price={variants[contextValue.variantIndex].Price ?? 0} />
         </div>
         {(() => {
-            const data = product.attributes.Description?.find(d => d.__component === "product.charity-link")
+            const data = product.attributes.Description?.find(d => d.__component === "pr.charity-link")
             return data?.CharityCampaign && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity" />
         })()}
 

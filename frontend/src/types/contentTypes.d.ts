@@ -1002,14 +1002,14 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'api::category.category'
     >;
     MainImage: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
-    ProductDetails: Attribute.Component<'product.product-details', true>;
+    ProductDetails: Attribute.Component<'pr.product-details', true>;
     Tags: Attribute.Relation<
       'api::product.product',
       'manyToMany',
       'api::tag.tag'
     >;
     Viewer: Attribute.DynamicZone<
-      ['product.multiple-item3-d-link', 'product.single-item3-d']
+      ['pr.multiple-item3-d-link', 'pr.single-item3-d']
     > &
       Attribute.SetMinMax<
         {
@@ -1018,13 +1018,7 @@ export interface ApiProductProduct extends Schema.CollectionType {
         number
       >;
     Description: Attribute.DynamicZone<
-      [
-        'product.cards',
-        'product.charity-link',
-        'product.faq',
-        'product.review',
-        'product.testimonial'
-      ]
+      ['pr.cards', 'pr.charity-link', 'pr.faq', 'pr.review', 'pr.testimonial']
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1119,9 +1113,9 @@ export interface ApiViewer3DViewer3D extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    Items3D: Attribute.Component<'product.item3-d', true>;
+    Items3D: Attribute.Component<'pr.item3-d', true>;
     Name: Attribute.String & Attribute.Private;
-    Transforms: Attribute.Component<'product.transforms', true>;
+    Transforms: Attribute.Component<'pr.transforms', true>;
     InitialCameraRotation: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

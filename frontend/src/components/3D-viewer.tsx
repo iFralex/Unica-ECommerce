@@ -30,7 +30,7 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
   const viewer = product.attributes.Viewer?.[0];
   if (!viewer) return <></>
 
-  const multiple = viewer?.__component === "product.multiple-item3-d-link"
+  const multiple = viewer?.__component === "pr.multiple-item3-d-link"
   const mesh = useRef(null);
   const [glb, setGlb] = useState<MultipleModelType | GLTF>(multiple ? [] : null as unknown as GLTF);
   const [productContext, _] = useContext(ProductContext)
@@ -52,9 +52,11 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
     const fetchGlb = async () => {
       try {
         const response = await fetch(productModel.url);
+        if (!response.ok)
+          return
         const data = await response.blob();
         const url = URL.createObjectURL(data);
-
+        console.log(data)
         const gltfLoader = new GLTFLoader();
         gltfLoader.load(url, (loadedGltf) => {
           setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf));
@@ -89,6 +91,7 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
   }, [cameraRef.current])
 
   const applyMaterials = (model: GLTF) => {
+    console.log(model)
     materials[productContext.variantIndex || 0].forEach(mat => {
       let obj = model.scene.children[mat.object[0]] as Mesh;
       for (let i = 1; i < mat.object.length; i++) {
