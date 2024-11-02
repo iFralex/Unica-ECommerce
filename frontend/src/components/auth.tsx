@@ -150,8 +150,9 @@ export const LoginFunction = async (
                         return
                 }
         }
-        console.log("logged2")
-        if (credential === null) throw new Error("Credenziali non valide")
+        console.log("logged2", credential)
+        if (credential === null)
+            throw new Error("Credenziali non valide")
         console.log("logged20")
         const idToken = await credential.user.getIdToken();
         console.log("logged3", idToken)
