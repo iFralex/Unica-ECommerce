@@ -1,5 +1,5 @@
 "use client"
-import { Dispatch, ReactNode, SetStateAction, useContext, useState } from "react"
+import { Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react"
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from "next/image"
@@ -134,14 +134,7 @@ export const LoginFunction = async (
                 throw new Error("Impossibile accedere con il link via email")
         } else {
             console.log("a")
-            const r = await checkRedirect()
-            console.log("b")
-            if (r instanceof Error)
-            {
-                console.log(r.media)
-                throw r
-            }
-            credential = r
+            const credential = await checkRedirect()
             console.log("logged", credential)
             if (!credential)
                 switch (method) {
@@ -214,6 +207,13 @@ export const Login = () => {
     const [userContext, setUserContext] = useContext(UserContext);
     const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>(null);
 
+    useEffect(() => {
+        LoginFunction("checking", {}, (err: string) => setError('root', { type: 'manual', message: err }), router, async () => {
+            await deleteDataFromId(userContext.id)
+            await deleteCookie("cookieID")
+        });
+    }, [])
+
     const onSubmit = async (data, event) => {
         event.preventDefault();
         try {
@@ -234,8 +234,6 @@ export const Login = () => {
         event.preventDefault();
         setIsLoadingSocial(method);
         try {
-            await deleteDataFromId(userContext.id)
-            await deleteCookie("cookieID")
             await LoginFunction(method, {}, (err: string) => setError('root', { type: 'manual', message: err }), router);
             setIsLoadingSocial(null);
         } catch (e) {
