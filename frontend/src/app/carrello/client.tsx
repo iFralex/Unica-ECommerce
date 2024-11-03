@@ -307,7 +307,10 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
 
     useEffect(() => {
         const canvas = gl.domElement
-
+        let moved = false;
+        let startX, startY;
+        const moveThreshold = 10; // Soglia minima di movimento in pixel
+        
         const downListener = (e) => {
             moved = false;
             const touch = e.touches ? e.touches[0] : e;
@@ -340,7 +343,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         canvas.addEventListener('touchstart', downListener);
         canvas.addEventListener('touchmove', moveListener);
         canvas.addEventListener('touchend', upListener);
-        
+
         return () => {
             // Rimuovi event listener quando il componente viene smontato
             canvas.removeEventListener('mousedown', downListener)
