@@ -6,11 +6,13 @@ const PUBLIC_PATHS = ['/registrazione', '/login'];
 const PRIVATE_PATHS = ["/dashboard"]
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.includes("/__/auth/handler")) {
+  if (request.nextUrl.pathname.includes("/__/auth/")) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
-    if (request.nextUrl.searchParams.get("apiKey"))
+    if (request.nextUrl.searchParams.get("apiKey")) {
+      url.searchParams.delete("redirectUrl")
       url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
+    }
     console.log("url", url.toString(), request.nextUrl.toString(), request.url.toString(), request.referrer)
     //"https://unica-jewelry.com/__/auth/handler?apiKey=AIzaSyA4SxhPobYVbiNpM6To9xXFmfs8Pz-YuPE&appName=%5BDEFAULT%5D&authType=signInViaRedirect&redirectUrl=https%3A%2F%2Funica-jewelry.com%2Flogin&v=10.13.0&providerId=google.com&scopes=profile"
     return NextResponse.rewrite(url)
