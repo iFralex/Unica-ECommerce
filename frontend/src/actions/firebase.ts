@@ -184,15 +184,16 @@ export const getFavoritesLight = async (userId: string) => {
 }
 
 export const transferDataFromCookieToUserId = async (cookieId: string, userId?: string) => {
+    if (!cookieId)
+        return
+
     if (!userId)
         userId = auth.currentUser?.uid
-    
+
     const data = await getDataRD(cookieId)
     if (!data.exists() || !userId)
         return
-    console.log("userId", userId)
     await setDataRD(userId, data.val())
-    console.log("u")
     await deleteDataRD(cookieId)
 }
 
