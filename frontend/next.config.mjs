@@ -14,16 +14,6 @@ const nextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return {
-      /*beforeFiles: [
-        {
-          source: '/__/auth/:path*',
-          destination: `https://unica-3d18c.firebaseapp.com/__/auth/:path*`
-        }
-      ]*/
-    }
-  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
