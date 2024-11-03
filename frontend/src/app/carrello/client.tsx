@@ -308,29 +308,39 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
     useEffect(() => {
         const canvas = gl.domElement
 
-        let moved = false
-        const downListener = () => {
-            moved = false
+        const downListener = (e) => {
+            moved = false;
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
         }
-        const moveListener = () => {
-            moved = true
-        }
-        const upListener = (e) => {
-            if (moved) {
-                console.log('moved')
-            } else {
-                handleInteraction(e)
+
+        const moveListener = (e) => {
+            const touch = e.touches ? e.touches[0] : e;
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+            if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) > moveThreshold) {
+                moved = true;
             }
         }
+
+        const upListener = (e) => {
+            if (moved) {
+                console.log('moved');
+            } else {
+                handleInteraction(e);
+            }
+        }
+
         // Aggiungi event listener per mouse e touch
-        canvas.addEventListener('mousedown', downListener)
-        canvas.addEventListener('mousemove', moveListener)
-        canvas.addEventListener('mouseup', upListener)
+        canvas.addEventListener('mousedown', downListener);
+        canvas.addEventListener('mousemove', moveListener);
+        canvas.addEventListener('mouseup', upListener);
 
-        canvas.addEventListener('touchstart', downListener)
-        canvas.addEventListener('touchmove', moveListener)
-        canvas.addEventListener('touchend', upListener)
-
+        canvas.addEventListener('touchstart', downListener);
+        canvas.addEventListener('touchmove', moveListener);
+        canvas.addEventListener('touchend', upListener);
+        
         return () => {
             // Rimuovi event listener quando il componente viene smontato
             canvas.removeEventListener('mousedown', downListener)
