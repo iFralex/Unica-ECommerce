@@ -68,6 +68,7 @@ export const config = {
     "/((?!_next|api|.*\\.).*)",
     "/api/login",
     "/api/logout",
-    "/dashboard"
+    "/dashboard",
+    "/__/auth/"
   ],
 };
