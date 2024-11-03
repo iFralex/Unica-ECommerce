@@ -204,13 +204,13 @@ export const Login = () => {
     const loginType = watch('loginType');
     const router = useRouter();
     const [userContext, setUserContext] = useContext(UserContext);
-    const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>(null);
+    const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>("checking");
 
     useEffect(() => {
         LoginFunction("checking", {}, (err: string) => setError('root', { type: 'manual', message: err }), router, async () => {
             await deleteDataFromId(userContext.id)
             await deleteCookie("cookieID")
-        });
+        }).then(() => setIsLoadingSocial(null));
     }, [])
 
     const onSubmit = async (data, event) => {
@@ -373,7 +373,7 @@ export const Signup = ({ targetPageForEmailLink = "dashboard" }: { targetPageFor
     const registrationType = watch('registrationType');
     const router = useRouter();
     const [userContext, setUserContext] = useContext(UserContext);
-    const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>(null);
+    const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>("checking");
     const [sentEmail, setSentEmail] = useState(false)
 
 
@@ -381,7 +381,7 @@ export const Signup = ({ targetPageForEmailLink = "dashboard" }: { targetPageFor
         LoginFunction("checking", {}, (err: string) => setError('root', { type: 'manual', message: err }), router, async (userId: string) => {
             await transferDataFromCookieToUserId(userContext.id, userId);
             await deleteCookie("cookieID");
-        }, (targetPageForEmailLink ? "/" + targetPageForEmailLink : "/dashboard"))
+        }, (targetPageForEmailLink ? "/" + targetPageForEmailLink : "/dashboard")).then(() => setIsLoadingSocial(null))
     }, [])
 
     const onSubmit = async (data, event) => {
