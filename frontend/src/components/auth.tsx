@@ -376,6 +376,14 @@ export const Signup = ({ targetPageForEmailLink = "dashboard" }: { targetPageFor
     const [isLoadingSocial, setIsLoadingSocial] = useState<LoginProvidersType | null>(null);
     const [sentEmail, setSentEmail] = useState(false)
 
+
+    useEffect(() => {
+        LoginFunction("checking", {}, (err: string) => setError('root', { type: 'manual', message: err }), router, async (userId: string) => {
+            await transferDataFromCookieToUserId(userContext.id, userId);
+            await deleteCookie("cookieID");
+        }, (targetPageForEmailLink ? "/" + targetPageForEmailLink : "/dashboard"))
+    }, [])
+
     const onSubmit = async (data, event) => {
         event.preventDefault();
         try {
@@ -398,10 +406,7 @@ export const Signup = ({ targetPageForEmailLink = "dashboard" }: { targetPageFor
         event.preventDefault();
         setIsLoadingSocial(method)
         try {
-            await LoginFunction(method, {}, (err: string) => setError('root', { type: 'manual', message: err }), router, async (userId: string) => {
-                await transferDataFromCookieToUserId(userContext.id, userId);
-                await deleteCookie("cookieID");
-            }, (targetPageForEmailLink ? "/" + targetPageForEmailLink : "/dashboard"))
+            await LoginFunction(method, {}, (err: string) => setError('root', { type: 'manual', message: err }), router)
             setIsLoadingSocial(null)
         } catch (e) {
             setError('root', { type: 'manual', message: (e as Error).message })
