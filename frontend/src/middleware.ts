@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
     url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
-    console.log("url", url.toString(), request.nextUrl.toString(), request.url.toString())
+    console.log("url", url.toString(), request.nextUrl.toString(), request.url.toString(), request.referrer)
     //"https://unica-jewelry.com/__/auth/handler?apiKey=AIzaSyA4SxhPobYVbiNpM6To9xXFmfs8Pz-YuPE&appName=%5BDEFAULT%5D&authType=signInViaRedirect&redirectUrl=https%3A%2F%2Funica-jewelry.com%2Flogin&v=10.13.0&providerId=google.com&scopes=profile"
     return NextResponse.rewrite(url)
   }
@@ -68,6 +68,7 @@ export const config = {
     "/((?!_next|api|.*\\.).*)",
     "/api/login",
     "/api/logout",
-    "/dashboard"
-    ],
+    "/dashboard",
+    "/__/auth/*"
+  ],
 };
