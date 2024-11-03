@@ -308,14 +308,40 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
     useEffect(() => {
         const canvas = gl.domElement
 
+        let moved = false
+        const downListener = () => {
+            moved = false
+        }
+        const moveListener = () => {
+            moved = true
+        }
+        const upListener = (e) => {
+            if (moved) {
+                console.log('moved')
+            } else {
+                handleInteraction(e)
+            }
+        }
         // Aggiungi event listener per mouse e touch
-        canvas.addEventListener('click', handleInteraction)
-        canvas.addEventListener('touchstart', handleInteraction)
+        canvas.addEventListener('mousedown', downListener)
+        canvas.addEventListener('mousemove', moveListener)
+        canvas.addEventListener('mouseup', upListener)
+
+        canvas.addEventListener('touchstart', downListener)
+        canvas.addEventListener('touchmove', moveListener)
+        canvas.addEventListener('touchend', upListener)
+        canvas.addEventListener('touchcancel', upListener)
 
         return () => {
             // Rimuovi event listener quando il componente viene smontato
-            canvas.removeEventListener('click', handleInteraction)
-            canvas.removeEventListener('touchstart', handleInteraction)
+            canvas.removeEventListener('mousedown', downListener)
+            canvas.removeEventListener('mousemove', moveListener)
+            canvas.removeEventListener('mouseup', upListener)
+
+            canvas.removeEventListener('touchstart', downListener)
+            canvas.removeEventListener('touchend', upListener)
+            canvas.removeEventListener('touchmove', moveListener)
+            canvas.removeEventListener('touchcancel', upListener)
         }
     }, [handleInteraction, gl])
 
@@ -611,7 +637,8 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
             camera.position.z = 0;
             camera.position.x = Math.min(Math.max(camera.position.x, -size / 2 + 1), size / 2 - 1);
             camera.quaternion.set(downQuad.x, downQuad.y, downQuad.z, downQuad.w);
-            controlsRef.current.mouseButtons.left = 0
+            controlsRef.current.mouseButtons.left = 2
+            controlsRef.current.touches.one = 64
         }
     });
 

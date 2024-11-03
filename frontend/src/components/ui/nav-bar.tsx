@@ -20,65 +20,69 @@ import { Button } from "./button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LogOut } from "../auth";
+import { ScrollArea, ScrollBar } from "./scroll-area";
 
 export function NavBarStyled({ categories, account }: { categories: CategoryInfo[], account?: DecodedIdToken }) {
     const [cartContext, _] = useContext(CartContext)
     const router = useRouter()
 
     return (
-        <NavigationMenu className="">
-            <NavigationMenuList>
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Gioielli</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                            {categories.map(category => (
-                                <ListItem key={category.sku} href={"/" + category.sku} title={category.name}>{category.description}</ListItem>
-                            ))}
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/docs" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Chi siamo
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/carrello" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Cart: {cartContext !== null ? cartContext.reduce((acc, curr) => curr.quantity + acc, 0) : <Loader2 className="animate-spin" />}
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/preferiti" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            <Heart fill="red" strokeWidth={0} />
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    {account
-                        ? <Link href="/dashboard" legacyBehavior passHref>
-                            <div className="flex space-x-2">
-                                <Image src={account.picture ?? ""} width={32} height={32} alt="Immagine profilo" className="rounded-full"/>
-                                <Link href="/dashboard">{account.name ?? account.email}</Link>
-                                <Button variant="destructive" onClick={async () => await LogOut(router)}>Esci</Button>
-                            </div>
+        <ScrollArea className="w-[100wv]">
+            <NavigationMenu className="">
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>Gioielli</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                            <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                                {categories.map(category => (
+                                    <ListItem key={category.sku} href={"/" + category.sku} title={category.name}>{category.description}</ListItem>
+                                ))}
+                            </ul>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link href="/docs" legacyBehavior passHref>
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                Chi siamo
+                            </NavigationMenuLink>
                         </Link>
-                        : <div className="flex space-x-2">
-                            <Link href="/login" legacyBehavior passHref>
-                                <Button>Accedi</Button>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link href="/carrello" legacyBehavior passHref>
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                Cart: {cartContext !== null ? cartContext.reduce((acc, curr) => curr.quantity + acc, 0) : <Loader2 className="animate-spin" />}
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link href="/preferiti" legacyBehavior passHref>
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <Heart fill="red" strokeWidth={0} />
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        {account
+                            ? <Link href="/dashboard" legacyBehavior passHref>
+                                <div className="flex space-x-2">
+                                    {account.picture && <Image src={account.picture} width={32} height={32} alt="Immagine profilo" className="rounded-full" />}
+                                    <Link href="/dashboard">{account.name ?? account.email}</Link>
+                                    <Button variant="destructive" onClick={async () => await LogOut(router)}>Esci</Button>
+                                </div>
                             </Link>
-                            <Link href="/registrazione" legacyBehavior passHref>
-                                <Button variant="outline">Registrati</Button>
-                            </Link>
-                        </div>}
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
+                            : <div className="flex space-x-2">
+                                <Link href="/login" legacyBehavior passHref>
+                                    <Button>Accedi</Button>
+                                </Link>
+                                <Link href="/registrazione" legacyBehavior passHref>
+                                    <Button variant="outline">Registrati</Button>
+                                </Link>
+                            </div>}
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
     )
 }
 
