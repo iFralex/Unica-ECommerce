@@ -133,9 +133,7 @@ export const LoginFunction = async (
             if (!credential)
                 throw new Error("Impossibile accedere con il link via email")
         } else {
-            console.log("a")
-            const credential = await checkRedirect()
-            console.log("logged", credential)
+            credential = await checkRedirect()
             if (!credential)
                 switch (method) {
                     case 'google':
@@ -149,20 +147,20 @@ export const LoginFunction = async (
                     case 'checking':
                         return
                 }
-                console.log("lo", credential)
         }
-        console.log("logged2", credential)
+
         if (!credential) throw new Error("Credenziali non valide")
-        console.log("logged20")
+
         const idToken = await credential.user.getIdToken();
-        console.log("logged3", idToken)
+
         await fetch("/api/login", {
             headers: {
                 Authorization: `Bearer ${idToken}`,
             },
         });
+
         if (endFunction) await endFunction(credential.user.uid)
-        console.log("logged2", idToken)
+
         if (redirectTo) router.push(redirectTo)
         router.refresh()
         return true
