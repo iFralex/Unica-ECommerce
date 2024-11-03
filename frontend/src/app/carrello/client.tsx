@@ -270,9 +270,12 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         event.preventDefault()
         const raycaster = new Raycaster()
         const mouse = new Vector3()
+        console.log("event.touches", event.touches)
+        const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
+        const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
 
-        const clientX = event.clientX || (event.touches && event.touches[0].clientX)
-        const clientY = event.clientY || (event.touches && event.touches[0].clientY)
+        if (clientX === undefined || clientY === undefined) return;
+
 
         mouse.x = (clientX / gl.domElement.clientWidth) * 2 - 1
         mouse.y = -(clientY / gl.domElement.clientHeight) * 2 + 1
@@ -310,7 +313,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         let moved = false;
         let startX, startY;
         const moveThreshold = 10; // Soglia minima di movimento in pixel
-        
+
         const downListener = (e) => {
             moved = false;
             const touch = e.touches ? e.touches[0] : e;
