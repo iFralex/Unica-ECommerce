@@ -264,15 +264,21 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         return position
     }
 
-    const handleInteraction = useCallback((event) => {
+    const handleInteraction = useCallback((event: TouchEvent | MouseEvent) => {
         if (!endAnimation)
             return
         event.preventDefault()
         const raycaster = new Raycaster()
         const mouse = new Vector3()
-        console.log("event.touches", event.touches)
-        const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
-        const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
+
+        let clientX, clientY
+        if (event instanceof TouchEvent) {
+            clientX = event.touches ? event.touches[0].clientX : event.changedTouches[0]?.clientX;
+            clientY = event.touches ? event.touches[0].clientY : event.changedTouches[0]?.clientY;
+        } else {
+            clientX = event.clientX
+            clientY = event.clientY
+        }
 
         if (clientX === undefined || clientY === undefined) return;
 
@@ -310,27 +316,15 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
 
     useEffect(() => {
         const canvas = gl.domElement
-        let moved = false;
-        let startX, startY;
-        const moveThreshold = 10; // Soglia minima di movimento in pixel
 
-        const downListener = (e) => {
-            moved = false;
-            const touch = e.touches ? e.touches[0] : e;
-            startX = touch.clientX;
-            startY = touch.clientY;
+        let moved = false
+        const downListener = () => {
+            moved = false
         }
-
-        const moveListener = (e) => {
-            const touch = e.touches ? e.touches[0] : e;
-            const deltaX = touch.clientX - startX;
-            const deltaY = touch.clientY - startY;
-            if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) > moveThreshold) {
-                moved = true;
-            }
+        const moveListener = () => {
+            moved = true
         }
-
-        const upListener = (e) => {
+        const upListener = (e: TouchEvent | MouseEvent) => {
             if (moved) {
                 console.log('moved');
             } else {
