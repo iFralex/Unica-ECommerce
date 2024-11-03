@@ -59,12 +59,10 @@ export const ContextListeners = ({ loggedUserId }: { loggedUserId?: string }) =>
             if (userID) {
                 await (async () => {
                     const cartLight = await getCartsLight(userID)
-                    console.log("1", cartLight)
                     if (cartLight instanceof Error) {
                         setCartContext([])
                         return console.log("Error cartLight:", cartLight.message)
                     }
-                    console.log("2", cartLight)
                     const cart = await getCartsFromCartsLight(cartLight)
                     console.log(cart)
                     if (cart instanceof Error || !cart) {

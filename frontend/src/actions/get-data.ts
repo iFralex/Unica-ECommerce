@@ -48,7 +48,7 @@ export const getProductsLightFromCartsLight = async (cart: CartLiteType[]) => {
             return null
         }).filter(c => c !== null)
     } catch (error) {
-        console.log(`products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
+        console.log(`products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][pr.charity-link][populate]=*`)
         return error as Error
     }
 }
@@ -68,9 +68,10 @@ export const getCartVisualizzationData = async (productId: number) => {
 
 export const getCartsFromCartsLight = async (cart: CartLiteType[]) => {
     try {
-        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][pr.charity-link][populate]=*`)
         if (!product.data)
             throw new Error("No product found");
+        console.log(product.data[0].attributes.Description)
         return cart.map(c => {
             for (let p of product.data)
                 if (p.id === c.productId)
@@ -78,17 +79,17 @@ export const getCartsFromCartsLight = async (cart: CartLiteType[]) => {
             return null
         }).filter(c => c !== null)
     } catch (error) {
-        console.log(`products?${Array.from(new Set(cart.map(i => i.productId))).map((item, i) => "filters[id][$in][" + i + "]=" + item.productId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
         return error as Error
     }
 };
 
 export const getCartFromCartLight = async (cart: CartLiteType) => {
     try {
-        const product: APIResponse<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products/${cart.productId}?fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][4]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
+        const product: APIResponse<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products/${cart.productId}?fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][fields][1]=CartVisualizzation&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][4]=Images&populate[ProductDetails][populate][CartVisualizzation][populate][Texture][fields][0]=formats&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][pr.charity-link][populate]=*`)
+
         if (!product.data)
             throw new Error("No product found");
-        console.log(product.data.attributes.ProductDetails?.[cart.variantIndex])
+    console.log(product.data.attributes.Description)    
         return ({ id: cart.productId, name: product.data.attributes.Name ?? "", urlPath: (product.data.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.data.attributes.SKU ?? ""), shortDescription: product.data.attributes.ShortDescription ?? "", quantity: cart.quantity ?? 0, variant: product.data.attributes.ProductDetails?.[cart.variantIndex], variantIndex: cart.variantIndex, size: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Size, textureURL: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: product.data.attributes.Description?.find(d => d.__component === "pr.charity-link") } as CartType)
     } catch (error) {
         return (error as Error).message
@@ -113,7 +114,7 @@ export const getPricesFromCartsLight = async (cart: CartLiteType[]) => {
 
 export const getFavoritesFromFavoritesLight = async (favorites: { vId: number, pId: number }[]) => {
     try {
-        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?${favorites.map((item, i) => "filters[id][$in][" + i + "]=" + item.pId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][product.charity-link][populate]=*`)
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?${favorites.map((item, i) => "filters[id][$in][" + i + "]=" + item.pId).join("&")}&fields[0]=Name&fields[1]=SKU&fields[2]=ShortDescription&populate[ProductDetails][fields][0]=Price&populate[ProductDetails][populate][Material][fields][0]=Name&populate[ProductDetails][populate][Material][fields][1]=Color&populate[ProductDetails][populate][Platings][fields][1]=Color&populate[ProductDetails][fields][3]=Images&populate[ProductDetails][populate][Images][fields][0]=formats&populate[Category][fields][0]=SKU&populate[Description][on][pr.charity-link][populate]=*`)
 
         if (!product.data)
             throw new Error("No product found");
