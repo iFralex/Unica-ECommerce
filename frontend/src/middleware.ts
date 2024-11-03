@@ -9,9 +9,8 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.includes("/__/auth/")) {
     const url = request.nextUrl.clone()
     url.hostname = "unica-3d18c.firebaseapp.com"
-    url.searchParams.delete("redirectUrl");
     url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
-    console.log("url", url.toString(), request.nextUrl.clone())
+    console.log("url", url.toString(), request.nextUrl.toString(), request.url.toString())
     return NextResponse.rewrite(url)
   }
 
@@ -27,7 +26,7 @@ export async function middleware(request: NextRequest) {
       if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
+        return NextResponse.rewrite(url)
       }
 
       if (request.nextUrl.pathname === '/dashboard')
