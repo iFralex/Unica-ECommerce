@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
     url.hostname = "unica-3d18c.firebaseapp.com"
     url.searchParams.delete("redirectUrl");
     url.searchParams.set("redirectUrl", process.env.DOMAIN_URL + "/logged-handler?redirected=true");
-    console.log("url", url)
+    console.log("url", url.toString(), request.nextUrl.clone())
     return NextResponse.rewrite(url)
   }
 
