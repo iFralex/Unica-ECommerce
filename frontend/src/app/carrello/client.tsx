@@ -330,7 +330,6 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         canvas.addEventListener('touchstart', downListener)
         canvas.addEventListener('touchmove', moveListener)
         canvas.addEventListener('touchend', upListener)
-        canvas.addEventListener('touchcancel', upListener)
 
         return () => {
             // Rimuovi event listener quando il componente viene smontato
@@ -341,7 +340,6 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
             canvas.removeEventListener('touchstart', downListener)
             canvas.removeEventListener('touchend', upListener)
             canvas.removeEventListener('touchmove', moveListener)
-            canvas.removeEventListener('touchcancel', upListener)
         }
     }, [handleInteraction, gl])
 
