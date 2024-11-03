@@ -69,6 +69,6 @@ export const config = {
     "/api/login",
     "/api/logout",
     "/dashboard",
-    "/__/auth/handler*"
+    "/__/auth/handler"
   ],
 };
