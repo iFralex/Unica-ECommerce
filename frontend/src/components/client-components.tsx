@@ -139,7 +139,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
             return data?.CharityCampaign && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity" />
         })()}
 
-        <div className="flex items-center flex-wrap space-x-2 justify-center md:justify-start">
+        <div className="flex items-center flex-wrap gap-2 justify-center md:justify-start">
             <Button disabled={!userContext.id} size="lg" variant="buy" className="flex-1" onClick={handleAddCart}>
                 <ShoppingCart size={25} className="mr-3" />
                 Aggiungi al Carrello
