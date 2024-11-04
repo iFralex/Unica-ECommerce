@@ -272,7 +272,7 @@ const Renderer = ({ handleSelectItem }: { handleSelectItem: (item: CartType | nu
         const mouse = new Vector3()
 
         let clientX, clientY
-        if (event instanceof TouchEvent) {
+        if ('TouchEvent' in window && event instanceof TouchEvent) {
             clientX = event.touches[0]?.clientX || event.changedTouches[0]?.clientX;
             clientY = event.touches[0]?.clientY || event.changedTouches[0]?.clientY;
         } else {
