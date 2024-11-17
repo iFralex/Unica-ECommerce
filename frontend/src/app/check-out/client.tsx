@@ -115,7 +115,7 @@ const Addresses = ({ addresses, userId, handleSubmit }: { addresses: AddressDeta
                                 <div className="flex items-center gap-2">
                                     <RadioGroupItem value={courier.id} id={courier.id} />
                                     <Label htmlFor={courier.id} className="flex-1">
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center justify-center gap-4 flex-wrap">
                                             <div className="flex flex-grow flex-1">
                                                 <div className="flex gap-2">
                                                     <div>
@@ -135,13 +135,15 @@ const Addresses = ({ addresses, userId, handleSubmit }: { addresses: AddressDeta
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="min-w-[110px]">
-                                                <p className="text-[0.70rem] text-muted-foreground w-[100px]">Data Stimata</p>
-                                                <p className="text-3xl font-bold">{new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' }).format(new Date(...courier.first_estimated_delivery_date.split('/').map((v, i) => v - (i === 1))))}</p>
-                                            </div>
-                                            <div className="flex  justify-end min-w-[100px]">
-                                                <div className="">
-                                                    <Price price={courier.price.total_price} size={3} mb4={false} />
+                                            <div className="flex gap-3">
+                                                <div className="min-w-[110px]">
+                                                    <p className="text-[0.70rem] text-muted-foreground w-[100px]">Data Stimata</p>
+                                                    <p className="text-3xl font-bold">{new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' }).format(new Date(...courier.first_estimated_delivery_date.split('/').map((v, i) => v - (i === 1))))}</p>
+                                                </div>
+                                                <div className="flex  justify-end min-w-[100px]">
+                                                    <div className="">
+                                                        <Price price={courier.price.total_price} size={3} mb4={false} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -276,9 +278,9 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
         step.next()
     }
 
-    return <div className="container size-full flex items-center justify-center">
-        <Card className="p-5 mx-auto grid grid-cols-1 md:grid-cols-2">
-            <div className="p-5 relative">
+    return <div className="container px-1 md:px-5 size-full flex items-center justify-center">
+        <Card className="py-5 px-0 md:px-5 mx-auto grid grid-cols-1 md:grid-cols-2">
+            <div className="py-5 px-5 md:px- relative">
                 <h1 className="font-bold text-xl">{step.title}</h1>
                 <p className="text-muted-foreground">{step.desc}</p>
                 <ProgressBar
