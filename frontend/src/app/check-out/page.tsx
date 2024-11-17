@@ -20,7 +20,7 @@ const Page = async () => {
     if (auth !== null) {
         addresses = await getAddressesFromAddressesLight(auth.decodedToken.uid, (await getAddresses(auth.decodedToken.uid) || []))
     }
-    console.log("ciao", auth)
+
     return <PaymentProgress auth={auth} startedStep={auth === null ? "login" : "shipping"} addresses={addresses} />
 }
 

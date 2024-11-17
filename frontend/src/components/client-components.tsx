@@ -154,6 +154,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
 export const AddItemToCart = async (userId: string, setUserContext: Dispatch<SetStateAction<UserType>>, variantId: number, productId: number, increaseQuantity: number, variantIndex: number, cartContext: CartContextType, setCartContext: Dispatch<SetStateAction<CartContextType>>, name: string, toast?: ({ ...props }: {}) => void, router?: AppRouterInstance) => {
     if (!userId || !cartContext)
         return
+    console.log(userId)
     let cookieID = userId
     if (userId === "noid") {
         const dbResult = await pushCartData(variantId, { productId: productId, quantity: increaseQuantity, variantIndex: variantIndex })
@@ -162,6 +163,7 @@ export const AddItemToCart = async (userId: string, setUserContext: Dispatch<Set
             return
         }
         cookieID = dbResult
+        console.log(cookieID)
         setUserContext({ id: cookieID })
     }
 

@@ -4,6 +4,7 @@ import { AccountInformationType, AddressDetails } from "@/types/types";
 import { getTokens } from "next-firebase-auth-edge";
 import { cookies } from "next/headers";
 import { addAddress } from "./firebase";
+import { getPostalCode } from "./shipping";
 
 export const getAuthToken = async () => await getTokens(cookies(), {
   apiKey: clientConfig.apiKey,
@@ -48,34 +49,6 @@ export const getSuggestedAddress = async (id: string) => {
   return data.address
 }
 
-const getPostalCode = async (query) => {
-  const BASE_URL = 'https://api.packlink.com';
-  const API_VERSION = 'v1';
-  const COUNTRY = 'IT';
-
-  const url = new URL(`${BASE_URL}/${API_VERSION}/locations/postalcodes/country/${COUNTRY}`);
-  url.searchParams.append('q', query);
-
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': process.env.PACKLINK_API_KEY || "",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching postal code:', error.message);
-    return { error: error.message };
-  }
-};
 
 const validateAddress = async (street, houseNumber, city, postalCode, province, country) => {
   const query = `${houseNumber || ''} ${street}, ${city}, ${province}, ${postalCode}, ${country}`;

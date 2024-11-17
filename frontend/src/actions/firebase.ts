@@ -84,7 +84,7 @@ export const deleteDataRD = async (path: string) => remove(ref(db, path))
 
 export const pushCartData = async (id: number, cart: CartLiteType) => {
     try {
-        return (await pushDataRD("", { cart: { [id]: cart } })).key
+        return (await pushDataRD("/", { cart: { [id]: cart } })).key
     } catch (err) {
         return new Error("Impossibile salvare sul database il carrello: " + err)
     }
@@ -92,7 +92,7 @@ export const pushCartData = async (id: number, cart: CartLiteType) => {
 
 export const pushFavoritesData = async (variantId: number, productId: number) => {
     try {
-        return (await pushDataRD("", { favorites: { [variantId]: productId } })).key
+        return (await pushDataRD("/", { favorites: { [variantId]: productId } })).key
     } catch (err) {
         return new Error("Impossibile salvare sul database il prodotto nei preferiti: " + err)
     }
