@@ -49,7 +49,8 @@ export type FavoriteType = {
     shortDescription: string,
     variant: VariantType,
     variantIndex: number,
-    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>}
+    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>
+}
 
 export type CardDescriptionType = {
     title: string,
@@ -67,7 +68,7 @@ export type OrderType = {
 }
 
 export type AccountInformationType = {
-    addresses: {id: string, key: string, details?: string}[],
+    addresses: { id: string, key: string, details?: string }[],
     paymentId: string
 }
 
@@ -82,4 +83,5 @@ export interface AddressDetails {
     country: string;
     fullAddress: string;
     details?: string;
-  }
+    position: { lat: number, lng: number };
+}

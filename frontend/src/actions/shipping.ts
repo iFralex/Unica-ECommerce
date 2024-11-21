@@ -1,4 +1,7 @@
 "use server"
+
+import { AddressDetails } from "@/types/types";
+
 interface Package {
     weight: number;
     length: number;
@@ -139,3 +142,26 @@ export const getPostalCode = async (query) => {
         return { error: error.message };
     }
 };
+
+export const createShipping = async (data) => {
+    const result = await fetch("https://api.packlink.com/v1/shipments", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': process.env.PACKLINK_API_KEY || ""
+        },
+        body: JSON.stringify(data),
+    })
+    return !result.ok ? false : result.json()
+}
+
+export const getDropOffPoints = async (shipmentService?: "Inpost IT" | "poste italiane", position?: AddressDetails["position"], name?: string) => {
+    if (!shipmentService || !position)
+        return
+    switch (shipmentService) {
+        case "Inpost IT":
+            const r = await fetch('https://api-it-local-points.easypack24.net/v1/points?relative_point=' + position.lat + '%2C' + position.lng + '&sort_by=distance_to_relative_point&fields=name,distance,operating_hours_extended,opening_hours,location_type,address,address_details,location_description')
+            const a = await r.json()
+            return a.items
+    }
+}

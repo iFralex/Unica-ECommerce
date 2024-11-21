@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreditCard, House, Loader2, Plus, ShoppingCart, Store, Truck } from "lucide-react";
+import { AlarmClock, CreditCard, House, Link as LinkIcon, Loader2, Pencil, Plus, ShoppingCart, Store, TriangleAlert, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { AddressForm, DeleteAddressLoadingDialog } from "../dashboard/account/account-client";
@@ -17,56 +17,282 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Tokens } from "next-firebase-auth-edge";
-import { getCarriers } from "@/actions/shipping";
+import { createShipping, getCarriers, getDropOffPoints } from "@/actions/shipping";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Price from "@/components/ui/price";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Link from "next/link";
 
 const updateNameSchema = z.object({
-    name: z.string().min(3, { message: "Il nome è troppo breve" }).max(60, { message: "L'indirizzo email è troppo lungo" }),
+    firstName: z.string()
+        .min(4, { message: "Il nome deve essere di almeno 4 caratteri" })
+        .max(30, { message: "Il nome è troppo lungo" }),
+    lastName: z.string()
+        .min(4, { message: "Il cognome deve essere di almeno 4 caratteri" })
+        .max(30, { message: "Il cognome è troppo lungo" }),
 });
 
 const LoginOrSignup = ({ }: {}) => {
-    const { control, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm({
-        resolver: zodResolver(updateNameSchema),
-        mode: 'onBlur',
-    });
-
-    const router = useRouter()
-
     return (
         <Signup targetPageForEmailLink="check-out" />
     );
 };
 
-const Addresses = ({ addresses, userId, handleSubmit }: { addresses: AddressDetails[], userId: string, handleSubmit: (id: string) => void }) => {
+const Addresses = ({ addresses, userId, name, handleSubmit }: { addresses: AddressDetails[], userId: string, name: string, handleSubmit: (addrId: string, courrId: string) => void }) => {
     const [addressId, setAddressId] = useState(addresses.length > 0 ? addresses[0].id : "")
-    const [courierId, setCourierId] = useState("")
-    const [couriers, setCouriers] = useState([])
+    const [courrier, setCourrier] = useState(null)
+    const [courriers, setCourriers] = useState(null)
+    const [dropOffPoint, setDropOffPoint] = useState(null)
+    const [dropOffPoints, setDropOffPoints] = useState(null)
+    const [isLoading, setIsLoading] = useState<null | "courrier" | "dropoff" | "closed">(null)
+    const { control, formState: { errors }, getValues, setValue, trigger } = useForm({
+        resolver: zodResolver(updateNameSchema),
+        mode: 'onChange',
+        defaultValues: { firstName: name.split(" ")?.[0].trim(), lastName: name.split(" ")?.[1].trim() }
+    })
 
     const calculateShipping = async (addrId) => {
-        setCouriers([])
-        setCourierId("")
+        setCourriers(null)
+        setCourrier(null)
         const addressSel = addresses.find(addr => addr.id === addrId)
         if (!addressSel)
             return
         const results = await getCarriers("IT", "04012", "IT", addressSel.postalCode, [{ height: 5, width: 6, length: 6, weight: 0.1 }])
-        console.log(results)
-        setCouriers(results)
-        setCourierId(results[0].id)
+        setCourriers(results)
+        setIsLoading(prevIsLoading => {
+            if (prevIsLoading !== "closed") {
+                return "courrier"
+            }
+            return prevIsLoading
+        })
     }
 
-    useEffect(() => { calculateShipping(addressId) }, [])
+    const onDropOffPoints = async () => {
+        if (!courrier)
+            return
+        const r = await getDropOffPoints(courrier.carrier_name, addresses.find(addr => addr.id === addressId)?.position)
+        console.log("points", r)
+        setDropOffPoints(r)
+        setIsLoading(prevIsLoading => {
+            if (prevIsLoading !== "closed") {
+                return "dropoff"
+            }
+            return prevIsLoading
+        })
+    }
+
+    useEffect(() => {
+        setDropOffPoint(null)
+        setDropOffPoints(null)
+        setIsLoading(null)
+    }, [courrier?.carrier_name])
+
+    useEffect(() => { trigger() }, [trigger])
+
+    const ItemSelectionDialog = ({ title, buttonLabel, openAction, dialogTitle, items, itemIdKey, labelChildren, finalValue, setFinalValue, displaiedSel, startSelChildren, defaultOpen }: { title: string, buttonLabel: string, openAction: () => void, dialogTitle: string, items: any[] | null, itemIdKey: string, labelChildren: (item: any, index: number) => ReactNode, finalValue: any, setFinalValue: (item: any) => void, displaiedSel: (ChangeBtn: ReactNode) => ReactNode, startSelChildren?: () => ReactNode, defaultOpen?: boolean }) => {
+        const [tmpItem, setTmpItem] = useState<any | null>(finalValue || items?.[0] || null)
+        const [isOpen, setIsOpen] = useState<boolean>(defaultOpen || false)
+
+        const handleOpenChange = (open: boolean) => {
+            if (open) {
+                if (!items) {
+                    openAction()
+                }
+                
+                setIsOpen(true)
+            } else {
+                if (tmpItem) {
+                    setFinalValue(tmpItem)
+                }
+                setIsLoading(prevIsLoading => {
+                    if (prevIsLoading) {
+                        return null
+                    } else
+                    return "closed"
+                    return prevIsLoading
+                })
+                setIsOpen(false)
+            }
+        }
+
+        return <div className="mt-8">
+            <h2 className="mb-4 text-2xl font-bold text-center">
+                {title}
+            </h2>
+            <Card className={"flex items-center justify-center p-3 " + (!finalValue && "min-h-[150px]")}>
+                {(startSelChildren && startSelChildren()) || (
+                    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+                        {!finalValue &&
+                            <DialogTrigger asChild>
+                                <Button>{buttonLabel}</Button>
+                            </DialogTrigger>
+                        }
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{dialogTitle}</DialogTitle>
+                            </DialogHeader>
+                            {!items ? <div className="flex items-center justify-center h-64">
+                                <Loader2 className="animate-spin" />
+                            </div> :
+                                <div>
+                                    <ScrollArea className="h-[75vh] p-1">
+                                        <RadioGroup defaultValue={tmpItem?.[itemIdKey]} onValueChange={tmpId => setTmpItem(items.find(i => i[itemIdKey] === tmpId))}>
+                                            {items.map((item, index) => (
+                                                <div key={index}>
+                                                    <div className="flex items-center gap-2">
+                                                        <RadioGroupItem value={item[itemIdKey]} id={item[itemIdKey]} />
+                                                        <Label htmlFor={item[itemIdKey]} className="flex-1">
+                                                            {labelChildren(item, index)}
+                                                        </Label>
+                                                    </div>
+                                                    {index < items.length - 1 && <Separator className="my-4" />}
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <ScrollBar />
+                                    </ScrollArea>
+                                    <DialogFooter className="mt-2">
+                                        <Button disabled={!tmpItem}>Seleziona</Button>
+                                    </DialogFooter>
+                                </div>}
+                        </DialogContent>
+                    </Dialog>
+                )}
+                {finalValue && (<div className="w-full">
+                    {displaiedSel(<div className="flex justify-center w-full mt-2"><Button onClick={() => { setIsOpen(true) }} variant="outline" className="w-full"><Pencil size={20} className="mr-2" /> Cambia</Button></div>)}
+                </div>)}
+            </Card>
+        </div>
+    }
+
+    const CourrierComponent = (courier) => <div className="flex items-center justify-center gap-4 flex-wrap">
+        <div className="flex flex-grow flex-1">
+            <div className="flex gap-2">
+                <div>
+                    <Image src={courier.logo} width={100} height={60} alt="" />
+                </div>
+                <div>
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold text-lg">{courier.carrier_name}</p>
+                        <Badge variant="outline" className={courier.category === "express" ? "bg-[#FFD700]" : ""}>{courier.category.charAt(0).toUpperCase() + courier.category.slice(1)}</Badge>
+                    </div>
+                    <div className="flex gap-1">
+                        {courier.delivery_to_parcelshop ? <Store size={30} className="pt-1" /> : <House size={30} className="pt-1" />}
+                        <p className="text-sm text-gray-500 w-[100px] leading-tight">
+                            {courier.delivery_to_parcelshop ? "In punto di Raccolta" : "Consegna a casa"}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div className="flex gap-3">
+            <div className="min-w-[110px]">
+                <p className="text-[0.70rem] text-muted-foreground w-[100px]">Data Stimata</p>
+                <p className="text-3xl font-bold">{new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' }).format(new Date(...courier.first_estimated_delivery_date.split('/').map((v, i) => v - (i === 1))))}</p>
+            </div>
+            <div className="flex  justify-end min-w-[100px]">
+                <div className="">
+                    <Price price={courier.price.total_price} size={3} mb4={false} />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    const DropOffComponent = (dropoff) => <div className="flex gap-2">
+        <Store size={48} />
+        <div>
+            <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-bold">{dropoff.location_description.charAt(0).toUpperCase()}{dropoff.location_description.slice(1)}</p>
+                <div className="flex items-center gap-1">
+                    <Badge variant="outline" style={{ backgroundColor: `hsl(${Math.max(0, Math.min(120 - (dropoff.distance / 5000) * 120, 120))}, 100%, 75%)` }}>{dropoff.distance >= 1000 ? `${(dropoff.distance / 1000).toFixed(1).replace('.', ',')} km` : `${Math.round(dropoff.distance / 10) * 10}m`}</Badge>
+                    <Popover modal>
+                        <PopoverTrigger>
+                            <Badge variant="outline" className="p-1"><AlarmClock size={21} /></Badge>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            {dropoff.operating_hours_extended?.customer
+                                ? [dropoff.operating_hours_extended.customer].map(obj => Object.entries(obj).map(([day, slots]) => slots.length > 0 && <p key={day}>{`${day.slice(0, 3).charAt(0).toUpperCase() + day.slice(1, 3)}: ${slots.map(s => `${String(Math.floor(s.start / 60)).padStart(2, '0')}:${String(s.start % 60).padStart(2, '0')} - ${String(Math.floor(s.end / 60)).padStart(2, '0')}:${String(s.end % 60).padStart(2, '0')}`).join(', ')}`}</p>))
+                                : dropoff.opening_hours ? <p>{dropoff.opening_hours}</p> : <p>Orari non disponibili per questo punto di ritiro</p>}
+                        </PopoverContent>
+                    </Popover>
+                    {dropoff.location_type && <Badge variant="outline">{dropoff.location_type}</Badge>}
+                </div>
+            </div>
+            <p className="">{dropoff.address.line1} - {dropoff.address_details.city} {dropoff.address_details.province}</p>
+        </div>
+    </div>
+
+    const PuntoPosteUnavailable = () => {
+        const [dropoffPointInfo, setDropoffPointInfo] = useState(courrier.DropoffPointInfo || "")
+        return <div>
+            <div className="flex items-center gap-2 mb-1">
+                <TriangleAlert size={35} />
+                <h3 className="text-2xl font-bold">Non è disponibile la selezione del Punto Poste</h3>
+            </div>
+            <p>Poste Italiane non offre un modo per ottenere una lista dei suoi Punto Poste, quindi non possiamo mostrarteli per consentirti di scegliere facilmente.</p>
+            <p>Se selezioni la consegna presso un Punto Poste, verrà automaticamente scelto quello più vicino all’indirizzo indicato. Se preferisci un altro punto di ritiro, inserisci il nome e le informazioni del Punto Poste desiderato nel campo di testo sottostante.</p>
+            <p>In ogni caso, dopo il pagamento dell’ordine, riceverai un’email con i dettagli del Punto Poste selezionato.</p>
+            <Button variant="link" className="flex items-center gap-1 mt-1">
+                <LinkIcon size={15} />
+                <Link href="https://www.poste.it/cerca/index.html#/vieni-in-poste">Trova Punto Poste</Link>
+            </Button>
+            <Input value={dropoffPointInfo} onChange={e => setDropoffPointInfo(e.target.value)} onBlur={e => setCourrier({ ...courrier, DropoffPointInfo: e.target.value })} onFocus={(e) => e.target.select()} placeholder="[Nome Punto Poste], [Indirizzo], [Città]..." className="mt-1" />
+            {console.log("courrier.DropoffPointInfo", dropoffPointInfo, courrier.DropoffPointInfo)}
+        </div>
+    }
 
     return <div>
         <h2 className="mb-4 text-2xl font-bold text-center">
+            Il tuo Nome
+        </h2>
+        <form>
+            <div className="grid grid-cols-2 gap-4 items-start">
+                <div className="grid gap-2">
+                    <Label htmlFor="firstName">Nome</Label>
+                    <Controller
+                        name="firstName"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                {...field}
+                                id="firstName"
+                                placeholder="Giulia"
+                                className={errors.firstName ? 'border-red-500' : ''}
+                                onBlur={e => setValue("firstName", e.target.value.trim(), { shouldValidate: true })}
+                            />
+                        )}
+                    />
+                    {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="lastName">Cognome</Label>
+                    <Controller
+                        name="lastName"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                {...field}
+                                id="lastName"
+                                placeholder="Antonucci"
+                                className={errors.lastName ? 'border-red-500' : ''}
+                                onBlur={e => setValue("lastName", e.target.value.trim(), { shouldValidate: true })}
+                            />
+                        )}
+                    />
+                    {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
+                </div>
+            </div>
+        </form>
+        <h2 className="mb-4 text-2xl font-bold text-center mt-8">
             I tuoi indirizzi
         </h2>
         {addresses.length === 0 ? (
             <p className="text-muted-foreground italic mb-3 text-center">Nessun indirizzo salvato. Premi il pulsante per aggiungerne uno.</p>
         ) : (
-            <RadioGroup defaultValue={addresses[0].id} onValueChange={(v) => { setAddressId(v); calculateShipping(v) }}>
+            <RadioGroup defaultValue={addresses[0].id} onValueChange={(v) => { setAddressId(v); setCourrier(null); setCourriers(null) }}>
                 {addresses.map((address, index) => (
                     <div key={address.key} className="flex items-start gap-2">
                         <RadioGroupItem value={address.id} id={address.key} />
@@ -99,65 +325,30 @@ const Addresses = ({ addresses, userId, handleSubmit }: { addresses: AddressDeta
         <div className="flex justify-end w-full mt-4 mb-8 gap-2">
             <AddressForm trigger={<Button size="icon"><Plus /></Button>} />
         </div>
-        <div>
-            <h2 className="mb-4 text-2xl font-bold text-center">
-                Corrieri disponibili
-            </h2>
-            {!addressId || !couriers.length
-                ? <Card className="flex items-center justify-center h-[150px]">
-                    {!addressId ? <p>Non hai selezionato ncora un indirizzo.</p>
-                        : !couriers.length && <Loader2 className="animate-spin" />}
-                </Card>
-                : <div>
-                    <RadioGroup defaultValue={couriers[0]?.id} onValueChange={setCourierId}>
-                        {couriers.map((courier, index) => (
-                            <div key={courier.id}>
-                                <div className="flex items-center gap-2">
-                                    <RadioGroupItem value={courier.id} id={courier.id} />
-                                    <Label htmlFor={courier.id} className="flex-1">
-                                        <div className="flex items-center justify-center gap-4 flex-wrap">
-                                            <div className="flex flex-grow flex-1">
-                                                <div className="flex gap-2">
-                                                    <div>
-                                                        <Image src={courier.logo} width={100} height={60} alt="" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="font-bold text-lg">{courier.carrier_name}</p>
-                                                            <Badge variant="outline" className={courier.category === "express" ? "bg-[#FFD700]" : ""}>{courier.category.charAt(0).toUpperCase() + courier.category.slice(1)}</Badge>
-                                                        </div>
-                                                        <div className="flex gap-1">
-                                                            {courier.delivery_to_parcelshop ? <Store size={30} className="pt-1" /> : <House size={30} className="pt-1" />}
-                                                            <p className="text-sm text-gray-500 w-[100px] leading-tight">
-                                                                {courier.delivery_to_parcelshop ? "In punto di Raccolta" : "Consegna a casa"}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3">
-                                                <div className="min-w-[110px]">
-                                                    <p className="text-[0.70rem] text-muted-foreground w-[100px]">Data Stimata</p>
-                                                    <p className="text-3xl font-bold">{new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' }).format(new Date(...courier.first_estimated_delivery_date.split('/').map((v, i) => v - (i === 1))))}</p>
-                                                </div>
-                                                <div className="flex  justify-end min-w-[100px]">
-                                                    <div className="">
-                                                        <Price price={courier.price.total_price} size={3} mb4={false} />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Label>
-                                </div>
-                                {index < couriers.length - 1 && <Separator className="my-4" />}
-                            </div>
-                        ))}
-                    </RadioGroup>
+        <ItemSelectionDialog title="Corrieri disponibili" buttonLabel={"Seleziona Metodo di spedizione"} openAction={() => calculateShipping(addressId)} dialogTitle="Scegli il metodo di Spedizione" items={courriers} itemIdKey="id" labelChildren={(_courrier, index) => (
+            CourrierComponent(_courrier)
+        )} finalValue={courrier} setFinalValue={setCourrier} displaiedSel={changeBtn => (
+            <>
+                {CourrierComponent(courrier)}
+                {changeBtn}
+            </>
+        )} defaultOpen={isLoading === "courrier"} />
+        {courrier && courrier.delivery_to_parcelshop &&
+            <ItemSelectionDialog title="Punto di Ritiro" buttonLabel={"Seleziona Punto di Ritiro di " + courrier.carrier_name} openAction={onDropOffPoints} dialogTitle="Cerca Punto di Raccolta" items={dropOffPoints} itemIdKey="name" labelChildren={(point, index) => (
+                <div className="flex items-center justify-center gap-4 flex-wrap">
+                    <div className="flex flex-grow flex-1">
+                        {DropOffComponent(point)}
+                    </div>
                 </div>
-            }
-        </div >
-        <Button disabled={!addressId || !courierId} onClick={() => handleSubmit(addressId)} className="w-full mt-4">Continua</Button>
-    </div >
+            )} finalValue={dropOffPoint} setFinalValue={setDropOffPoint} displaiedSel={changeBtn => (
+                <>
+                    {DropOffComponent(dropOffPoint)}
+                    {changeBtn}
+                </>
+            )} startSelChildren={courrier.carrier_name === "Poste Italiane" && PuntoPosteUnavailable} defaultOpen={isLoading === "dropoff"} />
+        }
+        <Button disabled={!addressId || !courrier || Object.keys(errors).length} onClick={() => handleSubmit(addressId, { ...courrier, firstName: getValues("firstName"), lastName: getValues("lastName") })} className="w-full mt-8">Continua</Button>
+    </div>
 }
 
 const ProgressBar = ({ currentStep }: { currentStep: typeof steps[number]["value"] }) => {
@@ -226,6 +417,7 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<{}>({})
     const [addressSelected, setSelectedAddress] = useState("")
+    const [courrierSelected, setSelectedCourrier] = useState({})
 
     const router = useRouter()
 
@@ -273,8 +465,82 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
         step.setValue(startedStep)
     }, [startedStep])
 
-    const handleSelectedAddress = (id: string) => {
-        setSelectedAddress(id)
+    const handleSelectedAddress = async (addrId: string, courrier: {}) => {
+        const addr = addresses?.find(a => a.id === addrId)
+        setSelectedAddress(addrId)
+        setSelectedCourrier(courrier.id)
+        console.log(courrier)
+        const r = await createShipping({
+            "user_id": null,
+            "client_id": null,
+            "service": courrier.courrier_name + ' - ' + courrier.transit_time + " | " + (courrier.dropoff ? 'In punto di raccolta' : 'Ritiro a casa'),
+            "carrier": courrier.carrier_name,
+            "service_id": courrier.id,
+            "collection_date": null,
+            "collection_time": null,
+            "dropoff_point_id": courrier.name,
+            "content": "1 The adventure begins Framed poster",
+            "contentvalue": Math.random() * 70,
+            "content_second_hand": false,
+            "shipment_custom_reference": null,
+            "priority": false,
+            "contentValue_currency": "EUR",
+            "from": {
+                "name": "Alessio",
+                "surname": "Antonucci",
+                "company": "Antonucci Alessio",
+                "street1": "Via delle Orchidee 2",
+                "street2": courrier.DropoffPointInfo,
+                "zip_code": "04012",
+                "city": "Cisterna di Latina",
+                "country": "IT",
+                "phone": "328 885 7297",
+                "email": "ifralex.business@gmail.com"
+            },
+            "to": {
+                "name": courrier.firstName,
+                "surname": courrier.lastName,
+                "company": null,
+                "street1": addr?.street + " " + addr?.houseNumber,
+                "street2": null,
+                "zip_code": addr?.postalCode,
+                "city": addr?.city,
+                "country": "IT",
+                "phone": "02 3056 7684",
+                "email": "dev@mwspace.com"
+            },
+            "additional_data": {
+                "postal_zone_id_from": null,
+                "postal_zone_id_to": null,
+                "shipping_service_name": null,
+                "zip_code_id_from": null,
+                "zip_code_id_to": null,
+                "selectedWarehouseId": null,
+                "parcel_Ids": [
+                ],
+                "postal_zone_name_to": null,
+                "order_id": null,
+                "seller_user_id": null,
+                "items": [
+                    {
+                        "price": 35.38,
+                        "title": "The adventure begins Framed poster",
+                        "picture_url": "prestashop.mwspace.ovh\/4-home_default\/the-adventure-begins-framed-poster.jpg",
+                        "quantity": 1,
+                        "category_name": "Art"
+                    }
+                ]
+            },
+            "packages": [
+                {
+                    "width": 5,
+                    "height": 5,
+                    "length": 6,
+                    "weight": 0.1
+                }
+            ]
+        })
+        console.log(r)
         step.next()
     }
 
@@ -293,7 +559,7 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
                     <Separator />
                 </div>
             </div>
-            <ScrollArea className="max-h-[75vh]">
+            <ScrollArea className="max-h-[75vh] p-1">
                 <div className="p-5 size-full">
                     {!loading
                         ? (() => {
@@ -301,7 +567,7 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
                                 case "login":
                                     return <LoginOrSignup />
                                 case "shipping":
-                                    return <Addresses addresses={addresses || []} userId={auth?.decodedToken.uid} handleSubmit={handleSelectedAddress} />
+                                    return <Addresses addresses={addresses || []} userId={auth?.decodedToken.uid} name={auth?.decodedToken.name} handleSubmit={handleSelectedAddress} />
                                 default:
                                     return <p>non definito</p>
                             }

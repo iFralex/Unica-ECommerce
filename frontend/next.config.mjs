@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: 'storage.googleapis.com',
         pathname: '/unica-3d18c.appspot.com/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'static.easypack24.net',
+        pathname: '/points/it/images/**',
+      },
     ],
   },
   async rewrites() {

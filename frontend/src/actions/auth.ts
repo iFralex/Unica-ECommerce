@@ -17,16 +17,17 @@ export async function getAddressDetails(data: AccountInformationType["addresses"
   try {
     const response = await fetch(`https://lookup.search.hereapi.com/v1/lookup?id=${data.id}&apiKey=${process.env.HERE_API_KEY}`);
     if (response.ok) {
-      const { address, title } = await response.json();
+      const { address, title, position } = await response.json();
       return {
         ...data,
+        position,
         street: address.street || '',
         houseNumber: address.houseNumber || '',
         city: address.city || '',
         state: address.state || '',
         postalCode: address.postalCode || '',
         country: address.countryName || '',
-        fullAddress: title
+        fullAddress: title,
       };
     } else {
       throw new Error('Risposta non valida dal server HERE');

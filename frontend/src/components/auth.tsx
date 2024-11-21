@@ -71,10 +71,10 @@ const loginSchema = z.object({
 const signupSchema = z
     .object({
         firstName: z.string()
-            .min(2, { message: "Il nome deve essere di almeno 2 caratteri" })
+            .min(4, { message: "Il nome deve essere di almeno 4 caratteri" })
             .max(30, { message: "Il nome è troppo lungo" }),
         lastName: z.string()
-            .min(2, { message: "Il cognome deve essere di almeno 2 caratteri" })
+            .min(4, { message: "Il cognome deve essere di almeno 4 caratteri" })
             .max(30, { message: "Il cognome è troppo lungo" }),
         email: z.string()
             .email({ message: "Indirizzo email non valido" })
