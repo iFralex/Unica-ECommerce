@@ -81,7 +81,7 @@ export const CharityBadge = ({ CampaignName, DonatedMoney, productName, url }: {
                 <div className="mx-2 text-white flex-col flex flex-1 px-2 rounded-md">
                     <span className="line-clamp-2 text-sm leading-snug">
                         <span className="text-sm font-bold underline">{CampaignName}</span>
-                        : {CampaignName === "Gioielli di Luce" && "Acquistando " + productName + ", donerai " + formattedPrice(DonatedMoney) + " in sostegno di ragazzi ciechi per dargli un cane guida."}
+                        : {CampaignName === "Gioielli di Luce" && <>Acquistando {productName}, donerai <span className="font-bold">{formattedPrice(DonatedMoney)}</span> in sostegno di ragazzi ciechi per dargli un cane guida.</>}
                     </span>
                 </div>
             </div>

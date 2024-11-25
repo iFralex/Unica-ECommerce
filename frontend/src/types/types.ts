@@ -34,7 +34,7 @@ export type CartType = {
     variantIndex: number
     size: [number, number],
     textureURL: string,
-    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>
+    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "pr.charity-link" }>
 }
 
 export type CartContextType = CartType[] | null
@@ -49,7 +49,7 @@ export type FavoriteType = {
     shortDescription: string,
     variant: VariantType,
     variantIndex: number,
-    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "product.charity-link" }>
+    charity?: Extract<NonNullable<APIResponse<"api::product.product">["data"]["attributes"]["Description"]>[number], { __component: "pr.charity-link" }>
 }
 
 export type CardDescriptionType = {
