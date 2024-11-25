@@ -533,7 +533,7 @@ const Summary = ({ cart, shippingCost, handleSubmit }: { cart: CartType[], shipp
                 <div key={index} className="flex flex-col gap-2">
                     {item.variant.Images?.data[0].attributes.formats?.thumbnail &&
                         <div className="relative flex justify-center">
-                            <Image src={item.variant.Images.data[0].attributes.formats.thumbnail.url} width={item.variant.Images.data[0].attributes.formats.thumbnail.width} height={item.variant.Images.data[0].attributes.formats.thumbnail.height} alt="" className="h-[150px]" />
+                            <Image src={item.variant.Images.data[0].attributes.formats.small.url} width={item.variant.Images.data[0].attributes.formats.small.width} height={item.variant.Images.data[0].attributes.formats.small.height} alt="" className="h-[150px]" />
                             <div className="absolute top-0 right-0 bg-[#00000099] size-5 rounded-full flex items-center justify-center transform translate-x-1/2 translate-y-[-50%] font-bold">
                                 <span className="text-white">{item.quantity}</span>
                             </div>
@@ -618,7 +618,7 @@ const Summary = ({ cart, shippingCost, handleSubmit }: { cart: CartType[], shipp
                 <span>{formattedPrice(cart.reduce((acc, item) => acc + (item.quantity * (item.variant.Price || 0)), shippingCost + (colorSel ? 1 : 0)))}</span>
             </div>
         </Card>
-        <Button onClick={() => handleSubmit(cart.reduce((acc, item) => acc + (item.quantity * (item.variant.Price || 0)), shippingCost + (colorSel ? 1 : 0)))} className="w-full mt-8">Paga</Button>
+        <Button onClick={() => handleSubmit(cart.reduce((acc, item) => acc + (item.quantity * (item.variant.Price || 0)), shippingCost + (colorSel ? 1 : 0)))} className="w-full mt-8">Paga ora</Button>
     </div >
 }
 

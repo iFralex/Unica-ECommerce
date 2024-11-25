@@ -133,7 +133,7 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
               }
             </mesh>
           </>}
-          <CameraControls ref={cameraRef} />
+          <CameraControls ref={cameraRef} maxDistance={40} minDistance={1}/>
         </Canvas>
       </Suspense>
     </div>
