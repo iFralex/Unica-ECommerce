@@ -35,6 +35,11 @@
       "type": "component",
       "repeatable": false,
       "component": "pr.transforms"
+    },
+    "HeroPreview": {
+      "type": "component",
+      "repeatable": false,
+      "component": "pr.transforms"
     }
   }
 }

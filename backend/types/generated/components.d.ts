@@ -38,6 +38,7 @@ export interface PrSingleItem3D extends Schema.Component {
     Model3D: Attribute.Media<'files'>;
     Transforms: Attribute.JSON;
     InitialCameraRotation: Attribute.JSON;
+    HeroPreview: Attribute.Component<'pr.transforms'>;
   };
 }
 
@@ -124,6 +125,7 @@ export interface PrItem3D extends Schema.Component {
       'api::product.product'
     >;
     MainTransform: Attribute.Component<'pr.transforms'>;
+    HeroPreview: Attribute.Component<'pr.transforms'>;
   };
 }
 
