@@ -17,6 +17,11 @@ const nextConfig = {
         hostname: 'static.easypack24.net',
         pathname: '/points/it/images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'thumbs.dreamstime.com',
+        pathname: '/**',
+      },
     ],
   },
   async rewrites() {

@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useContext, Suspense } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Environment, CameraControls, useEnvironment } from '@react-three/drei'
+import { Environment, CameraControls, useEnvironment, EnvironmentProps } from '@react-three/drei'
 import { ProductContext } from "./context"
 import { Fullscreen, Hand, Menu, RotateCcw } from "lucide-react"
 import "../app/[category]/[productId]/style.css";
@@ -49,26 +49,8 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
   useEffect(() => {
     if (multiple && (glb as MultipleModelType)?.[(glb as MultipleModelType).length - 1]?.index === selectedModels[selectedModels.length - 1])
       return
-    const fetchGlb = async () => {
-      try {
-        const response = await fetch(productModel.url);
-        if (!response.ok)
-          return
-        const data = await response.blob();
-        const url = URL.createObjectURL(data);
-        console.log(data)
-        const gltfLoader = new GLTFLoader();
-        gltfLoader.load(url, (loadedGltf) => {
-          setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf));
-        }, undefined, (error) => {
-          console.error("Error loading GLTF:", error);
-        });
-      } catch (error) {
-        console.error("Error fetching GLTF:", error);
-      }
-    };
-
-    fetchGlb();
+    
+    fetchGlb(productModel.url, loadedGltf => setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf)));
   }, [productModel.url]);
 
   useEffect(() => {
@@ -124,11 +106,11 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
           </Sheet>
         )}
         <Canvas ref={canvasRef} className="h-2xl w-2xl">
-          <Env setLoaded={setLoaded} />
+          <Env setLoaded={setLoaded} background />
           {glb && loaded && <>
             <mesh ref={mesh} rotation={[0, -0.4, 0]}>
               {!multiple
-                ? SingleModel(viewer.Transforms as Transform[], glb as GLTF)
+                ? <SingleModel transforms={viewer.Transforms as Transform[]} glb={glb as GLTF} />
                 : viewer.SelectedViewer && MultipleModels(glb as MultipleModelType, viewer.SelectedViewer.data)
               }
             </mesh>
@@ -216,9 +198,9 @@ const ExplainedOverlay = ({ handleOverlayClick }: { handleOverlayClick: () => vo
   )
 }
 
-const SingleModel = (transforms: Transform[], glb: GLTF) => (
+export const SingleModel = ({transforms, glb}: {transforms: Transform[], glb: GLTF}) => (
   transforms.map((transform, index) => (
-    <primitive key={index} object={glb.scene.clone()} position={transform.Position || [0, 0, 0]} rotation={transform.Rotation || [0, 0, 0]} scale={transform.Scale || [1, 1, 1]} />
+    <primitive key={index} object={glb.scene.clone()} position={transform?.Position || [0, 0, 0]} rotation={transform?.Rotation || [0, 0, 0]} scale={transform?.Scale || [1, 1, 1]} />
   ))
 )
 
@@ -244,18 +226,37 @@ const MultipleModels = (glb: MultipleModelType, selectedViewer: APIResponseData<
   })
 }
 
-const Env = ({ setLoaded }: { setLoaded: React.Dispatch<React.SetStateAction<boolean>> }) => {
+export const Env = React.forwardRef<
+  React.ElementRef<typeof Environment>,
+  React.ComponentPropsWithoutRef<typeof Environment> & {setLoaded?: React.Dispatch<React.SetStateAction<boolean>>}
+>(({ setLoaded, ...props }, ref) => {
   const { scene, gl } = useThree()
 
   useEffect(() => {
     (async () => new GainMapLoader(gl).load(["/environmentMap.webp", "/environmentMap-gainmap.webp", "/environmentMap.json"], (texture) => {
       scene.environment = texture.renderTarget.texture
       scene.environment.mapping = 303
-      setLoaded(true)
+      setLoaded?.(true)
     }, undefined, err => console.log("errore", err)))()
   }, [])
 
-  return (<>{scene.environment && <Environment map={scene.environment} background />}</>)
-}
+  return (<>{scene.environment && <Environment map={scene.environment} {...props}/>}</>)
+})
+
+export const fetchGlb = async (modelUrl: string, gltfLoadedFunc: (loadedGLTF: GLTF) => void) => {
+  try {
+    const response = await fetch(modelUrl);
+    if (!response.ok)
+      return
+    const data = await response.blob();
+    const url = URL.createObjectURL(data);
+
+    new GLTFLoader().load(url, gltfLoadedFunc, undefined, (error) => {
+      console.error("Error loading GLTF:", error);
+    });
+  } catch (error) {
+    console.error("Error fetching GLTF:", error);
+  }
+};
 
 export { ModelViewer };

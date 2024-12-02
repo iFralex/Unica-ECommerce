@@ -64,7 +64,6 @@ export const ContextListeners = ({ loggedUserId }: { loggedUserId?: string }) =>
                         return console.log("Error cartLight:", cartLight.message)
                     }
                     const cart = await getCartsFromCartsLight(cartLight)
-                    console.log(cart)
                     if (cart instanceof Error || !cart) {
                         setCartContext([])
                         return console.log("Error cart:", cart.message)
@@ -78,7 +77,6 @@ export const ContextListeners = ({ loggedUserId }: { loggedUserId?: string }) =>
                         return console.log("Error favoritesLight:", favoritesLight.message)
                     }
                     const favorites = await getFavoritesFromFavoritesLight(favoritesLight)
-                    console.log(favorites)
                     if (favorites instanceof Error || !favorites) {
                         setFavoritesContext([])
                         return console.log("Error favorites:", favorites.message)

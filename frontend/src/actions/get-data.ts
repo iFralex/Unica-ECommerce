@@ -15,7 +15,7 @@ const fetchStrapi = async <T>(url: string, options: Object = {}) => {
 export const getProducts = async () => {
     try {
         const request: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
-            `${process.env.STRAPI_API_URL}products?populate[0]=Category&populate[1]=MainImage`
+            `${process.env.STRAPI_API_URL}products?populate[0]=Category&populate[1]=MainImage&populate[2]=ProductDetails.Materials3D&populate[3]=Viewer.Model3D&populate[4]=Viewer.HeroPreview.Rotation&populate[5]=Viewer.HeroPreview.Scale&populate[6]=Viewer.SelectedViewer.Items3D.Model3D&populate[7]=Viewer.SelectedViewer.Items3D.HeroPreview.Rotation&populate[8]=Viewer.SelectedViewer.Items3D.HeroPreview.Scale&populate[9]=Viewer.SelectedViewer.Items3D.RelativeProduct.Name`
         );
         return request
     } catch (error) {

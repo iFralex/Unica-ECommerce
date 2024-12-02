@@ -335,14 +335,14 @@ const Addresses = ({ addresses, userId, name, handleSubmit }: { addresses: Addre
         <div className="flex justify-end w-full mt-4 mb-8 gap-2">
             <AddressForm trigger={<Button size="icon"><Plus /></Button>} />
         </div>
-        <ItemSelectionDialog title="Corrieri disponibili" buttonLabel={"Seleziona Metodo di spedizione"} openAction={() => calculateShipping(addressId)} dialogTitle="Scegli il metodo di Spedizione" items={courriers} itemIdKey="id" labelChildren={(_courrier, index) => (
+        {addressId && <ItemSelectionDialog title="Corrieri disponibili" buttonLabel={"Seleziona Metodo di spedizione"} openAction={() => calculateShipping(addressId)} dialogTitle="Scegli il metodo di Spedizione" items={courriers} itemIdKey="id" labelChildren={(_courrier, index) => (
             CourrierComponent(_courrier)
         )} finalValue={courrier} setFinalValue={setCourrier} displaiedSel={changeBtn => (
             <>
                 {CourrierComponent(courrier)}
                 {changeBtn}
             </>
-        )} defaultOpen={isLoading === "courrier"} />
+        )} defaultOpen={isLoading === "courrier"} /> }
         {courrier && courrier.delivery_to_parcelshop &&
             <ItemSelectionDialog title="Punto di Ritiro" buttonLabel={"Seleziona Punto di Ritiro di " + courrier.carrier_name} openAction={onDropOffPoints} dialogTitle="Cerca Punto di Raccolta" items={dropOffPoints} itemIdKey="name" labelChildren={(point, index) => (
                 <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -654,12 +654,7 @@ const ProgressBar = ({ currentStep }: { currentStep: typeof steps[number]["value
                     ${isComplete ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
                                     isCurrent ? 'bg-white border-2 border-blue-500' :
                                         'bg-white border-2 border-gray-200'}`}>
-                                <StepIcon className={`
-                      w-6 h-6
-                      ${isComplete ? 'text-white' :
-                                        isCurrent ? 'text-blue-500' :
-                                            'text-gray-400'}
-                    `} />
+                                <StepIcon className={`w-6 h-6 ${isComplete ? 'text-white' : isCurrent ? 'text-blue-500' : 'text-gray-400'}`} />
                             </div>
                             <span className={`
                     mt-3 text-sm font-medium
@@ -815,7 +810,7 @@ export const PaymentProgress = ({ startedStep, auth, addresses }: { startedStep:
         console.log(r)*/
         step.next()
     }
-    
+
     const handlePay = (price: number) => {
         console.log(price)
     }
