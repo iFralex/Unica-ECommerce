@@ -19,6 +19,11 @@
     },
     "InitialCameraRotation": {
       "type": "json"
+    },
+    "HeroPreview": {
+      "type": "component",
+      "repeatable": false,
+      "component": "pr.transforms"
     }
   }
 }
