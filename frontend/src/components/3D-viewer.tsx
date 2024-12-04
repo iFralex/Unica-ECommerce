@@ -26,7 +26,7 @@ type MultipleModelType = {
   index: number;
 }[]
 
-const ModelViewer = ({ product, materials, productId }: { product: APIResponseData<"api::product.product">, materials: Materials3D[], productId: number }) => {
+const ModelViewer = ({ product, materials, productId }: { product: APIResponseData<"api::product.product">, productId: number }) => {
   const viewer = product.attributes.Viewer?.[0];
   if (!viewer) return <></>
 
@@ -50,12 +50,12 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
     if (multiple && (glb as MultipleModelType)?.[(glb as MultipleModelType).length - 1]?.index === selectedModels[selectedModels.length - 1])
       return
     
-    fetchGlb(productModel.url, loadedGltf => setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf)));
+    fetchGlb(productModel.url, loadedGltf => setGlb(Array.isArray(glb) ? glb.concat({ model: applyMaterials(loadedGltf, materials[productContext.variantIndex || 0]), index: selectedModels[selectedModels.length - 1] }) : applyMaterials(loadedGltf, materials[productContext.variantIndex || 0])));
   }, [productModel.url]);
 
   useEffect(() => {
     if (glb && (!Array.isArray(glb) || glb.length > 0)) {
-      setGlb(applyMaterials(glb as GLTF))
+      setGlb(applyMaterials(glb as GLTF, materials[productContext.variantIndex || 0]))
     }
   }, [productContext.variantIndex]);
 
@@ -71,23 +71,6 @@ const ModelViewer = ({ product, materials, productId }: { product: APIResponseDa
     cameraRef.current?.rotate(rotationX, rotationY, true);
     cameraRef.current?.saveState()
   }, [cameraRef.current])
-
-  const applyMaterials = (model: GLTF) => {
-    console.log(model)
-    materials[productContext.variantIndex || 0].forEach(mat => {
-      let obj = model.scene.children[mat.object[0]] as Mesh;
-      for (let i = 1; i < mat.object.length; i++) {
-        obj = obj.children[mat.object[i]] as Mesh;
-      }
-      //if (obj.material instanceof Material) return
-      (obj.material as MeshStandardMaterial).color.r = mat.color[0];
-      (obj.material as MeshStandardMaterial).color.g = mat.color[1];
-      (obj.material as MeshStandardMaterial).color.b = mat.color[2];
-      (obj.material as MeshStandardMaterial).metalness = mat.metalness;
-      (obj.material as MeshStandardMaterial).roughness = mat.roughness;
-    });
-    return model;
-  }
 
   const handleOverlayClick = () => {
     setOverlayVisible(false);
@@ -258,5 +241,22 @@ export const fetchGlb = async (modelUrl: string, gltfLoadedFunc: (loadedGLTF: GL
     console.error("Error fetching GLTF:", error);
   }
 };
+
+export const applyMaterials = (model: GLTF, material: Materials3D ) => {
+  console.log(model)
+  material.forEach(mat => {
+    let obj = model.scene.children[mat.object[0]] as Mesh;
+    for (let i = 1; i < mat.object.length; i++) {
+      obj = obj.children[mat.object[i]] as Mesh;
+    }
+    //if (obj.material instanceof Material) return
+    (obj.material as MeshStandardMaterial).color.r = mat.color[0];
+    (obj.material as MeshStandardMaterial).color.g = mat.color[1];
+    (obj.material as MeshStandardMaterial).color.b = mat.color[2];
+    (obj.material as MeshStandardMaterial).metalness = mat.metalness;
+    (obj.material as MeshStandardMaterial).roughness = mat.roughness;
+  });
+  return model;
+}
 
 export { ModelViewer };

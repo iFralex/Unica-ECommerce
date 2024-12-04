@@ -25,7 +25,7 @@ console.log("ppp", products.data[0].attributes.Viewer?.find(v => v.__component =
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0">
-          <Hero3D modelDatas={products.data.map(p => p.attributes.Viewer?.map(v => v.__component === "pr.single-item3-d" ? {url: v.Model3D?.data.attributes.url, transform: v.HeroPreview} : [v.SelectedViewer?.data.attributes.Items3D?.find(i => i.RelativeProduct?.data.id === p.id)].filter(i => i !== undefined).map(i => ({url: i.Model3D?.data.attributes.url, transform: i.HeroPreview})).flat()).flat()).flat().filter(data => data !== undefined)}/>
+          <Hero3D modelDatas={products.data.map(p => p.attributes.Viewer?.map(v => v.__component === "pr.single-item3-d" ? {url: v.Model3D?.data.attributes.url || "", transform: v.HeroPreview} : [v.SelectedViewer?.data.attributes.Items3D?.find(i => i.RelativeProduct?.data.id === p.id)].filter(i => i !== undefined).map(i => ({url: i.Model3D?.data.attributes.url || "", transform: i.HeroPreview})).flat()).flat().map(o => ({...o, materials: p.attributes.ProductDetails?.map(d => d.Materials3D) || []}))).flat().filter(data => data !== undefined)}/>
         </div>
         <div className="absolute bottom-[10%] left-0 right-0 p-4">
           <WordPullUp words="Il gioiello che ti rappresenta"  className="text-white text-center text-6xl md:text-7xl font-bold md:px-[15%]" />

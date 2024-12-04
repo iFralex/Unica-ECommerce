@@ -1,6 +1,6 @@
 "use client"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { Env, fetchGlb, SingleModel } from "./3D-viewer"
+import { applyMaterials, Env, fetchGlb, SingleModel } from "./3D-viewer"
 import { useEffect, useRef, useState } from "react"
 import { OrbitControls, SpotLight } from "@react-three/drei"
 import { BoxGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from "three"
@@ -115,10 +115,11 @@ const AnimatedModel = ({
     );
 };
 
-export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: Extract<NonNullable<APIResponseData<"api::product.product">["attributes"]["Viewer"]>[number], { __component: "pr.single-item3-d" }>["HeroPreview"] }[] }) => {
-    const models = useRef<({ model: GLTF, transform: Transform })[] | null>(null);
+export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: Extract<NonNullable<APIResponseData<"api::product.product">["attributes"]["Viewer"]>[number], { __component: "pr.single-item3-d" }>["HeroPreview"], materials: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"][], material: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"] }[] }) => {
+    const models = useRef<({ model: GLTF, transform: typeof modelDatas[number]["transform"] })[] | null>(null);
+    const tmpModelDatas = useRef<typeof modelDatas>(modelDatas);
     const [isEnvLoaded, setIsEnvLoaded] = useState<boolean>(false);
-    const [animatingModel, setAnimatingModel] = useState<({ model: GLTF, transform: Transform })>([]);
+    const [animatingModel, setAnimatingModel] = useState<({ model: GLTF, transform: typeof modelDatas[number]["transform"], material: typeof modelDatas[number]["materials"][number] })>([]);
 
     useEffect(() => {
         if (isEnvLoaded && !animatingModel)
@@ -128,12 +129,18 @@ export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: 
     useEffect(() => {
         if (models.current) return
         models.current = []
-        modelDatas.forEach(async (data, index) => {
-            await fetchGlb(data.url, newModel => {
-                newModel.scene.children.map(m => m.position.set(0, 0, 0))
-                models.current = models.current.concat([{ model: newModel, transform: data.transform }])
-                index === 0 && !isEnvLoaded && setAnimatingModel({ model: newModel, transform: data.transform });
-            });
+        tmpModelDatas.current = modelDatas.map(data => data.materials.map(mat => ({ ...data, material: mat })).flat()).flat().sort(() => Math.floor(Math.random() * 2 - 1))
+        tmpModelDatas.current.forEach(async (data, index) => {
+            const a = tmpModelDatas.current.find((i, idx, self) => i.url === data.url && i.model)
+            if (a) {
+                models.current = models.current.concat([{ model: applyMaterials(a.model, data.material), transform: data.transform, url: data.url }])
+            } else
+                await fetchGlb(data.url, newModel => {
+                    newModel.scene.children.map(m => m.position.set(0, 0, 0))
+                    models.current = models.current.concat([{ model: applyMaterials(newModel, data.material), transform: data.transform, url: data.url }])
+                    tmpModelDatas.current[index].model = newModel
+                    index === 0 && !isEnvLoaded && setAnimatingModel({ model: newModel, transform: data.transform });
+                });
         });
     }, [])
 
