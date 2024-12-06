@@ -161,7 +161,7 @@ export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: 
                 position={[-2, -2, 1]}
                 angle={0.1}
                 penumbra={0.5}
-                intensity={10}
+                intensity={15}
                 color="white"
                 distance={10}
                 castShadow
@@ -174,7 +174,7 @@ export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: 
                 position={[0, -2, 1]}
                 angle={0.1}
                 penumbra={1}
-                intensity={10}
+                intensity={15}
                 color="white"
                 castShadow
                 opacity={0.25}
@@ -186,7 +186,7 @@ export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: 
                 position={[2, -2, 1]}
                 angle={0.1}
                 penumbra={0.5}
-                intensity={10}
+                intensity={15}
                 color="white"
                 distance={10}
                 castShadow
