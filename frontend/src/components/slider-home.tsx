@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import Image from 'next/image';
+import { Button } from './ui/button';
 
 // Registra il plugin ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
@@ -154,12 +155,12 @@ const JewelryCollectionsSlider: React.FC = () => {
                         <div className="w-full h-full relative shadow-xl">
                             {/* Immagine di sfondo */}
                             <div className="absolute top-0 left-0 w-full h-full">
-                                <Image
+                                {false && <Image
                                     src={collection.backgroundImage}
                                     alt={`Background of ${collection.name}`}
                                     fill
-                                    className="object-cover"
-                                />
+                                    className={"object-cover " + collection.backgroundColor}
+                                />}
                             </div>
 
                             {/* Immagine principale animata */}
@@ -177,7 +178,7 @@ const JewelryCollectionsSlider: React.FC = () => {
                             ></div>
 
                             {/* Dettagli della collezione */}
-                            <div className="relative p-6 text-center text-white">
+                            <div className="relative p-6 text-center">
                                 <h2 className="text-3xl font-bold mb-4">
                                     {collection.name}
                                 </h2>
@@ -186,15 +187,9 @@ const JewelryCollectionsSlider: React.FC = () => {
                                 </p>
 
                                 {/* Bottone per esplorare la collezione */}
-                                <button className="
-                                    mt-6 px-8 py-3 
-                                    bg-white text-black 
-                                    rounded-full 
-                                    hover:bg-gray-800 
-                                    transition-colors
-                                ">
+                                <Button>
                                     Esplora Collezione
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
