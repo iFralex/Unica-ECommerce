@@ -1,15 +1,13 @@
 "use client"
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
+
+import { Canvas, useThree } from "@react-three/fiber"
 import { applyMaterials, Env, fetchGlb, SingleModel } from "./3D-viewer"
 import { useEffect, useRef, useState } from "react"
-import { OrbitControls, SpotLight } from "@react-three/drei"
-import { BoxGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from "three"
+import { SpotLight } from "@react-three/drei"
+import { Euler, Mesh, MeshBasicMaterial, Vector3 } from "three"
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader"
 import gsap from "gsap"
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { m } from "framer-motion"
-import { Transform } from "@/types/types"
-import { APIResponse, APIResponseData } from "@/types/strapi-types"
+import { APIResponseData } from "@/types/strapi-types"
 import { Matrix4 } from "three"
 import { Box3 } from "three"
 import { SlowMo } from "gsap/EasePack";
@@ -115,16 +113,46 @@ const AnimatedModel = ({
     );
 };
 
-export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: Extract<NonNullable<APIResponseData<"api::product.product">["attributes"]["Viewer"]>[number], { __component: "pr.single-item3-d" }>["HeroPreview"], materials: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"][], material: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"] }[] }) => {
+export const Hero3D = ({ modelDatas }: {
+    modelDatas: {
+        url: string,
+        transform?: Extract<NonNullable<APIResponseData<"api::product.product">["attributes"]["Viewer"]>[number], { __component: "pr.single-item3-d" }>["HeroPreview"],
+        materials: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"][],
+        material: NonNullable<APIResponseData<"api::product.product">["attributes"]["ProductDetails"]>[number]["Materials3D"]
+    }[]
+}) => {
     const models = useRef<({ model: GLTF, transform: typeof modelDatas[number]["transform"] })[] | null>(null);
     const tmpModelDatas = useRef<typeof modelDatas>(modelDatas);
     const [isEnvLoaded, setIsEnvLoaded] = useState<boolean>(false);
     const [animatingModel, setAnimatingModel] = useState<({ model: GLTF, transform: typeof modelDatas[number]["transform"], material: typeof modelDatas[number]["materials"][number] })>([]);
+    const canvasRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(true);
+    const paused = useRef(false)
+    const ended = useRef(false)
 
+    // Intersection Observer for viewport visibility
     useEffect(() => {
-        if (isEnvLoaded && !animatingModel)
-            models.current.length && setAnimatingModel(models.current[0])
-    }, [isEnvLoaded]);
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (paused.current && ended.current)
+                    handleModelAnimationComplete(true)
+                paused.current = !entries[0].isIntersecting
+            },
+            {
+                threshold: 0.1 // Trigger when at least 10% of the component is visible
+            }
+        );
+
+        if (canvasRef.current) {
+            observer.observe(canvasRef.current);
+        }
+
+        return () => {
+            if (canvasRef.current) {
+                observer.unobserve(canvasRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (models.current) return
@@ -144,55 +172,61 @@ export const Hero3D = ({ modelDatas }: { modelDatas: { url: string, transform?: 
         });
     }, [])
 
-    const handleModelAnimationComplete = (model: GLTF) => {
-        console.log(models.current, modelDatas)
-        setAnimatingModel(am => models.current[(models.current.findIndex(m => m.model.scene.id === am.model.scene.id) + 1) % models.current.length])
+    const handleModelAnimationComplete = (p = false) => {
+        if (!paused.current || p) {
+            ended.current = false
+            setAnimatingModel(am => models.current[(models.current.findIndex(m => m.model.scene.id === am.model.scene.id) + 1) % models.current.length]);
+        }
+        else
+            ended.current = true
     };
 
     return (
-        <Canvas camera={{ fov: 25 }}>
-            {animatingModel.model && <AnimatedModel
-                glb={animatingModel.model}
-                transform={animatingModel.transform}
-                onAnimationComplete={() => handleModelAnimationComplete(animatingModel.model)}
-            />}
-            <Env setLoaded={setIsEnvLoaded} environmentIntensity={0.05} />
-            <SpotLight
-                position={[-2, -2, 1]}
-                angle={0.1}
-                penumbra={0.5}
-                intensity={15}
-                color="white"
-                distance={10}
-                castShadow
-                opacity={0.25}
-                target-position={[-0.5, 0.5, 0]}
-            />
+        <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
+            <Canvas camera={{ fov: 25 }}>
+                {animatingModel.model && <AnimatedModel
+                    glb={animatingModel.model}
+                    transform={animatingModel.transform}
+                    onAnimationComplete={() => handleModelAnimationComplete()}
+                />}
+                <Env setLoaded={setIsEnvLoaded} environmentIntensity={0.05} />
 
-            {/* Luce spot centrale */}
-            <SpotLight
-                position={[0, -2, 1]}
-                angle={0.1}
-                penumbra={1}
-                intensity={15}
-                color="white"
-                castShadow
-                opacity={0.25}
-                target-position={[0, 0.5, 0]}
-            />
+                {/* Existing SpotLight components remain the same */}
+                <SpotLight
+                    position={[-2, -2, 1]}
+                    angle={0.1}
+                    penumbra={0.5}
+                    intensity={15}
+                    color="white"
+                    distance={10}
+                    castShadow
+                    opacity={0.25}
+                    target-position={[-0.5, 0.5, 0]}
+                />
 
-            {/* Luce spot destra */}
-            <SpotLight
-                position={[2, -2, 1]}
-                angle={0.1}
-                penumbra={0.5}
-                intensity={15}
-                color="white"
-                distance={10}
-                castShadow
-                opacity={0.25}
-                target-position={[0.5, 0.5, 0]}
-            />
-        </Canvas>
+                <SpotLight
+                    position={[0, -2, 1]}
+                    angle={0.1}
+                    penumbra={1}
+                    intensity={15}
+                    color="white"
+                    castShadow
+                    opacity={0.25}
+                    target-position={[0, 0.5, 0]}
+                />
+
+                <SpotLight
+                    position={[2, -2, 1]}
+                    angle={0.1}
+                    penumbra={0.5}
+                    intensity={15}
+                    color="white"
+                    distance={10}
+                    castShadow
+                    opacity={0.25}
+                    target-position={[0.5, 0.5, 0]}
+                />
+            </Canvas>
+        </div>
     );
 };

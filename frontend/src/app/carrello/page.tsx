@@ -4,7 +4,7 @@ import { CartClient } from "./client"
 
 const Page = async () => {
    
-    return <CartClient><></></CartClient>
+    return <CartClient />
 }
 
 export default Page

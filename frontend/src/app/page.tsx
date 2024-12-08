@@ -10,8 +10,8 @@ import Image from "next/image";
 import Link from 'next/link'
 
 const Hero = async ({ products }: {products: APIResponseCollection<"api::product.product">}) => {
-  return <section>
-    <div className="relative w-full h-screen md:h-80 overflow-hidden">
+  return <section className="w-full h-full md:h-auto">
+    <div className="relative w-full h-full md:h-80 overflow-hidden">
       <Image
         src="https://thumbs.dreamstime.com/b/milan-skyline-night-duomo-cathedral-financial-district-milan-skyline-night-illuminated-duomo-cathedral-343266767.jpg"
         width={1200}
