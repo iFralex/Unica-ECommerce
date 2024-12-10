@@ -34,7 +34,7 @@ const WhatIsSec = () => {
     <h1 className="mt-8 mb-2 text-center text-4xl font-bold">UNICA è...</h1>
     <WhatIs />
     <p className="text-center mt-2">Vivamus maximus risus in sollicitudin scelerisque. Proin euismod justo eget quam pharetra, ut lobortis justo luctus. Duis convallis tincidunt nunc at feugiat. Suspendisse id odio arcu. Cras est est, pharetra eget faucibus non, molestie vel quam. Duis in vehicula nulla. Etiam porta vehicula felis, vel dictum urna hendrerit et. Vestibulum pharetra erat nisi, ac maximus urna luctus in. Mauris sollicitudin erat at orci pharetra dapibus. Sed auctor tempor justo in gravida. Etiam finibus neque vitae sapien porttitor rutrum. Aenean massa mauris, volutpat id accumsan placerat, vehicula at nisl.</p>
-    <Separator className="my-5"/>
+    <Separator className="my-5" />
   </section>
 }
 
