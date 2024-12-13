@@ -173,9 +173,9 @@ const generatePhotoPlacements = (count: number): PhotoPlacement[] => {
                 placements.some(
                     (placement) =>
                         Math.abs((placement.top / 100) * screenHeight - top) <
-                            (placement.height + height) * 0.5 &&
+                        (placement.height + height) * 0.5 &&
                         Math.abs((placement.left / 100) * screenWidth - left) <
-                            (placement.width + width) * 0.5
+                        (placement.width + width) * 0.5
                 )
             ) {
                 // Riduci le dimensioni se non riesci a trovare una posizione valida
@@ -188,9 +188,9 @@ const generatePhotoPlacements = (count: number): PhotoPlacement[] => {
             placements.some(
                 (placement) =>
                     Math.abs((placement.top / 100) * screenHeight - top) <
-                        (placement.height + height) * 0.5 &&
+                    (placement.height + height) * 0.5 &&
                     Math.abs((placement.left / 100) * screenWidth - left) <
-                        (placement.width + width) * 0.5
+                    (placement.width + width) * 0.5
             )
         );
 
@@ -222,41 +222,41 @@ const generatePhotoPlacements = (count: number): PhotoPlacement[] => {
     return placements;
 };
 
-const PolaroidPhoto = ({ 
-    src, 
-    placement 
-  }: { 
-    src: string, 
+const PolaroidPhoto = ({
+    src,
+    placement
+}: {
+    src: string,
     placement: PhotoPlacement
-  }) => {
+}) => {
     return (
-      <div 
-        className="absolute transform shadow-xl bg-white p-2 rounded-lg"
-        style={{
-          zIndex: placement.zIndex,
-          transform: `rotate(${placement.rotation}deg) scale(${placement.scale})`,
-          top: `${placement.top}%`,
-          left: `${placement.left}%`,
-          width: `${placement.width}px`,
-          height: `${placement.height}px`,
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)',
-        }}
-      >
-        <div className="w-full h-full relative">
-          <Image
-            src={src}
-            alt="Collection Photo"
-            fill
+        <div
+            className="absolute transform shadow-xl bg-white p-2 rounded-lg"
             style={{
-              objectFit: 'cover',
-              objectPosition: 'center',
+                zIndex: placement.zIndex,
+                transform: `rotate(${placement.rotation}deg) scale(${placement.scale})`,
+                top: `${placement.top}%`,
+                left: `${placement.left}%`,
+                width: `${placement.width}px`,
+                height: `${placement.height}px`,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)',
             }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+        >
+            <div className="w-full h-full relative">
+                <Image
+                    src={src}
+                    alt="Collection Photo"
+                    fill
+                    style={{
+                        objectFit: 'cover',
+                        objectPosition: 'center',
+                    }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+            </div>
         </div>
-      </div>
     );
-  };
+};
 
 const JewelryCollectionsSlider: React.FC = () => {
     const sliderRef = useRef<HTMLDivElement>(null);
