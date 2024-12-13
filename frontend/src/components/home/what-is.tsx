@@ -62,13 +62,15 @@ export const WhatIs = () => {
       paragraph: useRef(null),
       bricks: useRef([])
     },
-    four: {
+    all: {
+      oneBricks: useRef([]),
+      twoBricks: useRef([]),
+      threeBricks: useRef([]),
       container: useRef(null),
       title: useRef(null),
-      paragraph: useRef(null),
-      bricks: useRef([])
-    }
-  };
+      paragraph: useRef(null)
+    },
+  }
 
   useEffect(() => {
     const sections = Object.values(contentRefs).map(ref => ref.container.current);
@@ -93,8 +95,8 @@ export const WhatIs = () => {
       const tl = gsap.timeline();
 
       // Animazione mattoncini
-      tl.fromTo(
-        section.bricks.current,
+      (section.bricks ? [section.bricks] : section.multipleBricks).map(b => tl.fromTo(
+        b.current,
         {
           scaleY: 0,
           transformOrigin: 'bottom',
@@ -103,10 +105,10 @@ export const WhatIs = () => {
         {
           scaleY: 1,
           opacity: 1,
-          stagger: 0.1,
-          duration: 1
+          stagger: section.multipleBricks ? 0 : 0.1,
+          duration: section.multipleBricks ? 0.3 : 1
         }
-      );
+      ))
 
       // Animazione contenuto 
       tl.fromTo(
@@ -125,7 +127,7 @@ export const WhatIs = () => {
 
       // Uscita contenuto e mattoncini
       tl.to(
-        [...section.bricks.current, section.title.current, section.paragraph.current],
+        [...(section.bricks?.current || section.multipleBricks.map(b => b.current)), section.title.current, section.paragraph.current],
         {
           y: '50%',
           opacity: 0,
@@ -141,7 +143,7 @@ export const WhatIs = () => {
       .add(createSectionAnimation(contentRefs.one))
       .add(createSectionAnimation(contentRefs.two))
       .add(createSectionAnimation(contentRefs.three))
-      .add(createSectionAnimation(contentRefs.four));
+      .add(createSectionAnimation({ ...contentRefs.all, multipleBricks: [contentRefs.all.oneBricks, contentRefs.all.twoBricks, contentRefs.all.threeBricks] }));
 
     return () => {
       timeline.kill();
@@ -194,14 +196,14 @@ export const WhatIs = () => {
     const generateColorVariation = (_baseColor, variationRange = 30) => {
       const randomize = (value) =>
         Math.min(255, Math.max(0, value + Math.floor(Math.random() * (2 * variationRange + 1)) - variationRange));
-    
+
       return `rgb(${randomize(_baseColor[0])}, ${randomize(_baseColor[1])}, ${randomize(_baseColor[2])})`;
     };
 
     return (
-      <div className="flex flex-col items-center origin-bottom" style={{transform: "rotateX(60deg)"}}>
+      <div className="flex flex-col items-center origin-bottom" style={{ transform: "rotateX(60deg)" }}>
         {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex justify-center" style={{ width: "400px" }}>
+          <div key={rowIndex} className="flex justify-center">
             {row.map((brick, brickIndex) => (
               <div
                 key={brickIndex}
@@ -232,7 +234,7 @@ export const WhatIs = () => {
           ref={contentRefs.one.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4" style={{perspective: "1500px"}}>
+          <div className="flex mb-4" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={150}
               bricksRef={contentRefs.one.bricks}
@@ -258,7 +260,7 @@ export const WhatIs = () => {
           ref={contentRefs.two.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4"  style={{perspective: "1500px"}}>
+          <div className="flex mb-4" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={220}
               bricksRef={contentRefs.two.bricks}
@@ -284,7 +286,7 @@ export const WhatIs = () => {
           ref={contentRefs.three.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4" style={{perspective: "1500px"}}>
+          <div className="flex mb-4" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={300}
               bricksRef={contentRefs.three.bricks}
@@ -307,23 +309,34 @@ export const WhatIs = () => {
 
         {/* Quarta sezione */}
         <div
-          ref={contentRefs.four.container}
+          ref={contentRefs.all.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4">
+          <div className="flex items-end gap-3 mb-4 justify-center" style={{ perspective: "2000px" }}>
             <Bricks
-              count={5}
-              bricksRef={contentRefs.four.bricks}
+              totalHeight={150}
+              bricksRef={contentRefs.all.oneBricks}
+              baseColor={[66, 170, 245]}
+            />
+            <Bricks
+              totalHeight={300}
+              bricksRef={contentRefs.all.threeBricks}
+              baseColor={[50, 168, 82]}
+            />
+            <Bricks
+              totalHeight={220}
+              bricksRef={contentRefs.all.twoBricks}
+              baseColor={[252, 161, 3]}
             />
           </div>
           <h2
-            ref={contentRefs.four.title}
+            ref={contentRefs.all.title}
             className="text-4xl font-bold mb-4"
           >
-            Quarto Titolo
+            Unica è te!
           </h2>
           <p
-            ref={contentRefs.four.paragraph}
+            ref={contentRefs.all.paragraph}
             className="text-xl max-w-2xl"
           >
             Descrizione del quarto blocco che entra e termina.
