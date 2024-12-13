@@ -234,7 +234,7 @@ export const WhatIs = () => {
           ref={contentRefs.one.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4" style={{ perspective: "1500px" }}>
+          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={150}
               bricksRef={contentRefs.one.bricks}
@@ -260,7 +260,7 @@ export const WhatIs = () => {
           ref={contentRefs.two.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4" style={{ perspective: "1500px" }}>
+          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={220}
               bricksRef={contentRefs.two.bricks}
@@ -286,7 +286,7 @@ export const WhatIs = () => {
           ref={contentRefs.three.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex mb-4" style={{ perspective: "1500px" }}>
+          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
             <Bricks
               totalHeight={300}
               bricksRef={contentRefs.three.bricks}
@@ -312,7 +312,7 @@ export const WhatIs = () => {
           ref={contentRefs.all.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
-          <div className="flex items-end gap-3 mb-4 justify-center" style={{ perspective: "2000px" }}>
+          <div className="flex items-end gap-3 mb-4 mt-[-20%] justify-center" style={{ perspective: "2000px" }}>
             <Bricks
               totalHeight={150}
               bricksRef={contentRefs.all.oneBricks}
