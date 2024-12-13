@@ -196,7 +196,6 @@ const generatePhotoPlacements = (count: number): PhotoPlacement[] => {
 
         // Fallback finale se non trovi una posizione valida
         if (attempts === maxAttempts) {
-            console.warn(`Impossibile trovare una posizione valida per l'immagine ${i}, applico il fallback.`);
 
             const leastDenseArea = findLeastDenseArea();
             left = leastDenseArea.left;
@@ -268,7 +267,6 @@ const JewelryCollectionsSlider: React.FC = () => {
     useEffect(() => {
         // Generate photo placements for each collection
         const placements = collections.reduce((acc, _, index) => {
-            console.log(index, generatePhotoPlacements(collections[index].centralImages.length))
             acc[index] = generatePhotoPlacements(collections[index].centralImages.length);
             return acc;
         }, {});

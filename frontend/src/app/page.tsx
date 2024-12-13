@@ -9,6 +9,30 @@ import { APIResponseCollection } from "@/types/strapi-types";
 import Image from "next/image";
 import Link from 'next/link'
 
+export const sections = [
+  {
+    key: 'bellezza',
+    title: 'Bellezza',
+    description: 'Descrizione del primo blocco che entra e esce.',
+    height: 150,
+    color: [66, 170, 245]
+  },
+  {
+    key: 'significato',
+    title: 'Significato',
+    description: 'Descrizione del secondo blocco che entra e esce.',
+    height: 220,
+    color: [252, 161, 3]
+  },
+  {
+    key: 'unicità',
+    title: 'Unicità',
+    description: 'Descrizione del terzo blocco che entra e esce.',
+    height: 300,
+    color: [50, 168, 82]
+  }
+]
+
 const Hero = async ({ products }: { products: APIResponseCollection<"api::product.product"> }) => {
   return <section className="w-full h-full md:h-auto">
     <div className="relative w-full h-full md:h-80 overflow-hidden">
@@ -30,9 +54,50 @@ const Hero = async ({ products }: { products: APIResponseCollection<"api::produc
 }
 
 const WhatIsSec = () => {
+  // Calculate rows based on totalHeight and random heights of bricks
+  const calculateRows = (totalHeight: number) => {
+    let rows = [];
+    let currentHeight = 0;
+    const rowWidth = 100; // Fixed width for each row
+
+    while (currentHeight < totalHeight) {
+      const bricksPerRow = Math.floor(Math.random() * 3) + 2; // Random between 2 and 4
+      const rowHeight = 30//Math.random() * 20 + 30; // Random height between 30px and 50px
+
+      if (currentHeight + rowHeight > totalHeight) break;
+
+      // Generate bricks with random widths summing up to rowWidth
+      let remainingWidth = rowWidth;
+      const row = Array.from({ length: bricksPerRow }).map((_, index) => {
+        const isLastBrick = index === bricksPerRow - 1;
+        const width = isLastBrick
+          ? remainingWidth
+          : Math.random() * (remainingWidth / (bricksPerRow - index)) * 0.8 + 20;
+        remainingWidth -= width;
+        return {
+          width,
+          height: rowHeight,
+        };
+      });
+
+      rows.push(Math.random() > 0.5 ? row : row.reverse());
+      currentHeight += rowHeight;
+    }
+
+    return rows;
+  };
+
+  const generateColorVariation = (_baseColor, variationRange = 30) => {
+    const randomize = (value) =>
+      Math.min(255, Math.max(0, value + Math.floor(Math.random() * (2 * variationRange + 1)) - variationRange));
+
+    return `rgb(${randomize(_baseColor[0])}, ${randomize(_baseColor[1])}, ${randomize(_baseColor[2])})`;
+  };
+  const allRows = sections.map(s => calculateRows(s.height))
+
   return <section>
     <h1 className="mt-8 mb-2 text-center text-4xl font-bold">I pilastri di UNICA</h1>
-    <WhatIs />
+    <WhatIs allRows={allRows} allColors={allRows.map((rows, i) => rows.map(r => r.map(_ => generateColorVariation(sections[i].color))))} allBorderColors={allRows.map((rows, i) => rows.map(r => r.map(_ => generateColorVariation(sections[i].color, 10))))} />
     <Separator className="my-5" />
   </section>
 }

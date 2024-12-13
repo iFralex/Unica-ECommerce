@@ -1,79 +1,39 @@
 "use client"
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import { sections } from '@/app/page';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const collections = [
-  {
-    id: 1,
-    name: "Collezione Primavera",
-    description: "Gioielli ispirati ai fiori primaverili",
-    image: "/images/spring-collection.jpg",
-    backgroundColor: "bg-green-100",
-    backgroundImage: "https://th.bing.com/th/id/OIG1.NxvGmn1UjtgwIdsTYG8.?w=1024&h=1024&rs=1&pid=ImgDetMain",
-    centralImages: [
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/images_ce531d2497_c3e96f0258/images_ce531d2497_c3e96f0258.jpeg",
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/istockphoto_1348247616_612x612_29573a26ba_522ec2b7c1/istockphoto_1348247616_612x612_29573a26ba_522ec2b7c1.jpg",
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/Minimalist_Banner_desktop_f58d6dbc64_c302ef8de0/Minimalist_Banner_desktop_f58d6dbc64_c302ef8de0.webp"
-    ]
-  },
-  {
-    id: 2,
-    name: "Collezione Estate",
-    description: "Eleganza leggera per le giornate calde",
-    image: "/images/summer-collection.jpg",
-    backgroundColor: "bg-blue-100",
-    backgroundImage: "https://th.bing.com/th/id/OIG1.WgSAKblapXjw4GHuiXpi?pid=ImgGn",
-    centralImages: [
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/images_ce531d2497_c3e96f0258/images_ce531d2497_c3e96f0258.jpeg",
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/istockphoto_1348247616_612x612_29573a26ba_522ec2b7c1/istockphoto_1348247616_612x612_29573a26ba_522ec2b7c1.jpg",
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/J13_E_SWEETESCAPE_GOLD_M_jpg_c216503cbb_8c3e5eb451/J13_E_SWEETESCAPE_GOLD_M_jpg_c216503cbb_8c3e5eb451.webp",
-      "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/Minimalist_Banner_desktop_f58d6dbc64_c302ef8de0/Minimalist_Banner_desktop_f58d6dbc64_c302ef8de0.webp"
-    ]
-  }
-]
+const sortSec = ["bellezza", "unicità", "significato"]
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const WhatIs = () => {
+export const WhatIs = ({ allRows, allColors, allBorderColors }) => {
   const sectionRef = useRef(null);
   const triggerRef = useRef(null);
 
   // Refs per contenuti
   const contentRefs = {
-    one: {
-      container: useRef(null),
-      title: useRef(null),
-      paragraph: useRef(null),
-      bricks: useRef([])
-    },
-    two: {
-      container: useRef(null),
-      title: useRef(null),
-      paragraph: useRef(null),
-      bricks: useRef([])
-    },
-    three: {
-      container: useRef(null),
-      title: useRef(null),
-      paragraph: useRef(null),
-      bricks: useRef([])
-    },
+    ...Object.fromEntries(
+      sections.map(section => [section.key, {
+        container: useRef(null),
+        title: useRef(null),
+        paragraph: useRef(null),
+        bricks: useRef([])
+      }])
+    ),
     all: {
-      oneBricks: useRef([]),
-      twoBricks: useRef([]),
-      threeBricks: useRef([]),
+      multipleBricks: sections.map(() => useRef([])),
       container: useRef(null),
       title: useRef(null),
       paragraph: useRef(null)
-    },
-  }
+    }
+  };
 
   useEffect(() => {
-    const sections = Object.values(contentRefs).map(ref => ref.container.current);
     const trigger = triggerRef.current;
 
     // Disattiva animazioni precedenti
@@ -105,9 +65,11 @@ export const WhatIs = () => {
         {
           scaleY: 1,
           opacity: 1,
-          stagger: section.multipleBricks ? 0 : 0.1,
-          duration: section.multipleBricks ? 0.3 : 1
-        }
+          stagger: section.multipleBricks ? 0.1 : 0.1,
+          duration: section.multipleBricks ? 1 : 1,
+          ease: "bounce.inOut"
+        },
+        '<'
       ))
 
       // Animazione contenuto 
@@ -139,11 +101,10 @@ export const WhatIs = () => {
     };
 
     // Aggiungi animazioni per ogni sezione
-    timeline
-      .add(createSectionAnimation(contentRefs.one))
-      .add(createSectionAnimation(contentRefs.two))
-      .add(createSectionAnimation(contentRefs.three))
-      .add(createSectionAnimation({ ...contentRefs.all, multipleBricks: [contentRefs.all.oneBricks, contentRefs.all.twoBricks, contentRefs.all.threeBricks] }));
+    sections.reduce((timeline, section) =>
+      timeline.add(createSectionAnimation(contentRefs[section.key])),
+      timeline
+    ).add(createSectionAnimation(contentRefs.all))
 
     return () => {
       timeline.kill();
@@ -152,68 +113,22 @@ export const WhatIs = () => {
   }, []);
 
   // Componente per generare i mattoncini
-  const Bricks = ({ bricksRef, totalHeight, baseColor }) => {
-
-    // Calculate rows based on totalHeight and random heights of bricks
-    const calculateRows = () => {
-      let rows = [];
-      let currentHeight = 0;
-      const rowWidth = 100; // Fixed width for each row
-
-      while (currentHeight < totalHeight) {
-        const bricksPerRow = Math.floor(Math.random() * 3) + 2; // Random between 2 and 4
-        const rowHeight = 30//Math.random() * 20 + 30; // Random height between 30px and 50px
-
-        if (currentHeight + rowHeight > totalHeight) break;
-
-        // Generate bricks with random widths summing up to rowWidth
-        let remainingWidth = rowWidth;
-        const row = Array.from({ length: bricksPerRow }).map((_, index) => {
-          const isLastBrick = index === bricksPerRow - 1;
-          const width = isLastBrick
-            ? remainingWidth
-            : Math.random() * (remainingWidth / (bricksPerRow - index)) * 0.8 + 20;
-          remainingWidth -= width;
-          return {
-            width,
-            height: rowHeight,
-          };
-        });
-
-        if (Math.random() > 0.5)
-          rows.push(row);
-        else
-          rows.push(row.reverse());
-
-        currentHeight += rowHeight;
-      }
-
-      return rows;
-    };
-
-    const rows = calculateRows();
-
-    const generateColorVariation = (_baseColor, variationRange = 30) => {
-      const randomize = (value) =>
-        Math.min(255, Math.max(0, value + Math.floor(Math.random() * (2 * variationRange + 1)) - variationRange));
-
-      return `rgb(${randomize(_baseColor[0])}, ${randomize(_baseColor[1])}, ${randomize(_baseColor[2])})`;
-    };
+  const Bricks = ({ bricksRef, rows, colors, borderColors }) => {
 
     return (
       <div className="flex flex-col items-center origin-bottom" style={{ transform: "rotateX(60deg)" }}>
-        {rows.map((row, rowIndex) => (
+        {rows.map((row, rowIndex, self) => (
           <div key={rowIndex} className="flex justify-center">
             {row.map((brick, brickIndex) => (
               <div
                 key={brickIndex}
-                ref={el => bricksRef.current[brickIndex + rows.reduce((prev, curr, i) => i < rowIndex ? curr.length + prev : prev, 0)] = el}
+                ref={el => bricksRef.current[brickIndex + self.reduce((prev, curr, i) => i < rowIndex ? curr.length + prev : prev, 0)] = el}
                 className="shadow-md"
                 style={{
                   width: `${brick.width}px`,
                   height: `${brick.height}px`,
-                  backgroundColor: generateColorVariation(baseColor),
-                  border: `1px solid ${generateColorVariation(baseColor, 10)}`,
+                  backgroundColor: colors[rowIndex][brickIndex],
+                  border: `1px solid ${borderColors[rowIndex][brickIndex]}`,
                 }}
               />
             ))}
@@ -225,109 +140,54 @@ export const WhatIs = () => {
 
   return (
     <div ref={triggerRef} className="w-full h-screen bg-white relative overflow-hidden">
-      <div
-        ref={sectionRef}
-        className="w-full h-full absolute top-0 left-0 flex flex-col justify-center items-center"
-      >
-        {/* Prima sezione */}
-        <div
-          ref={contentRefs.one.container}
-          className="text-center absolute w-full px-4 flex flex-col items-center"
-        >
-          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
-            <Bricks
-              totalHeight={150}
-              bricksRef={contentRefs.one.bricks}
-              baseColor={[66, 170, 245]}
-            />
+      <div ref={sectionRef} className="w-full h-full absolute top-0 left-0 flex flex-col justify-center items-center">
+        {sections.map((section, i) => (
+          <div
+            key={section.key}
+            ref={contentRefs[section.key].container}
+            className="text-center absolute w-full px-4 flex flex-col items-center"
+          >
+            <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
+              <Bricks
+                rows={allRows[i]}
+                bricksRef={contentRefs[section.key].bricks}
+                colors={allColors[i]}
+                borderColors={allBorderColors[i]}
+              />
+            </div>
+            <h2
+              ref={contentRefs[section.key].title}
+              className="text-4xl font-bold mb-4"
+            >
+              {section.title}
+            </h2>
+            <p
+              ref={contentRefs[section.key].paragraph}
+              className="text-xl max-w-2xl"
+            >
+              {section.description}
+            </p>
           </div>
-          <h2
-            ref={contentRefs.one.title}
-            className="text-4xl font-bold mb-4"
-          >
-            Unicità
-          </h2>
-          <p
-            ref={contentRefs.one.paragraph}
-            className="text-xl max-w-2xl"
-          >
-            Descrizione del primo blocco che entra e esce.
-          </p>
-        </div>
+        ))}
 
-        {/* Seconda sezione */}
-        <div
-          ref={contentRefs.two.container}
-          className="text-center absolute w-full px-4 flex flex-col items-center"
-        >
-          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
-            <Bricks
-              totalHeight={220}
-              bricksRef={contentRefs.two.bricks}
-              baseColor={[252, 161, 3]}
-            />
-          </div>
-          <h2
-            ref={contentRefs.two.title}
-            className="text-4xl font-bold mb-4"
-          >
-            Significato
-          </h2>
-          <p
-            ref={contentRefs.two.paragraph}
-            className="text-xl max-w-2xl"
-          >
-            Descrizione del secondo blocco che entra e esce.
-          </p>
-        </div>
-
-        {/* Terza sezione */}
-        <div
-          ref={contentRefs.three.container}
-          className="text-center absolute w-full px-4 flex flex-col items-center"
-        >
-          <div className="flex mb-4 mt-[-20%]" style={{ perspective: "1500px" }}>
-            <Bricks
-              totalHeight={300}
-              bricksRef={contentRefs.three.bricks}
-              baseColor={[50, 168, 82]}
-            />
-          </div>
-          <h2
-            ref={contentRefs.three.title}
-            className="text-4xl font-bold mb-4"
-          >
-            Bellezza
-          </h2>
-          <p
-            ref={contentRefs.three.paragraph}
-            className="text-xl max-w-2xl"
-          >
-            Descrizione del terzo blocco che entra e esce.
-          </p>
-        </div>
-
-        {/* Quarta sezione */}
         <div
           ref={contentRefs.all.container}
           className="text-center absolute w-full px-4 flex flex-col items-center"
         >
           <div className="flex items-end gap-3 mb-4 mt-[-20%] justify-center" style={{ perspective: "2000px" }}>
-            <Bricks
-              totalHeight={150}
-              bricksRef={contentRefs.all.oneBricks}
-              baseColor={[66, 170, 245]}
-            />
-            <Bricks
-              totalHeight={300}
-              bricksRef={contentRefs.all.threeBricks}
-              baseColor={[50, 168, 82]}
-            />
-            <Bricks
-              totalHeight={220}
-              bricksRef={contentRefs.all.twoBricks}
-              baseColor={[252, 161, 3]}
-            />
+            {sortSec.map(key => {
+              const index = sections.findIndex(section => section.key === key);
+              const section = sections[index];
+              return (
+                <Bricks
+                  key={key}
+                  rows={allRows[index]}
+                  bricksRef={contentRefs.all.multipleBricks[index]}
+                  colors={allColors[index]}
+                  borderColors={allBorderColors[index]}
+                />
+              );
+            })}
           </div>
           <h2
             ref={contentRefs.all.title}
