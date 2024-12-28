@@ -9,6 +9,7 @@ import { ProductCards, ProductCartVisualizzation, ProductCharityLink } from "@/t
 import { CardDescriptionType } from "@/types/types"
 import { CharitySection } from "@/components/charity-blind"
 import { Reviews } from "@/components/reviews"
+import { Separator } from "@/components/ui/separator"
 
 const Page = async ({ params }: { params: { productId: string, category: string } }) => {
   const product = await getProduct(params.productId)
@@ -33,7 +34,10 @@ const Page = async ({ params }: { params: { productId: string, category: string 
           <DetailsDescription cards={product.attributes.Description?.filter(desc => desc.__component === "pr.cards").find(desc => desc.Type === "Dettagli")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
           {(() => {
             const data = product.attributes.Description?.find(d => d.__component === "pr.charity-link")
-            return data?.__component === "pr.charity-link" && data.CharityCampaign && <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
+            return data?.__component === "pr.charity-link" && data.CharityCampaign && <>
+              <Separator className="my-5" />
+              <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
+            </>
           })()}
           <Reviews reviews={product.attributes.Description?.filter(d => d.__component === "pr.review") ?? []} />
           <FAQ faqs={product.attributes.Description?.find(d => d.__component === "pr.faq")?.FAQs?.data} />

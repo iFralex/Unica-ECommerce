@@ -13,7 +13,6 @@ import { formattedPrice } from "@/lib/utils"
 export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampaign: APIResponse<"api::charity-campaign.charity-campaign">["data"]["attributes"], DonatedMoney: number }) => {
     return (
         <section id="charity">
-            <Separator className="my-5" />
             <Card className="dark my-5 bg-black size-full overflow-hidden">
                 <div className="relative">
                     <Image src={CharityCampaign.Name === "Gioielli di Luce" ? "https://storage.googleapis.com/unica-3d18c.appspot.com/Image/IMG_1258_/small_IMG_1258_Medium_2e6a5e1f09_dfef3af515.jpeg" : ""}
@@ -27,7 +26,7 @@ export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampa
                         <div className="overflow-hidden flex flex-col md:flex-row pt-[100px] md:py-[50px]">
                             <div className="w-full max-w-[384px] relative">
                                 <NeonGradientCard coloredShadow={false} borderRadius={500} borderSize={10} backgroundColor="white" className="absolute top-[-260px] right-[-30%] md:top-[-30%] md:right-0 rounded-full size-[512px] z-0" />
-                                <div className="absolute inset-0 pt-[50px] flex items-center justify-center">
+                                <div className="absolute inset-0 flex items-start justify-center mt-[-50px] md:mt-0">
                                     <div className="text-black text-center">
                                         <div className="my-[-55px]">
                                             <span className="text-[200px] font-bold">{Math.floor(DonatedMoney)}</span>

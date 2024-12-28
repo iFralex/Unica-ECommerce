@@ -30,7 +30,8 @@ export const WhatIs = ({ allRows, allColors, allBorderColors }) => {
       container: useRef(null),
       title: useRef(null),
       paragraph: useRef(null)
-    }
+    },
+    mainTitle: useRef(null)
   };
 
   useEffect(() => {
@@ -49,6 +50,12 @@ export const WhatIs = ({ allRows, allColors, allBorderColors }) => {
         anticipatePin: 1,
       }
     });
+
+    timeline.fromTo(
+      contentRefs.mainTitle.current,
+      { opacity: 1 },
+      { opacity: 0, duration: 1, ease: "power2.inOut" }
+    );
 
     // Funzione per creare animazione di una sezione
     const createSectionAnimation = (section) => {
@@ -140,6 +147,12 @@ export const WhatIs = ({ allRows, allColors, allBorderColors }) => {
 
   return (
     <div ref={triggerRef} className="w-full h-screen bg-white relative overflow-hidden">
+      <h1
+        ref={contentRefs.mainTitle}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold opacity-100 text-center"
+      >
+        I pilastri di <span className='text-8xl block'>UNICA</span>
+      </h1>
       <div ref={sectionRef} className="w-full h-full absolute top-0 left-0 flex flex-col justify-center items-center">
         {sections.map((section, i) => (
           <div

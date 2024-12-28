@@ -20,6 +20,7 @@ import { Transform, Vector } from "@/types/types";
 import { Box3, Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { getCartVisualizzationData } from "@/actions/get-data";
 import { GainMapLoader } from '@monogrid/gainmap-js'
+import { OutlineProductCard } from "./product-card";
 
 type MultipleModelType = {
   model: GLTF;
@@ -143,7 +144,7 @@ const ModelsSelector = ({ selectedViewer, sheetContainer, productId, selectedMod
       <ScrollArea>
         <div className="flex justify-start items-center space-x-3">
           {selectedViewer.attributes.Items3D?.map((item, index) => (
-            <Card key={index} onClick={() => {
+            <OutlineProductCard key={index} onClick={() => {
               if (selectedViewer.attributes.Items3D?.[selectedModels[0]].id === item.id)
                 return
               if (!selectedModels.includes(index))
@@ -152,15 +153,12 @@ const ModelsSelector = ({ selectedViewer, sheetContainer, productId, selectedMod
                 setSelectedModels(selectedModels.filter(n => n !== index))
                 setGlb((glb as MultipleModelType).filter(g => g.index !== index))
               }
-            }} className={"cursor-pointer flex flex-col justify-center p-3 text-center " + (productId === item.id ? "dark:bg-accent dark:border-white" : selectedModels.includes(index) ? "dark:bg-accent" : "")}>
-              <span className="sr-only">{(productId === item.id ? "" : !selectedModels.includes(index) ? "Visualizza " : "Rimuovi dalla visualizzazione ") + item.RelativeProduct?.data.attributes.Name}</span>
-              <figure aria-hidden={true}>
-                {item.Thumbnail?.data && <Image src={item.Thumbnail.data.attributes.formats?.thumbnail.url} width={item.Thumbnail.data.attributes.formats?.thumbnail.width} height={item.Thumbnail.data.attributes.formats?.thumbnail.height} alt={item.Thumbnail.data.attributes.caption ?? "Mignatura"} aria-hidden={true} />}
-                <figcaption aria-hidden={true}>
-                  <span>{item.RelativeProduct?.data.attributes.Name}</span>
-                </figcaption>
-              </figure>
-            </Card>
+            }} className={productId === item.id ? "dark:bg-accent dark:border-white" : selectedModels.includes(index) ? "dark:bg-accent" : ""}
+            imageProps={{ src: item.Thumbnail?.data?.attributes.formats?.thumbnail.url, ...(item.Thumbnail?.data?.attributes.formats?.thumbnail || {})}}
+            caption={item.RelativeProduct?.data.attributes.Name}
+            aria-label={(productId === item.id ? "" : !selectedModels.includes(index) ? "Visualizza " : "Rimuovi dalla visualizzazione ") + item.RelativeProduct?.data.attributes.Name}
+            aria-selected={productId === item.id || selectedModels.includes(index)}
+            />
           ))}
         </div>
         <ScrollBar orientation="horizontal" />

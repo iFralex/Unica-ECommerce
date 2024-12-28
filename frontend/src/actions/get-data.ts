@@ -14,10 +14,13 @@ const fetchStrapi = async <T>(url: string, options: Object = {}) => {
 
 export const getProducts = async () => {
     try {
-        const request: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
-            `${process.env.STRAPI_API_URL}products?populate[0]=Category&populate[1]=MainImage&populate[2]=ProductDetails.Materials3D&populate[3]=Viewer.Model3D&populate[4]=Viewer.HeroPreview.Rotation&populate[5]=Viewer.HeroPreview.Scale&populate[6]=Viewer.SelectedViewer.Items3D.Model3D&populate[7]=Viewer.SelectedViewer.Items3D.HeroPreview.Rotation&populate[8]=Viewer.SelectedViewer.Items3D.HeroPreview.Scale&populate[9]=Viewer.SelectedViewer.Items3D.RelativeProduct.Name`
+        const products: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
+            `${process.env.STRAPI_API_URL}products?populate[0]=Category&populate[1]=MainImage&populate[2]=ProductDetails.Materials3D&populate[3]=Viewer.Model3D&populate[4]=Viewer.HeroPreview.Rotation&populate[5]=Viewer.HeroPreview.Scale&populate[6]=Viewer.SelectedViewer.Items3D.Model3D&populate[7]=Viewer.SelectedViewer.Items3D.HeroPreview.Rotation&populate[8]=Viewer.SelectedViewer.Items3D.HeroPreview.Scale&populate[9]=Viewer.SelectedViewer.Items3D.RelativeProduct.Name&populate[10]=ProductDetails.Images`
         );
-        return request
+        const promos = await fetchStrapi<APIResponseCollection<"api::charity-campaign.charity-campaign">>(
+            `${process.env.STRAPI_API_URL}charity-campaigns?populate[0]=Products`
+        );
+        return { products, promos }
     } catch (error) {
         return error as Error
     }
@@ -89,7 +92,7 @@ export const getCartFromCartLight = async (cart: CartLiteType) => {
 
         if (!product.data)
             throw new Error("No product found");
-    console.log(product.data.attributes.Description)    
+        console.log(product.data.attributes.Description)
         return ({ id: cart.productId, name: product.data.attributes.Name ?? "", urlPath: (product.data.attributes.Category?.data.attributes.SKU ?? "") + "/" + (product.data.attributes.SKU ?? ""), shortDescription: product.data.attributes.ShortDescription ?? "", quantity: cart.quantity ?? 0, variant: product.data.attributes.ProductDetails?.[cart.variantIndex], variantIndex: cart.variantIndex, size: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Size, textureURL: product.data.attributes.ProductDetails?.[cart.variantIndex].CartVisualizzation.Texture?.data.attributes.formats?.medium.url, charity: product.data.attributes.Description?.find(d => d.__component === "pr.charity-link") } as CartType)
     } catch (error) {
         return (error as Error).message

@@ -1,11 +1,13 @@
 import { getProducts } from "@/actions/get-data"
+import { CharitySection } from "@/components/charity-blind";
 import { Hero3D } from "@/components/hero-home";
 import { WhatIs } from "@/components/home/what-is";
 import { WordPullUp } from "@/components/magicui/word-pull-up";
+import { OutlineProductCard } from "@/components/product-card";
 import JewelryCollectionsSlider from "@/components/slider-home";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { APIResponseCollection } from "@/types/strapi-types";
+import { APIResponseCollection, APIResponseData } from "@/types/strapi-types";
 import Image from "next/image";
 import Link from 'next/link'
 
@@ -96,24 +98,106 @@ const WhatIsSec = () => {
   const allRows = sections.map(s => calculateRows(s.height))
 
   return <section>
-    <h1 className="mt-8 mb-2 text-center text-4xl font-bold">I pilastri di UNICA</h1>
     <WhatIs allRows={allRows} allColors={allRows.map((rows, i) => rows.map(r => r.map(_ => generateColorVariation(sections[i].color))))} allBorderColors={allRows.map((rows, i) => rows.map(r => r.map(_ => generateColorVariation(sections[i].color, 10))))} />
     <Separator className="my-5" />
   </section>
 }
 
-const Page = async ({ }) => {
-  const products = await getProducts()
-  if (products instanceof Error) {
-    return <div>An error occured: {products.message}</div>;
-  }
+const Promos = ({ data }: { data: APIResponseData<"api::charity-campaign.charity-campaign">[] }) => {
+  return data.some(d => 'Products' in d.attributes) && <div className="relative w-full min-h-96 bg-gradient-to-br from-gray-800 to-black">
+    {/* SVG onda */}
+    <div className="absolute inset-0">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 500 500"
+        fill="none"
+        className="w-full h-full"
+        preserveAspectRatio="none"
+        stroke="white"
+      >
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: "#bec2cb", stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: "#4c4e50", stopOpacity: 0.8 }} />
+          </linearGradient>
+        </defs>
+        <path
+          d="M-10,100 C150,200 350,500 510,400 L510,-10 L-10,-10 Z"
+          fill="url(#gradient)"
+        />
+      </svg>
+    </div>
 
+    {/* Titolo e paragrafo */}
+    <div className="relative container pt-16 md:pt-32 pb-16">
+      <h1 className="text-5xl font-bold text-white mb-4">Acquista, Risparmia, Dona</h1>
+      <p className="text-xl text-white max-w-lg">
+        Questo è un esempio di paragrafo per descrivere gli ordini. Puoi personalizzare il testo come preferisci.
+      </p>
+      <div className="lg:grid grid-cols-2 gap-6 mt-3">
+        {([data, data]).flat().map((camp, index) => camp.attributes.Products && <div key={index}>
+          <CharitySection DonatedMoney={5} CharityCampaign={{ ...camp.attributes }} />
+          <div className="relative py-3">
+            <div className="absolute inset-0 rounded-lg overflow-hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 500 500"
+                fill="none"
+                className="w-full h-full"
+                preserveAspectRatio="none"
+              >
+                <path
+                  //d="M0,0 C0,50 30,200 200,100 C230,100 240,120 250,250 C260,480 270,500 500,300 L500,0 L0,0 Z"
+                  d="M0,100 C30,300 100,350 230,400 C290,150 180,50 100,50 C100,50 70,30 50,0 L100,0 L0,0 Z"
+                  fill="#bec2cbcc"
+                />
+                <path
+                  d="M0,500 C300,500 180,400 100,400 C100,400 70,430 0,350 L0,350 L0,500 Z"
+                  fill="#bec2cbcc"
+                />
+                <path
+                  d="M500,100 C470,300 400,350 270,400 C240,150 320,50 400,50 C400,50 430,30 450,0 L400,0 L500,0 Z"
+                  fill="#d4af37cc"
+                />
+                <path
+                  d="M500,500 C200,500 320,400 400,400 C400,400 430,430 500,350 L500,350 L500,500 Z"
+                  fill="#d4af37cc"
+                />
+              </svg>
+            </div>
+            <div className="relative z-1">
+              <h3 className="text-center text-white mb-2">Prodotti inclusi</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mx-auto px-2">
+                {camp.attributes.Products.data.map(p => (
+                  <Link href={"/" + p.attributes.Category.data.attributes.SKU + "/" + p.attributes.SKU}>
+                    <OutlineProductCard caption={p.attributes.Name}
+                      imageProps={p.attributes.ProductDetails.map(v => ({ src: v.Images.data?.[0].attributes.formats?.thumbnail.url, ...(v.Images.data?.[0].attributes.formats?.thumbnail || {}) }))} 
+                      className="bg-[#0000008f] text-white h-full" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>)}
+      </div>
+    </div>
+  </div>
+};
+
+const Page = async ({ }) => {
+  const res = await getProducts()
+  if (res instanceof Error) {
+    return <div>An error occured: {res.message}</div>
+  }
+  const { products, promos } = res
+products.data[0].attributes.ProductDetails[0].Images
   return <>
     <Hero products={products} />
     <WhatIsSec />
     <section className="overflow-hidden">
       <JewelryCollectionsSlider />
     </section>
+    <Promos data={promos.data.map(d => ({ attributes: { ...d.attributes, Products: products } }))} />
     <h1 className="text-center font-bold text-3xl">Prodotti</h1>
     <div className="flex gap-2 flex-wrap">
       {products.data.filter(p => p.attributes.MainImage?.data).sort((a, b) => a.id > b.id ? 1 : -1).map(product => (
