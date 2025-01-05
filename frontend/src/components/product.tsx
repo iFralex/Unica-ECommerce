@@ -9,7 +9,6 @@ import {
     CarouselContent,
     CarouselItem,
 } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
 import { APIResponseData } from "@/types/strapi-types";
 import BlurFade from "./magicui/blur-fade";
 
@@ -24,11 +23,9 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
                     align: "start",
                     loop: true,
                 }}
-                plugins={[
-                    Autoplay({
-                        delay: 2000,
-                    }),
-                ]}
+                autoplay={{
+                    delay: 2000,
+                }}
             >
                 <CarouselContent style={carouselCustomClass}>
                     {imagesUrls[productContext.variantIndex]?.map((image, index) => (
@@ -52,7 +49,7 @@ const ImagesGallery = ({ imagesUrls, responsibleSizes = "basis-1/2", orientation
                     )) ?? <></>}
                 </CarouselContent>
             </Carousel>
-        </div>
+        </div >
     );
 };
 

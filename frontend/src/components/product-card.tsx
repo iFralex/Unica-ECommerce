@@ -23,7 +23,7 @@ export const OutlineProductCard = forwardRef<
                 >
                     <CarouselContent>
                         {imageProps.map((prop, idx) => prop.src && <CarouselItem>
-                            <Image key={idx} {...prop} />
+                            <Image key={idx} {...prop} className="mx-auto" />
                         </CarouselItem>)}
                     </CarouselContent>
                 </Carousel>

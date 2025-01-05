@@ -134,7 +134,7 @@ const Promos = ({ data }: { data: APIResponseData<"api::charity-campaign.charity
       <p className="text-xl text-white max-w-lg">
         Questo è un esempio di paragrafo per descrivere gli ordini. Puoi personalizzare il testo come preferisci.
       </p>
-      <div className="lg:grid grid-cols-2 gap-6 mt-3">
+      <div className="grid lg:grid-cols-2 gap-6 mt-3">
         {([data, data]).flat().map((camp, index) => camp.attributes.Products && <div key={index}>
           <CharitySection DonatedMoney={5} CharityCampaign={{ ...camp.attributes }} />
           <div className="relative py-3">
@@ -167,9 +167,10 @@ const Promos = ({ data }: { data: APIResponseData<"api::charity-campaign.charity
             </div>
             <div className="relative z-1">
               <h3 className="text-center text-white mb-2">Prodotti inclusi</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mx-auto px-2">
+              <div className="grid grid-cols-2 md:grid-cols-5 sm:grid-cols-3 gap-2 justify-center px-2"></div>
+              <div className="grid grid-cols-2 sm:flex flex-wrap justify-center gap-2 px-2">
                 {camp.attributes.Products.data.map(p => (
-                  <Link href={"/" + p.attributes.Category.data.attributes.SKU + "/" + p.attributes.SKU}>
+                  <Link href={"/" + p.attributes.Category.data.attributes.SKU + "/" + p.attributes.SKU} className="sm:w-[calc(33%-8px)] md:w-[calc(20%-8px)]">
                     <OutlineProductCard caption={p.attributes.Name}
                       imageProps={p.attributes.ProductDetails.map(v => ({ src: v.Images.data?.[0].attributes.formats?.thumbnail.url, ...(v.Images.data?.[0].attributes.formats?.thumbnail || {}) }))} 
                       className="bg-[#0000008f] text-white h-full" />
