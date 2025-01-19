@@ -7,7 +7,7 @@ import { CardGrid, Testimonial, DetailsDescription, FAQ } from "@/components/Des
 import { Materials3D } from "@/types/strapi-types"
 import { ProductCards, ProductCartVisualizzation, ProductCharityLink } from "@/types/components"
 import { CardDescriptionType } from "@/types/types"
-import { CharitySection } from "@/components/charity-blind"
+import { CharitySection, PromoSection } from "@/components/promos"
 import { Reviews } from "@/components/reviews"
 import { Separator } from "@/components/ui/separator"
 
@@ -33,11 +33,13 @@ const Page = async ({ params }: { params: { productId: string, category: string 
           <CardGrid cards={product.attributes.Description?.filter(desc => desc.__component === "pr.cards").find(desc => desc.Type === "Come sei")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
           <DetailsDescription cards={product.attributes.Description?.filter(desc => desc.__component === "pr.cards").find(desc => desc.Type === "Dettagli")?.Card?.map(c => ({ title: c.Title, description: c.Description } as CardDescriptionType)) ?? []} />
           {(() => {
-            const data = product.attributes.Description?.find(d => d.__component === "pr.charity-link")
-            return data?.__component === "pr.charity-link" && data.CharityCampaign && <>
+            const promos = product.attributes.Description?.filter(d => d.__component === "pr.charity-link")
+            if (!promos?.length) return <></>
+            return promos.map(data => <>
               <Separator className="my-5" />
-              <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
-            </>
+              {data.CharityCampaign?.data ?
+                <CharitySection CharityCampaign={data.CharityCampaign.data.attributes} DonatedMoney={data.DonatedMoney} />
+                : data.PromoCampaign?.data ? <PromoSection {...data.PromoCampaign.data.attributes} /> : <></>}</>)
           })()}
           <Reviews reviews={product.attributes.Description?.filter(d => d.__component === "pr.review") ?? []} />
           <FAQ faqs={product.attributes.Description?.find(d => d.__component === "pr.faq")?.FAQs?.data} />

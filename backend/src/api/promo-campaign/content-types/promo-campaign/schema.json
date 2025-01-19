@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "promo_campaigns",
+  "info": {
+    "singularName": "promo-campaign",
+    "pluralName": "promo-campaigns",
+    "displayName": "Promo Campaign",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "Code": {
+      "type": "uid",
+      "targetField": "Name"
+    }
+  }
+}

@@ -3,14 +3,15 @@ import { Button } from "./ui/button"
 import { Card } from "./ui/card"
 import { Separator } from "./ui/separator"
 import Image from "next/image"
-import { PawPrint } from "lucide-react"
+import { Gift, PawPrint } from "lucide-react"
 import { NeonGradientCard } from "./magicui/neon-gradient-card"
 import { Slider } from "@/components/ui/slider"
 import { ProductCharityLink } from "@/types/components"
 import { APIResponse } from "@/types/strapi-types"
 import { formattedPrice } from "@/lib/utils"
+import { Input } from "./ui/input"
 
-export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampaign: APIResponse<"api::charity-campaign.charity-campaign">["data"]["attributes"], DonatedMoney: number }) => {
+export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampaign: APIResponse<"api::charity-campaign.charity-campaign">["data"]["attributes"], DonatedMoney: number | number[] }) => {
     return (
         <section id="charity">
             <Card className="dark my-5 bg-black size-full overflow-hidden">
@@ -28,9 +29,13 @@ export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampa
                                 <NeonGradientCard coloredShadow={false} borderRadius={500} borderSize={10} backgroundColor="white" className="absolute top-[-260px] right-[-30%] md:top-[-30%] md:right-0 rounded-full size-[512px] z-0" />
                                 <div className="absolute inset-0 flex items-start justify-center mt-[-50px] md:mt-0">
                                     <div className="text-black text-center">
-                                        <div className="my-[-55px]">
-                                            <span className="text-[200px] font-bold">{Math.floor(DonatedMoney)}</span>
-                                            <span className="text-3xl ml-[-10px]"><span className="font-bold text-6xl">,{(`${DonatedMoney}`.split('.')[1] || '00').padEnd(2, '0').slice(0, 2)}</span> €</span>
+                                        <div className={typeof DonatedMoney === "number" ? "my-[-55px]" : "my-[-20px]"}>
+                                            {typeof DonatedMoney === "number" ?
+                                                <><span className="text-[200px] font-bold">{Math.floor(DonatedMoney)}</span>
+                                                    <span className="text-3xl ml-[-10px]"><span className="font-bold text-6xl">,{(`${DonatedMoney}`.split('.')[1] || '00').padEnd(2, '0').slice(0, 2)}</span> €</span></>
+                                                : DonatedMoney.map((n, i) => <><span className="text-[120px] font-bold">{Math.floor(n)}</span>
+                                                    <span className="text-xl ml-[-10px]"><span className="font-bold text-3xl">,{(`${n}`.split('.')[1] || '00').padEnd(2, '0').slice(0, 2)}</span> €</span>
+                                                    {(i + 1) % 2 ? <span className="text-[100px]">-</span> : <></>}</>)}
                                         </div>
                                         <span className="text-4xl font-bold">IN BENEFICIENZA</span>
                                     </div>
@@ -56,6 +61,69 @@ export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampa
                             <div className="absolute rounded-full bg-buy size-[30px] top-1/2 right-0" style={{ transform: "Translate(50%, -50%) Rotate(0deg)" }} />
                         </div>
                     </div>
+                </div>
+            </Card>
+        </section>
+    )
+}
+
+export const PromoSection = ({ Code, Name }: { Code: string, Name: string }) => {
+    return (
+        <section id="promo">
+            <Card className="my-5 bg-black size-full overflow-hidden">
+                <div className="relative w-full  overflow-hidden">
+                    {/* SVG Background */}
+                    <svg
+                        className="absolute inset-0 w-full h-full"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                    >
+                        {/* Left half - empty */}
+                        <path
+                            d="M0 0 L45 0 Q50 50 45 100 L0 100 Z"
+                            fill="white"
+                        />
+                        {/* Right half - gradient with curve */}
+                        <path
+                            d="M45 0 Q50 50 45 100 L100 100 L100 0 Z"
+                            fill="url(#promoGradient)"
+                        />
+                        <defs>
+                            <linearGradient id="promoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style={{ stopColor: '#d4af37' }} />
+                                <stop offset="100%" style={{ stopColor: '#544616' }} />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    {/* Content Container */}
+                    <div className="relative z-10 container mx-auto px-6 py-12">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            {/* Left Content */}
+                            <div className="space-y-6">
+                                <div className="relative p-6 rounded-xl">
+                                    <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                                        {Name}
+                                    </h2>
+                                    <p className="text-lg text-gray-800">
+                                        La tua descrizione qui. Questo testo avrà un bellissimo gradiente semi-trasparente come sfondo,
+                                        che si fonde perfettamente con il gradiente della sezione.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Right Content */}
+                            <div className="flex justify-center">
+                                <div className="relative w-full max-w-md">
+                                    <Gift color="white" size={300} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-5 pt-[30px] text-white text-center">
+                    <h2 className="text-3xl font-bold mb-8">Codice Promo:</h2>
+                    <div className="my-4"><span className="text-[60px] font-bold leading-10 border border-white px-3">{Code}</span></div>
                 </div>
             </Card>
         </section>

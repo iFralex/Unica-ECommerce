@@ -833,6 +833,7 @@ export interface ApiCharityCampaignCharityCampaign
     singularName: 'charity-campaign';
     pluralName: 'charity-campaigns';
     displayName: 'Charity Campaign';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -843,6 +844,7 @@ export interface ApiCharityCampaignCharityCampaign
     MoneyCollected: Attribute.Decimal;
     MoneyTarget: Attribute.Decimal;
     SKU: Attribute.UID & Attribute.Required;
+    Image: Attribute.Media<'images'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1038,6 +1040,36 @@ export interface ApiProductProduct extends Schema.CollectionType {
   };
 }
 
+export interface ApiPromoCampaignPromoCampaign extends Schema.CollectionType {
+  collectionName: 'promo_campaigns';
+  info: {
+    singularName: 'promo-campaign';
+    pluralName: 'promo-campaigns';
+    displayName: 'Promo Campaign';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::promo-campaign.promo-campaign',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::promo-campaign.promo-campaign',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiTagTag extends Schema.CollectionType {
   collectionName: 'tags';
   info: {
@@ -1160,6 +1192,7 @@ declare module '@strapi/types' {
       'api::order.order': ApiOrderOrder;
       'api::plating.plating': ApiPlatingPlating;
       'api::product.product': ApiProductProduct;
+      'api::promo-campaign.promo-campaign': ApiPromoCampaignPromoCampaign;
       'api::tag.tag': ApiTagTag;
       'api::testimonial.testimonial': ApiTestimonialTestimonial;
       'api::viewer3d.viewer3d': ApiViewer3DViewer3D;

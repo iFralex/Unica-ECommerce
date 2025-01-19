@@ -153,7 +153,7 @@ export interface PrDescription extends Schema.Component {
 export interface PrCharityLink extends Schema.Component {
   collectionName: 'components_pr_charity_links';
   info: {
-    displayName: 'CharityLink';
+    displayName: 'CampaignLink';
     description: '';
   };
   attributes: {
@@ -165,6 +165,11 @@ export interface PrCharityLink extends Schema.Component {
     DonatedMoney: Attribute.Decimal &
       Attribute.Required &
       Attribute.DefaultTo<5>;
+    PromoCampaign: Attribute.Relation<
+      'pr.charity-link',
+      'oneToOne',
+      'api::promo-campaign.promo-campaign'
+    >;
   };
 }
 

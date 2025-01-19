@@ -12,7 +12,7 @@ import { AddItemToCart, AddOrRemoveItemToFavorites } from "./client-components"
 import { Card } from "./ui/card"
 import { useToast } from "./ui/use-toast"
 import { ScrollArea, ScrollBar } from "./ui/scroll-area"
-import { CharityBadge } from "./charity-blind"
+import { CharityBadge } from "./promos"
 
 export const FavoritesList = () => {
     const [favorites, setFavorites] = useContext(FavoritesContext)

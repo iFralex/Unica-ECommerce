@@ -14,21 +14,48 @@ const fetchStrapi = async <T>(url: string, options: Object = {}) => {
 
 export const getProducts = async () => {
     try {
-        const products: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
+        /*const products: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
             `${process.env.STRAPI_API_URL}products?populate[0]=Category&populate[1]=MainImage&populate[2]=ProductDetails.Materials3D&populate[3]=Viewer.Model3D&populate[4]=Viewer.HeroPreview.Rotation&populate[5]=Viewer.HeroPreview.Scale&populate[6]=Viewer.SelectedViewer.Items3D.Model3D&populate[7]=Viewer.SelectedViewer.Items3D.HeroPreview.Rotation&populate[8]=Viewer.SelectedViewer.Items3D.HeroPreview.Scale&populate[9]=Viewer.SelectedViewer.Items3D.RelativeProduct.Name&populate[10]=ProductDetails.Images`
+        );*/
+        const products: APIResponseCollection<"api::product.product"> = await fetchStrapi<APIResponseCollection<"api::product.product">>(
+            `${process.env.STRAPI_API_URL}products?
+            populate[0]=Category
+            &populate[Category][populate]=*
+            &populate[MainImage][fields][0]=formats
+            &populate[ProductDetails][fields][0]=Materials3D
+            &populate[ProductDetails][populate][Images][fields][0]=formats
+            &populate[Viewer][on][pr.single-item3-d][populate][Model3D][fields][0]=url
+            &populate[Viewer][on][pr.single-item3-d][populate][HeroPreview][populate]=*
+            &populate[Viewer][on][pr.multiple-item3-d-link][populate][SelectedViewer][populate][Items3D][populate][Model3D][fields][0]=url
+            &populate[Viewer][on][pr.multiple-item3-d-link][populate][SelectedViewer][populate][HeroPreview][populate]=*
+            &populate[Viewer][on][pr.multiple-item3-d-link][populate][SelectedViewer][populate][Items3D][populate][RelativeProduct][fields][0]=Name
+            &populate[Description][on][pr.charity-link][populate][CharityCampaign][fields][0]=id
+            &populate[Description][on][pr.charity-link][populate][PromoCampaign][fields][0]=id`
         );
-        const promos = await fetchStrapi<APIResponseCollection<"api::charity-campaign.charity-campaign">>(
-            `${process.env.STRAPI_API_URL}charity-campaigns?populate[0]=Products`
-        );
-        return { products, promos }
+        return products
     } catch (error) {
         return error as Error
     }
 };
 
+export const getPromosAndCharities = async () => {
+    try {
+        const [promos, charities] = await Promise.all([
+            fetchStrapi<APIResponseCollection<"api::promo-campaign.promo-campaign">>(
+                `${process.env.STRAPI_API_URL}promo-campaigns`
+            ),
+            fetchStrapi<APIResponseCollection<"api::charity-campaign.charity-campaign">>(
+                `${process.env.STRAPI_API_URL}charity-campaigns`
+            )
+        ]);
+        return { promos, charities }
+    } catch (error) {
+        return error as Error
+    }
+}
 export const getProduct = async (productSKU: string) => {
     try {
-        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?filters[SKU][$eq]=${productSKU}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=ProductDetails.Photos&populate[7]=Viewer&populate[8]=Viewer.Model3D&populate[9]=Viewer.SelectedViewer&populate[10]=Viewer.SelectedViewer.Items3D&populate[11]=Viewer.SelectedViewer.Items3D.Model3D&populate[12]=Viewer.SelectedViewer.Items3D.RelativeProduct&populate[13]=Viewer.SelectedViewer.Items3D.MainTransform&populate[14]=Viewer.SelectedViewer.Transforms&populate[15]=Viewer.SelectedViewer.Items3D.Thumbnail&populate[16]=Description.Card&populate[17]=Description.CharityLink&populate[18]=Description.CharityCampaign&populate[19]=Description.FAQs&populate[20]=Description.TestimonialLink&populate[21]=Description.TestimonialLink.Image.formats`)
+        const product: APIResponseCollection<"api::product.product"> = await fetchStrapi(process.env.STRAPI_API_URL + `products?filters[SKU][$eq]=${productSKU}&populate[0]=Category&populate[1]=Tags&populate[2]=MainImage&populate[3]=ProductDetails.Material&populate[4]=ProductDetails.Platings&populate[5]=ProductDetails.Images&populate[6]=ProductDetails.Photos&populate[7]=Viewer&populate[8]=Viewer.Model3D&populate[9]=Viewer.SelectedViewer&populate[10]=Viewer.SelectedViewer.Items3D&populate[11]=Viewer.SelectedViewer.Items3D.Model3D&populate[12]=Viewer.SelectedViewer.Items3D.RelativeProduct&populate[13]=Viewer.SelectedViewer.Items3D.MainTransform&populate[14]=Viewer.SelectedViewer.Transforms&populate[15]=Viewer.SelectedViewer.Items3D.Thumbnail&populate[16]=Description.Card&populate[17]=Description.CharityLink&populate[18]=Description.CharityCampaign&populate[19]=Description.FAQs&populate[20]=Description.TestimonialLink&populate[21]=Description.TestimonialLink.Image.formats&populate[22]=Description.PromoCampaign`)
 
         if (!product.data.length)
             throw new Error("No product found");

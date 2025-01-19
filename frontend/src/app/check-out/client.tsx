@@ -26,7 +26,7 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
 import { CartContext } from "@/components/context";
-import { CharityBadge } from "@/components/charity-blind";
+import { CharityBadge } from "@/components/promos";
 import { GainMapLoader } from "@monogrid/gainmap-js";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Canvas, useThree } from "@react-three/fiber";

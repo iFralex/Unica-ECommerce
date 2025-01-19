@@ -2,7 +2,7 @@
 
 import { getCookie, setCookie } from "@/actions/get-data"
 import { payOrder } from "@/actions/payment"
-import { CharityBadge } from "@/components/charity-blind"
+import { CharityBadge } from "@/components/promos"
 import { AddItemToCart, AddOrRemoveItemToFavorites, useMedia } from "@/components/client-components"
 import { CartContext, FavoritesContext, UserContext } from "@/components/context"
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogTitle } from "@/components/ui/alert-dialog"

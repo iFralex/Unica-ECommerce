@@ -1,7 +1,7 @@
 {
   "collectionName": "components_pr_charity_links",
   "info": {
-    "displayName": "CharityLink",
+    "displayName": "CampaignLink",
     "description": ""
   },
   "options": {},
@@ -15,6 +15,11 @@
       "type": "decimal",
       "required": true,
       "default": 5
+    },
+    "PromoCampaign": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::promo-campaign.promo-campaign"
     }
   }
 }

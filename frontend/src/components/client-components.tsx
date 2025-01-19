@@ -30,7 +30,7 @@ import { addToCartItem, deleteCartItem, deleteFavoriteItem, getCartLight, pushCa
 import { redirect, useRouter } from "next/navigation"
 import Image from "next/image"
 import { isCharity } from "@/lib/utils"
-import { CharityBadge } from "./charity-blind"
+import { CharityBadge } from "./promos"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 const ProductVariants = ({ product }: { product: APIResponseData<"api::product.product"> }) => {
@@ -136,7 +136,7 @@ const ProductVariants = ({ product }: { product: APIResponseData<"api::product.p
         </div>
         {(() => {
             const data = product.attributes.Description?.find(d => d.__component === "pr.charity-link")
-            return data?.CharityCampaign && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity" />
+            return data?.CharityCampaign && data?.CharityCampaign.data && <CharityBadge CampaignName={data.CharityCampaign.data.attributes.Name} DonatedMoney={data.DonatedMoney} productName={product.attributes.Name} url="#charity" />
         })()}
 
         <div className="flex items-center flex-wrap gap-2 justify-center md:justify-start">

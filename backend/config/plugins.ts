@@ -6,7 +6,7 @@ module.exports = ({ env }) => ({
             // See `Config` section.
         },
     },
-    upload: {
+    /*upload: {
         config: {
             provider: "strapi-provider-firebase-storage",
             providerOptions: {
@@ -19,5 +19,5 @@ module.exports = ({ env }) => ({
                 debug: false, // true | false
             },
         },
-    },
+    },*/
 });

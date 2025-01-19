@@ -4,7 +4,8 @@
   "info": {
     "singularName": "charity-campaign",
     "pluralName": "charity-campaigns",
-    "displayName": "Charity Campaign"
+    "displayName": "Charity Campaign",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -27,6 +28,14 @@
     "SKU": {
       "type": "uid",
       "required": true
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }
