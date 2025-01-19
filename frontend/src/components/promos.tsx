@@ -12,6 +12,7 @@ import { formattedPrice } from "@/lib/utils"
 import { Input } from "./ui/input"
 
 export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampaign: APIResponse<"api::charity-campaign.charity-campaign">["data"]["attributes"], DonatedMoney: number | number[] }) => {
+
     return (
         <section id="charity">
             <Card className="dark my-5 bg-black size-full overflow-hidden">
@@ -56,9 +57,14 @@ export const CharitySection = ({ CharityCampaign, DonatedMoney }: { CharityCampa
                 <div className="p-5 pt-[50px] text-white text-center">
                     <h2 className="text-3xl font-bold mb-3">Fin'ora abbiamo raccolto</h2>
                     <span className="text-[60px] font-bold leading-10">{CharityCampaign.MoneyCollected}/<span className="text-[0px]"> </span>{CharityCampaign.MoneyTarget}€</span>
-                    <div className="relative overflow-idden w-full border border-white rounded-full h-[20px] mt-3">
-                        <div className={"absolute bg-white h-full border-buy border-[0px] top-1/2 rounded-l-full"} style={{ transform: "TranslateY(-50%) Rotate(0deg)", width: "calc(" + ((CharityCampaign.MoneyCollected || 0) / (CharityCampaign.MoneyTarget || 1) * 100) + "%)" }}>
-                            <div className="absolute rounded-full bg-buy size-[30px] top-1/2 right-0" style={{ transform: "Translate(50%, -50%) Rotate(0deg)" }} />
+                    <div className="relative w-full h-5 overflow-hidden rounded-full border border-white">
+                        <div
+                            className="absolute inset-y-0 left-0 bg-white rounded-full transition-all duration-300"
+                            style={{
+                                width: `${Math.min(Math.max((CharityCampaign.MoneyCollected || 0) / (CharityCampaign.MoneyTarget || 1) * 100, 0), 100)}%`
+                            }}
+                        >
+                            
                         </div>
                     </div>
                 </div>
